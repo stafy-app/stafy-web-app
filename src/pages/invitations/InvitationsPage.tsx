@@ -1,3 +1,6 @@
+import { useTopBar } from '../../hooks/useTopBar'
+
 export default function InvitationsPage() {
-  return <h1 className="text-2xl font-semibold">Invitații</h1>
+  useTopBar({ title: 'Invitații', subtitle: 'Invitații trimise către angajați' })
+  return null
 }

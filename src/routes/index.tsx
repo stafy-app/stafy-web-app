@@ -1,6 +1,7 @@
 import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/react-router'
 import { AppLayout } from '../layouts/AppLayout'
 import { AuthLayout } from '../layouts/AuthLayout'
+import { OnboardingLayout } from '../layouts/OnboardingLayout'
 import DashboardPage from '../pages/dashboard/DashboardPage'
 import TeamPage from '../pages/team/TeamPage'
 import EmployeeProfilePage from '../pages/team/EmployeeProfilePage'
@@ -9,6 +10,7 @@ import ReportsPage from '../pages/reports/ReportsPage'
 import SettingsPage from '../pages/settings/SettingsPage'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
+import OnboardingPage from '../pages/onboarding/OnboardingPage'
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -74,6 +76,18 @@ const registerRoute = createRoute({
   component: RegisterPage,
 })
 
+const onboardingLayoutRoute = createRoute({
+  id: '_onboarding',
+  getParentRoute: () => rootRoute,
+  component: OnboardingLayout,
+})
+
+const onboardingRoute = createRoute({
+  path: '/onboarding',
+  getParentRoute: () => onboardingLayoutRoute,
+  component: OnboardingPage,
+})
+
 const routeTree = rootRoute.addChildren([
   appLayoutRoute.addChildren([
     dashboardRoute,
@@ -84,6 +98,7 @@ const routeTree = rootRoute.addChildren([
     settingsRoute,
   ]),
   authLayoutRoute.addChildren([loginRoute, registerRoute]),
+  onboardingLayoutRoute.addChildren([onboardingRoute]),
 ])
 
 export const router = createRouter({ routeTree })

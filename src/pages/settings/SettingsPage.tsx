@@ -1,3 +1,6 @@
+import { useTopBar } from '../../hooks/useTopBar'
+
 export default function SettingsPage() {
-  return <h1 className="text-2xl font-semibold">Setări</h1>
+  useTopBar({ title: 'Setări', subtitle: 'Setările contului și ale companiei' })
+  return null
 }

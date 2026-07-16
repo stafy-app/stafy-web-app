@@ -65,10 +65,20 @@ No test suite is configured yet.
 | `src/services/firebase.ts` | Live | Firebase app + `auth` singleton, config via `VITE_FIREBASE_*` env vars |
 | `src/services/api.ts` | Live | Axios instance (`AXIOS_INSTANCE`) with Firebase ID-token request interceptor, plus the Orval custom-instance mutator (`api`) every generated endpoint function calls |
 | `orval.config.ts`, `src/api/generated/` | Live, generated | Typed client generated from the backend's OpenAPI schema via `pnpm run gen` (or `just gen-api` from the workspace root, which also refreshes `openapi.json`). Endpoint functions are split by tag under `src/api/generated/endpoints/{tag}/`; **all** models live in one file, `src/api/generated/endpoints/index.schemas.ts` (the `.schemas.ts` suffix is auto-derived by Orval from `output.target`'s filename in `orval.config.ts` — without an explicit filename there, it falls back to the backend's OpenAPI `info.title`, which produced an unwieldy `stafyTimeTrackingAPI.schemas.ts`; omitting `output.schemas` is what collapses all models into one file instead of one-file-per-model). Don't hand-edit anything under `src/api/generated/` — regenerate instead |
-| `src/routes/index.tsx` | Live | Code-based TanStack Router route tree — `_app` layout (dashboard/team/invitations/reports/settings) and `_auth` layout (login/register) |
-| `src/layouts/AppLayout.tsx`, `AuthLayout.tsx` | Live | Layout shells (`AppLayout` = Sidebar + Topbar; `AuthLayout` = centered) |
-| `src/pages/**` | Scaffolded, no logic | One placeholder component per route — no data fetching, no forms yet |
-| `src/hooks/`, `src/context/`, `src/types/`, `src/utils/` | Not created yet | Planned per the folder-structure plan; add when auth/data-fetching work starts — hooks should wrap functions from `src/api/generated/endpoints/`, not call `src/services/api.ts` directly |
+| `src/routes/index.tsx` | Live | Code-based TanStack Router route tree — `_app` (dashboard/team/invitations/reports/settings), `_auth` (login/register), `_onboarding` (onboarding) |
+| `src/layouts/AppLayout.tsx`, `AuthLayout.tsx`, `OnboardingLayout.tsx` | Live | Layout shells + route gates — see `docs/modules/auth.md`. `AppLayout` = Sidebar + Topbar (wrapped in `TopBarProvider`), gated on signed-in + onboarded + non-employee; `AuthLayout` = centered, gated on signed-out; `OnboardingLayout` = centered, gated on signed-in + not-yet-onboarded |
+| `src/context/TopBarContext.ts`, `TopBarProvider.tsx` | Live | Shared shell state — title/subtitle/breadcrumb/action-slot. Every page under `AppLayout` calls `useTopBar()` (see `src/hooks/useTopBar.ts`) instead of rendering its own `<h1>` |
+| `src/context/AuthContext.ts`, `AuthProvider.tsx` | Live | Firebase session state (`firebaseUser`, `authResolved`) + `login`/`register`/`logout`. No manual storage cache — `useProfile()` (TanStack Query) is the profile cache. See `docs/modules/auth.md` |
+| `src/pages/auth/LoginPage.tsx`, `RegisterPage.tsx` | Live | Real forms wired to `useAuth()`. Register hardcodes `role: 'manager'`, no selector |
+| `src/pages/onboarding/OnboardingPage.tsx` | Live | Mandatory once-per-manager form — organization name/city/address + job title (picklist from `GET /api/v1/job-titles` + "Altceva" custom text) |
+| `src/pages/dashboard/DashboardPage.tsx` | Live | Company-wide monthly overview — period bar, KPI strip, activity donut, top-5 table. See `docs/modules/dashboard.md` |
+| `src/pages/team/**`, `invitations/**`, `reports/**`, `settings/**` | Scaffolded, no logic | Wired to `useTopBar()` for title/subtitle; no data fetching, no forms yet |
+| `src/hooks/` | Live | `useProfile`, `useTeam`, `useCompanyDashboard`, `useTopBar`, `useAuth`, `useCompleteOnboarding`, `useJobTitles` — one file per resource, wrapping generated endpoint functions with `useQuery`/`useMutation` |
+| `src/components/dashboard/` | Live | `PeriodBar`, `KpiCard`, `ActivityDonut`, `TopEmployeesTable`, `Delta` — Dashboard-only, not shared shell components |
+| `src/components/layout/FullscreenSpinner.tsx` | Live | Shared loading state for all three layout gates |
+| `src/utils/initials.ts` | Live | `getInitials(firstName, lastName)` — shared between `Sidebar` and `TopEmployeesTable` |
+| `src/utils/authBlockedMessage.ts` | Live | sessionStorage flash-message helper — `AppLayout` sets it when blocking an `employee` login, `LoginPage` reads + clears it once |
+| `src/types/` | Not created yet | Add when a cross-component type doesn't belong in `api/generated` |
 
 ## CLI Quick Reference
 
@@ -104,8 +114,10 @@ pnpm add -D <pkg>        # install dev dependency
 | Task | Start here |
 |---|---|
 | Route tree / navigation | `src/routes/index.tsx` |
-| Authenticated page layout (sidebar/topbar) | `src/layouts/AppLayout.tsx` |
-| Auth screen shell | `src/layouts/AuthLayout.tsx` |
+| Authenticated page layout (sidebar/topbar) + route gate | `src/layouts/AppLayout.tsx` |
+| Auth screen shell + route gate | `src/layouts/AuthLayout.tsx` |
+| Onboarding screen shell + route gate | `src/layouts/OnboardingLayout.tsx` |
+| Login/register/session flow, onboarding flow | `src/context/AuthProvider.tsx`; module doc: [`docs/modules/auth.md`](docs/modules/auth.md) |
 | Feature pages | `src/pages/{feature}/` |
 | Theme / design tokens | `src/App.css` (DaisyUI `"stafy"` theme) |
 | UI guidelines | `docs/ui-guidelines.md` |
@@ -116,3 +128,4 @@ pnpm add -D <pkg>        # install dev dependency
 | Orval codegen config | `orval.config.ts` |
 | Backend contract (routes, shapes, auth) | [`../stafy-backend/CLAUDE.md`](../stafy-backend/CLAUDE.md) |
 | Full feature scope / brainstorming | [`../MANAGER-WEBAPP-IDEAS.md`](../MANAGER-WEBAPP-IDEAS.md) |
+| Dashboard design spec | [`docs/modules/dashboard.md`](docs/modules/dashboard.md) |

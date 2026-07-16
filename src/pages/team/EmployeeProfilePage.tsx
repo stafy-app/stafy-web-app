@@ -1,3 +1,9 @@
+import { useTopBar } from '../../hooks/useTopBar'
+
 export default function EmployeeProfilePage() {
-  return <h1 className="text-2xl font-semibold">Profil angajat</h1>
+  useTopBar({
+    title: 'Profil angajat',
+    breadcrumb: [{ label: 'Echipă', to: '/team' }, { label: 'Profil angajat' }],
+  })
+  return null
 }

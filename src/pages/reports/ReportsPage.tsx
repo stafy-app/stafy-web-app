@@ -1,3 +1,6 @@
+import { useTopBar } from '../../hooks/useTopBar'
+
 export default function ReportsPage() {
-  return <h1 className="text-2xl font-semibold">Rapoarte</h1>
+  useTopBar({ title: 'Rapoarte', subtitle: 'Export și rapoarte lunare' })
+  return null
 }

@@ -4,6 +4,76 @@
  * Stafy Time Tracking API
  * OpenAPI spec version: 1.0.0
  */
+export interface ActivityDistributionOut {
+  /** Activity name. */
+  activity_name: string;
+  /** Total hours logged company-wide for this activity. */
+  hours: number;
+}
+
+export interface UserOut {
+  /** Internal user ID. */
+  id?: number | null;
+  /** Firebase Auth UID. */
+  firebase_uid?: string;
+  /** User's first name. */
+  first_name?: string | null;
+  /** User's last name. */
+  last_name?: string | null;
+  /** User's email. */
+  email?: string | null;
+  /** Company the user belongs to. */
+  company_id: number;
+  /** Auth provider used to create this account. */
+  auth_provider: string;
+  /** Whether Firebase has verified the user's email. */
+  email_verified?: boolean;
+  /** One of employee, manager, admin. */
+  role?: string | null;
+  /** Free-text job title/position (e.g. 'Director'), not the role enum. The client offers a fixed picklist + custom 'other' option; the backend stores whatever string is submitted. */
+  job_title?: string | null;
+  /** Whether the manager onboarding step has been completed. */
+  onboarding_completed?: boolean | null;
+  /** Account creation timestamp, UTC. */
+  created_at?: string | null;
+  /** Whether the account is active. */
+  is_active?: boolean | null;
+}
+
+export interface CompanyTopEmployeeOut {
+  /** The employee. */
+  user: UserOut;
+  /** Total hours worked this month. */
+  total_hours: number;
+  /** Hours difference vs. the previous calendar month. */
+  delta_vs_previous_month: number;
+  /** Distinct activity names worked this month. */
+  activities: string[];
+  /**
+     * Estimated gross salary this month.
+     * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+     */
+  estimated_gross: string;
+}
+
+export interface CompanyDashboardOut {
+  /** Users in the company with is_active=true. */
+  active_employee_count: number;
+  /** Company-wide total hours this month. */
+  total_hours: number;
+  /**
+     * Company-wide total gross salary this month.
+     * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+     */
+  total_gross_salary: string;
+  /** Pending invitations. Always 0 until app/invitations is implemented. */
+  invitation_count: number;
+  /** Total hours grouped by activity name, across the whole company. */
+  activity_distribution: ActivityDistributionOut[];
+  /** Top 5 employees by total hours this month, descending. */
+  top_employees: CompanyTopEmployeeOut[];
+}
+
 export interface DashboardTimeEntryOut {
   /** Time entry ID. */
   id: number;
@@ -88,6 +158,45 @@ export interface HourlyRateUpdate {
 export interface HourlyRatesListOut {
   /** Hourly rates configured for the caller. */
   data: HourlyRateOut[];
+}
+
+export interface JobTitleOut {
+  /** Job title ID. */
+  id: number;
+  /** Display label, e.g. 'Director'. */
+  label: string;
+}
+
+export interface JobTitlesListOut {
+  /** Active job-title suggestions for the onboarding picklist. */
+  data: JobTitleOut[];
+}
+
+export interface OnboardingIn {
+  /**
+     * Company/organization name.
+     * @minLength 2
+     * @maxLength 255
+     */
+  organization_name: string;
+  /**
+     * Company city.
+     * @minLength 2
+     * @maxLength 255
+     */
+  city: string;
+  /**
+     * Company address.
+     * @minLength 2
+     * @maxLength 500
+     */
+  address: string;
+  /**
+     * Manager's job title — client offers a picklist + custom 'other' option.
+     * @minLength 2
+     * @maxLength 150
+     */
+  job_title: string;
 }
 
 export interface RootOut {
@@ -177,31 +286,6 @@ export interface UserDashboardOut {
   activity_gross: UserDashboardOutActivityGross;
 }
 
-export interface UserOut {
-  /** Internal user ID. */
-  id?: number | null;
-  /** Firebase Auth UID. */
-  firebase_uid?: string;
-  /** User's first name. */
-  first_name?: string | null;
-  /** User's last name. */
-  last_name?: string | null;
-  /** User's email. */
-  email?: string | null;
-  /** Company the user belongs to. */
-  company_id: number;
-  /** Auth provider used to create this account. */
-  auth_provider: string;
-  /** Whether Firebase has verified the user's email. */
-  email_verified?: boolean;
-  /** One of employee, manager, admin. */
-  role?: string | null;
-  /** Account creation timestamp, UTC. */
-  created_at?: string | null;
-  /** Whether the account is active. */
-  is_active?: boolean | null;
-}
-
 export interface UserRegisterIn {
   /**
      * First name.
@@ -257,4 +341,19 @@ export interface VerifyTokenOut {
   /** The authenticated user, shallow embed. */
   user: VerifyTokenUserOut;
 }
+
+export type GetCompanyDashboardParams = {
+/**
+ * Calendar year, e.g. 2026.
+ * @minimum 2000
+ * @maximum 2100
+ */
+year: number;
+/**
+ * Calendar month, 1-12.
+ * @minimum 1
+ * @maximum 12
+ */
+month: number;
+};
 

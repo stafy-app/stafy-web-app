@@ -5,6 +5,8 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  JobTitlesListOut,
+  OnboardingIn,
   UserOut,
   UsersListOut
 } from '../index.schemas';
@@ -26,6 +28,19 @@ const listUsers = (
       );
     }
   /**
+ * @summary Complete manager onboarding (organization details + job title)
+ */
+const completeOnboarding = (
+    onboardingIn: OnboardingIn,
+ ) => {
+      return api<UserOut>(
+      {url: `/api/v1/users/me/onboarding`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: onboardingIn
+    },
+      );
+    }
+  /**
  * @summary Get the authenticated user's profile
  */
 const getProfile = (
@@ -36,6 +51,19 @@ const getProfile = (
     },
       );
     }
-  return {listUsers,getProfile}};
+  /**
+ * @summary List active job-title suggestions for the onboarding picklist
+ */
+const listJobTitles = (
+
+ ) => {
+      return api<JobTitlesListOut>(
+      {url: `/api/v1/job-titles`, method: 'GET'
+    },
+      );
+    }
+  return {listUsers,completeOnboarding,getProfile,listJobTitles}};
 export type ListUsersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listUsers']>>>
+export type CompleteOnboardingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['completeOnboarding']>>>
 export type GetProfileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getProfile']>>>
+export type ListJobTitlesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listJobTitles']>>>

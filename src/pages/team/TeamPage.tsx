@@ -1,3 +1,6 @@
+import { useTopBar } from '../../hooks/useTopBar'
+
 export default function TeamPage() {
-  return <h1 className="text-2xl font-semibold">Echipă</h1>
+  useTopBar({ title: 'Echipă', subtitle: 'Roster complet al companiei' })
+  return null
 }

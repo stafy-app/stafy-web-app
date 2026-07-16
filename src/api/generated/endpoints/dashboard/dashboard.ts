@@ -5,6 +5,8 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  CompanyDashboardOut,
+  GetCompanyDashboardParams,
   UserDashboardOut
 } from '../index.schemas';
 
@@ -16,6 +18,18 @@ import { api } from '../../../../services/api';
 /**
  * @summary Get the current month's dashboard for the authenticated user
  */
+const getMyDashboard = (
+
+ ) => {
+      return api<UserDashboardOut>(
+      {url: `/api/v1/dashboard/me`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @deprecated
+ * @summary Deprecated — use GET /dashboard/me instead
+ */
 const getEmployeeDashboard = (
 
  ) => {
@@ -24,5 +38,19 @@ const getEmployeeDashboard = (
     },
       );
     }
-  return {getEmployeeDashboard}};
+  /**
+ * @summary Get the company-wide dashboard for a given month
+ */
+const getCompanyDashboard = (
+    params: GetCompanyDashboardParams,
+ ) => {
+      return api<CompanyDashboardOut>(
+      {url: `/api/v1/dashboard/company`, method: 'GET',
+        params
+    },
+      );
+    }
+  return {getMyDashboard,getEmployeeDashboard,getCompanyDashboard}};
+export type GetMyDashboardResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getDashboard>['getMyDashboard']>>>
 export type GetEmployeeDashboardResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getDashboard>['getEmployeeDashboard']>>>
+export type GetCompanyDashboardResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getDashboard>['getCompanyDashboard']>>>
