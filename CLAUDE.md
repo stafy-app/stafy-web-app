@@ -72,12 +72,21 @@ No test suite is configured yet.
 | `src/pages/auth/LoginPage.tsx`, `RegisterPage.tsx` | Live | Real forms wired to `useAuth()`. Register hardcodes `role: 'manager'`, no selector |
 | `src/pages/onboarding/OnboardingPage.tsx` | Live | Mandatory once-per-manager form — organization name/city/address + job title (picklist from `GET /api/v1/job-titles` + "Altceva" custom text) |
 | `src/pages/dashboard/DashboardPage.tsx` | Live | Company-wide monthly overview — period bar, KPI strip, activity donut, top-5 table. See `docs/modules/dashboard.md` |
-| `src/pages/team/**`, `invitations/**`, `reports/**`, `settings/**` | Scaffolded, no logic | Wired to `useTopBar()` for title/subtitle; no data fetching, no forms yet |
-| `src/hooks/` | Live | `useProfile`, `useTeam`, `useCompanyDashboard`, `useTopBar`, `useAuth`, `useCompleteOnboarding`, `useJobTitles` — one file per resource, wrapping generated endpoint functions with `useQuery`/`useMutation` |
-| `src/components/dashboard/` | Live | `PeriodBar`, `KpiCard`, `ActivityDonut`, `TopEmployeesTable`, `Delta` — Dashboard-only, not shared shell components |
+| `src/pages/team/TeamPage.tsx` | Live | Searchable grid of `EmployeeCard`s for the full company roster (via `useTeamMembers`) — client-side filter on name/email, no debounce, no pagination. Header: search box + CSV export + invite action (navigates to the still-scaffolded `/invitations`). See `docs/modules/team.md` |
+| `src/pages/team/EmployeeProfilePage.tsx` | Scaffolded, no logic | `/team/$employeeId` — out of scope until a dedicated task builds it |
+| `src/pages/invitations/**`, `reports/**`, `settings/**` | Scaffolded, no logic | Wired to `useTopBar()` for title/subtitle; no data fetching, no forms yet |
+| `src/hooks/` | Live | `useProfile`, `useTeam` (bare roster, backs Dashboard's `teamCount`), `useTeamMembers` (rich per-employee monthly stats, backs the Team page), `useCompanyDashboard`, `useTopBar`, `useAuth`, `useCompleteOnboarding`, `useJobTitles` — one file per resource |
+| `src/components/dashboard/` | Live | `PeriodBar`, `KpiCard`, `ActivityDonut`, `TopEmployeesTable` — Dashboard-only, not shared shell components |
+| `src/components/team/EmployeeCard.tsx` | Live | Team-page-only card (avatar, status pill, hours/delta/pay stats, activity chips) — no generic `Card`/`Badge` primitive exists in this codebase; deliberately scoped, not extracted |
+| `src/components/shared/Delta.tsx` | Live | Hours-delta presentational component (moved out of `dashboard/` once the Team page became a second consumer) — used by `TopEmployeesTable` and `EmployeeCard` |
 | `src/components/layout/FullscreenSpinner.tsx` | Live | Shared loading state for all three layout gates |
-| `src/utils/initials.ts` | Live | `getInitials(firstName, lastName)` — shared between `Sidebar` and `TopEmployeesTable` |
+| `src/utils/initials.ts` | Live | `getInitials(firstName, lastName)` — shared between `Sidebar`, `TopEmployeesTable`, `EmployeeCard` |
+| `src/utils/period.ts` | Live | `getCurrentPeriod()` — shared between `DashboardPage` and `TeamPage` |
+| `src/utils/exportTeamCsv.ts` | Live | Client-side CSV export (Blob + temp `<a>`, no library) for the Team page — UTF-8 BOM + per-field quoting |
 | `src/utils/authBlockedMessage.ts` | Live | sessionStorage flash-message helper — `AppLayout` sets it when blocking an `employee` login, `LoginPage` reads + clears it once |
+| `src/lib/toast.ts`, `src/components/toast/` | Live | `showToast(message, options)` imperative toast API — module-level store (no React import), `<ToastHost />` mounted once in `src/App.tsx`. See `docs/modules/toast.md` |
+| `src/lib/icons.ts` | Live | Project-wide `ICONS` registry wrapping `lucide-react` — `check/info/warning/danger/close/loading` (toast) plus `search/download/plus/chevronRight` (Team page); existing direct `lucide-react` imports elsewhere are not yet migrated (see `docs/modules/toast.md` Deferred) |
+| `src/pages/tests/TestsPage.tsx` | Live, dev-only | `/tests` — bare shadow route to manually trigger sample toasts, registered only when `import.meta.env.DEV` (see `src/routes/index.tsx`) |
 | `src/types/` | Not created yet | Add when a cross-component type doesn't belong in `api/generated` |
 
 ## CLI Quick Reference
@@ -129,3 +138,5 @@ pnpm add -D <pkg>        # install dev dependency
 | Backend contract (routes, shapes, auth) | [`../stafy-backend/CLAUDE.md`](../stafy-backend/CLAUDE.md) |
 | Full feature scope / brainstorming | [`../MANAGER-WEBAPP-IDEAS.md`](../MANAGER-WEBAPP-IDEAS.md) |
 | Dashboard design spec | [`docs/modules/dashboard.md`](docs/modules/dashboard.md) |
+| Team page design spec | [`docs/modules/team.md`](docs/modules/team.md) |
+| Toast notifications, icon registry, `/tests` dev route | [`docs/modules/toast.md`](docs/modules/toast.md) |

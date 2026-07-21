@@ -7,6 +7,7 @@ import { TopEmployeesTable } from '../../components/dashboard/TopEmployeesTable'
 import { useTopBar } from '../../hooks/useTopBar'
 import { useCompanyDashboard } from '../../hooks/useCompanyDashboard'
 import { useTeam } from '../../hooks/useTeam'
+import { getCurrentPeriod } from '../../utils/period'
 
 const ronFormatter = new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 0 })
 const monthYearFormatter = new Intl.DateTimeFormat('ro-RO', { month: 'long', year: 'numeric' })
@@ -14,11 +15,6 @@ const monthYearFormatter = new Intl.DateTimeFormat('ro-RO', { month: 'long', yea
 const formatRon = (value: number) => `${ronFormatter.format(value)} RON`
 const formatHours = (value: number) => `${value.toFixed(1)}h`
 const formatCount = (value: number) => Math.round(value).toString()
-
-function getCurrentPeriod() {
-  const now = new Date()
-  return { year: now.getFullYear(), month: now.getMonth() + 1 }
-}
 
 export default function DashboardPage() {
   useTopBar({ title: 'Dashboard', subtitle: 'Prezentare generală a echipei tale' })

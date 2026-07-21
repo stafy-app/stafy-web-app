@@ -11,6 +11,7 @@ import SettingsPage from '../pages/settings/SettingsPage'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
 import OnboardingPage from '../pages/onboarding/OnboardingPage'
+import TestsPage from '../pages/tests/TestsPage'
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -88,6 +89,14 @@ const onboardingRoute = createRoute({
   component: OnboardingPage,
 })
 
+// Dev-only shadow route — never spliced into the tree in production builds,
+// so it doesn't exist in the prod route tree at all (not just unlinked).
+const testsRoute = createRoute({
+  path: '/tests',
+  getParentRoute: () => rootRoute,
+  component: TestsPage,
+})
+
 const routeTree = rootRoute.addChildren([
   appLayoutRoute.addChildren([
     dashboardRoute,
@@ -99,6 +108,7 @@ const routeTree = rootRoute.addChildren([
   ]),
   authLayoutRoute.addChildren([loginRoute, registerRoute]),
   onboardingLayoutRoute.addChildren([onboardingRoute]),
+  ...(import.meta.env.DEV ? [testsRoute] : []),
 ])
 
 export const router = createRouter({ routeTree })

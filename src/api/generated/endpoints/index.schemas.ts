@@ -208,6 +208,11 @@ export interface RootOut {
   status: string;
 }
 
+export interface TeamMembersOut {
+  /** One row per employee in the caller's company, including employees with zero hours this month. */
+  data: CompanyTopEmployeeOut[];
+}
+
 export interface TimeEntryActivityOut {
   /** Activity ID. */
   id: number;
@@ -343,6 +348,21 @@ export interface VerifyTokenOut {
 }
 
 export type GetCompanyDashboardParams = {
+/**
+ * Calendar year, e.g. 2026.
+ * @minimum 2000
+ * @maximum 2100
+ */
+year: number;
+/**
+ * Calendar month, 1-12.
+ * @minimum 1
+ * @maximum 12
+ */
+month: number;
+};
+
+export type ListTeamMembersParams = {
 /**
  * Calendar year, e.g. 2026.
  * @minimum 2000

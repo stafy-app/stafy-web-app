@@ -2,7 +2,7 @@ import { ChevronRight } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
 import type { CompanyTopEmployeeOut } from '../../api/generated/endpoints/index.schemas'
 import { getInitials } from '../../utils/initials'
-import { Delta } from './Delta'
+import { Delta } from '../shared/Delta'
 
 interface TopEmployeesTableProps {
   employees: CompanyTopEmployeeOut[]
