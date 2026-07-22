@@ -9,10 +9,10 @@ this-month hours worked, delta vs. previous month, estimated pay, activities wor
 active/inactive status; client-side name/email search; CSV export of the currently-loaded roster;
 an entry point to the invite flow; card click navigates to the employee profile route.
 
-**Out of scope (this release):** the employee profile page content (`EmployeeProfilePage` is a
-scaffold); the invite flow itself (the invite button only navigates to the `/invitations` route,
-which is a scaffold); a period switcher (always the current calendar month); pagination; row-level
-mutating actions (deactivate, edit, remove) — read-only page.
+**Out of scope (this release):** the invite flow itself (the invite button navigates to the
+`/invitations` page — see `docs/modules/invitations.md`); a period switcher (always the current
+calendar month); pagination; row-level mutating actions (deactivate, edit, remove) — read-only
+page. See `docs/modules/employee-profile.md` for the employee detail page each card links to.
 
 ---
 
@@ -68,8 +68,10 @@ by the backend on each request.
    insensitive, no debounce.
 3. Manager triggers the CSV export → browser downloads a file of the currently-loaded roster
    (unaffected by the active search filter), followed by a success toast.
-4. Manager triggers the invite action → navigates to the invitations route (scaffold, no form yet).
-5. Manager clicks a card → navigates to the employee profile route (scaffold, no content yet).
+4. Manager triggers the invite action → navigates to the invitations page (see
+   `docs/modules/invitations.md`).
+5. Manager clicks a card → navigates to the employee profile route (see
+   `docs/modules/employee-profile.md`).
 
 ---
 
@@ -169,7 +171,5 @@ convention used elsewhere in this API — never a JS `number`.
 
 | Item | Trigger |
 |---|---|
-| Employee profile page content | Separate task |
-| Invite flow behind the invite action | Invitations module becomes live |
-| Membership-based employee scoping | Invitations module starts writing membership records |
+| Membership-based employee scoping | This page's roster query migrates from `User.company_id` to `TeamMembership` |
 | Pagination / virtualized grid | Company rosters grow large enough to need it |

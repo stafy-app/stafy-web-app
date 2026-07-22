@@ -5,7 +5,18 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  CompanyTopEmployeeOut,
+  EmployeeActivityRatesListOut,
+  EmployeeHourlyRateSetIn,
+  EmployeeJobTitleUpdateIn,
+  EmployeeMonthlyHistoryOut,
+  EmployeeTimeEntriesListOut,
+  GetEmployeeMonthlyHistoryParams,
+  GetEmployeeSummaryParams,
+  HourlyRateOut,
   JobTitlesListOut,
+  ListEmployeeHourlyRatesParams,
+  ListEmployeeTimeEntriesParams,
   OnboardingIn,
   UserOut,
   UsersListOut
@@ -41,6 +52,109 @@ const completeOnboarding = (
       );
     }
   /**
+ * @summary Get an employee's aggregated stats for a given month
+ */
+const getEmployeeSummary = (
+    employeeId: number,
+    params: GetEmployeeSummaryParams,
+ ) => {
+      return api<CompanyTopEmployeeOut>(
+      {url: `/api/v1/users/${employeeId}/summary`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary List an employee's time entries for a given month
+ */
+const listEmployeeTimeEntries = (
+    employeeId: number,
+    params: ListEmployeeTimeEntriesParams,
+ ) => {
+      return api<EmployeeTimeEntriesListOut>(
+      {url: `/api/v1/users/${employeeId}/time-entries`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary List an employee's per-activity rates and this month's usage
+ */
+const listEmployeeHourlyRates = (
+    employeeId: number,
+    params: ListEmployeeHourlyRatesParams,
+ ) => {
+      return api<EmployeeActivityRatesListOut>(
+      {url: `/api/v1/users/${employeeId}/hourly-rates`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Set (create or update) an employee's rate for an activity
+ */
+const setEmployeeHourlyRate = (
+    employeeId: number,
+    activityId: number,
+    employeeHourlyRateSetIn: EmployeeHourlyRateSetIn,
+ ) => {
+      return api<HourlyRateOut>(
+      {url: `/api/v1/users/${employeeId}/hourly-rates/${activityId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: employeeHourlyRateSetIn
+    },
+      );
+    }
+  /**
+ * @summary Get an employee's hours/pay totals for the last N months
+ */
+const getEmployeeMonthlyHistory = (
+    employeeId: number,
+    params?: GetEmployeeMonthlyHistoryParams,
+ ) => {
+      return api<EmployeeMonthlyHistoryOut>(
+      {url: `/api/v1/users/${employeeId}/monthly-history`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Update an employee's job title
+ */
+const updateEmployeeJobTitle = (
+    employeeId: number,
+    employeeJobTitleUpdateIn: EmployeeJobTitleUpdateIn,
+ ) => {
+      return api<UserOut>(
+      {url: `/api/v1/users/${employeeId}/job-title`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: employeeJobTitleUpdateIn
+    },
+      );
+    }
+  /**
+ * @summary Suspend an employee (is_active=false); idempotent
+ */
+const suspendEmployee = (
+    employeeId: number,
+ ) => {
+      return api<UserOut>(
+      {url: `/api/v1/users/${employeeId}/suspend`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * @summary Reactivate a suspended employee (is_active=true); idempotent
+ */
+const reactivateEmployee = (
+    employeeId: number,
+ ) => {
+      return api<UserOut>(
+      {url: `/api/v1/users/${employeeId}/reactivate`, method: 'POST'
+    },
+      );
+    }
+  /**
  * @summary Get the authenticated user's profile
  */
 const getProfile = (
@@ -62,8 +176,16 @@ const listJobTitles = (
     },
       );
     }
-  return {listUsers,completeOnboarding,getProfile,listJobTitles}};
+  return {listUsers,completeOnboarding,getEmployeeSummary,listEmployeeTimeEntries,listEmployeeHourlyRates,setEmployeeHourlyRate,getEmployeeMonthlyHistory,updateEmployeeJobTitle,suspendEmployee,reactivateEmployee,getProfile,listJobTitles}};
 export type ListUsersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listUsers']>>>
 export type CompleteOnboardingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['completeOnboarding']>>>
+export type GetEmployeeSummaryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getEmployeeSummary']>>>
+export type ListEmployeeTimeEntriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listEmployeeTimeEntries']>>>
+export type ListEmployeeHourlyRatesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listEmployeeHourlyRates']>>>
+export type SetEmployeeHourlyRateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['setEmployeeHourlyRate']>>>
+export type GetEmployeeMonthlyHistoryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getEmployeeMonthlyHistory']>>>
+export type UpdateEmployeeJobTitleResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['updateEmployeeJobTitle']>>>
+export type SuspendEmployeeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['suspendEmployee']>>>
+export type ReactivateEmployeeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['reactivateEmployee']>>>
 export type GetProfileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getProfile']>>>
 export type ListJobTitlesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listJobTitles']>>>

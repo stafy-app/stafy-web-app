@@ -66,7 +66,7 @@ export interface CompanyDashboardOut {
      * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
      */
   total_gross_salary: string;
-  /** Pending invitations. Always 0 until app/invitations is implemented. */
+  /** Pending invitations sent by the caller (manager), post-expiry-sweep. */
   invitation_count: number;
   /** Total hours grouped by activity name, across the whole company. */
   activity_distribution: ActivityDistributionOut[];
@@ -110,6 +110,88 @@ export interface DashboardUserInfoOut {
   email: string;
   /** One of employee, manager, admin. */
   role: string;
+}
+
+export interface EmployeeActivityRateOut {
+  /** Activity ID. */
+  activity_id: number;
+  /** Activity name. */
+  activity_name: string;
+  /** Gross hourly rate configured for this employee/activity pair. Null if no rate has been set yet (the client offers an 'activate' affordance). */
+  hourly_rate_gross: string | null;
+  /** Hours logged against this activity this month. */
+  hours_this_month: number;
+  /**
+     * Gross total this month, summed from each entry's rate_applied snapshot.
+     * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+     */
+  estimated_amount: string;
+}
+
+export interface EmployeeActivityRatesListOut {
+  /** Every company activity, with this employee's rate (or null) and this month's usage. */
+  data: EmployeeActivityRateOut[];
+}
+
+export interface EmployeeHourlyRateSetIn {
+  /** New gross hourly rate. */
+  hourly_rate_gross: number | string;
+}
+
+export interface EmployeeJobTitleUpdateIn {
+  /**
+     * Free-text job title/position, same convention as onboarding.
+     * @minLength 2
+     * @maxLength 150
+     */
+  job_title: string;
+}
+
+export interface EmployeeMonthlyHistoryEntryOut {
+  /** Calendar year. */
+  year: number;
+  /** Calendar month, 1-12. */
+  month: number;
+  /** Total hours worked that month. */
+  total_hours: number;
+  /**
+     * Estimated gross pay that month.
+     * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+     */
+  estimated_gross: string;
+}
+
+export interface EmployeeMonthlyHistoryOut {
+  /** Monthly totals, oldest to newest, current month last. */
+  data: EmployeeMonthlyHistoryEntryOut[];
+}
+
+export interface TimeEntryActivityOut {
+  /** Activity ID. */
+  id: number;
+  /** Activity name. */
+  activity_name: string;
+}
+
+export interface TimeEntryOut {
+  /** Time entry ID. */
+  id: number;
+  /** Entry start, ISO 8601 UTC. */
+  time_start: string;
+  /** Entry end, ISO 8601 UTC. */
+  time_end: string;
+  /**
+     * Gross rate snapshot at creation time.
+     * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+     */
+  rate_applied: string;
+  /** Shallow embed of the activity. */
+  activity: TimeEntryActivityOut;
+}
+
+export interface EmployeeTimeEntriesListOut {
+  /** An employee's time entries for the requested period. */
+  data: TimeEntryOut[];
 }
 
 /**
@@ -158,6 +240,55 @@ export interface HourlyRateUpdate {
 export interface HourlyRatesListOut {
   /** Hourly rates configured for the caller. */
   data: HourlyRateOut[];
+}
+
+export interface InvitationIn {
+  /** Email address of the prospective employee. */
+  invited_email: string;
+}
+
+export interface InvitationIncomingOut {
+  /** Invitation ID. */
+  id: string;
+  /** Email address of the prospective employee. */
+  invited_email: string;
+  /** One of pending, accepted, rejected, expired. Cancelled invitations are never serialized — they're excluded from every response. */
+  status: string;
+  /** Invitation creation timestamp, UTC. */
+  created_at: string;
+  /** Expiry timestamp, UTC. */
+  expires_at: string;
+  /** When the invitation was accepted/rejected, if at all. */
+  responded_at?: string | null;
+  /** Full name of the inviting manager, flattened. */
+  manager_name: string;
+  /** Name of the inviting manager's company, flattened. */
+  company_name: string;
+}
+
+export interface InvitationOut {
+  /** Invitation ID. */
+  id: string;
+  /** Email address of the prospective employee. */
+  invited_email: string;
+  /** One of pending, accepted, rejected, expired. Cancelled invitations are never serialized — they're excluded from every response. */
+  status: string;
+  /** Invitation creation timestamp, UTC. */
+  created_at: string;
+  /** Expiry timestamp, UTC. */
+  expires_at: string;
+  /** When the invitation was accepted/rejected, if at all. */
+  responded_at?: string | null;
+}
+
+export interface InvitationsIncomingListOut {
+  /** Live (pending, not expired) invitations addressed to the caller's own email. */
+  data: InvitationIncomingOut[];
+}
+
+export interface InvitationsListOut {
+  /** Every non-cancelled invitation the caller (manager) has sent. */
+  data: InvitationOut[];
 }
 
 export interface JobTitleOut {
@@ -213,13 +344,6 @@ export interface TeamMembersOut {
   data: CompanyTopEmployeeOut[];
 }
 
-export interface TimeEntryActivityOut {
-  /** Activity ID. */
-  id: number;
-  /** Activity name. */
-  activity_name: string;
-}
-
 export interface TimeEntryIn {
   /** Entry start, ISO 8601 with UTC offset. */
   time_start: string;
@@ -227,22 +351,6 @@ export interface TimeEntryIn {
   time_end: string;
   /** Activity this entry is logged against. */
   activity_id: number;
-}
-
-export interface TimeEntryOut {
-  /** Time entry ID. */
-  id: number;
-  /** Entry start, ISO 8601 UTC. */
-  time_start: string;
-  /** Entry end, ISO 8601 UTC. */
-  time_end: string;
-  /**
-     * Gross rate snapshot at creation time.
-     * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
-     */
-  rate_applied: string;
-  /** Shallow embed of the activity. */
-  activity: TimeEntryActivityOut;
 }
 
 export interface UserActivityCreate {
@@ -346,6 +454,64 @@ export interface VerifyTokenOut {
   /** The authenticated user, shallow embed. */
   user: VerifyTokenUserOut;
 }
+
+export type GetEmployeeSummaryParams = {
+/**
+ * Calendar year, e.g. 2026.
+ * @minimum 2000
+ * @maximum 2100
+ */
+year: number;
+/**
+ * Calendar month, 1-12.
+ * @minimum 1
+ * @maximum 12
+ */
+month: number;
+};
+
+export type ListEmployeeTimeEntriesParams = {
+/**
+ * Calendar year, e.g. 2026.
+ * @minimum 2000
+ * @maximum 2100
+ */
+year: number;
+/**
+ * Calendar month, 1-12.
+ * @minimum 1
+ * @maximum 12
+ */
+month: number;
+/**
+ * Filter to a single activity.
+ */
+activity_id?: number | null;
+};
+
+export type ListEmployeeHourlyRatesParams = {
+/**
+ * Calendar year, e.g. 2026.
+ * @minimum 2000
+ * @maximum 2100
+ */
+year: number;
+/**
+ * Calendar month, 1-12.
+ * @minimum 1
+ * @maximum 12
+ */
+month: number;
+};
+
+export type GetEmployeeMonthlyHistoryParams = {
+/**
+ * How many months back, current month included.
+ * @minimum 1
+ * @maximum 12
+ */
+months?: number;
+};
 
 export type GetCompanyDashboardParams = {
 /**
