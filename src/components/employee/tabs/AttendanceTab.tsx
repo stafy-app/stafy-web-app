@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { PeriodBar } from '../../dashboard/PeriodBar'
 import { useEmployeeTimeEntries } from '../../../hooks/useEmployeeTimeEntries'
+import { useEmployeeReport } from '../../../hooks/useReports'
 import { getCurrentPeriod } from '../../../utils/period'
 
 interface AttendanceTabProps {
@@ -18,6 +19,8 @@ export function AttendanceTab({ employeeId }: AttendanceTabProps) {
 
   const { data, isLoading } = useEmployeeTimeEntries(employeeId, period.year, period.month)
   const entries = useMemo(() => data?.data ?? [], [data])
+  const { data: report } = useEmployeeReport(employeeId, period.year, period.month)
+  const bonus = report?.bonus && parseFloat(report.bonus.amount) > 0 ? report.bonus : null
 
   const [activityFilter, setActivityFilter] = useState<'all' | number>('all')
 
@@ -80,7 +83,7 @@ export function AttendanceTab({ employeeId }: AttendanceTabProps) {
           )}
         </div>
 
-        {isLoading ? null : filteredEntries.length === 0 ? (
+        {isLoading ? null : filteredEntries.length === 0 && !bonus ? (
           <div className="py-8 text-center text-[13px] text-[var(--color-ink-muted)]">
             Niciun pontaj în această perioadă.
           </div>
@@ -126,6 +129,25 @@ export function AttendanceTab({ employeeId }: AttendanceTabProps) {
                     </tr>
                   )
                 })}
+                {bonus && (
+                  <tr className="border-b border-[var(--color-line-soft)] bg-[var(--color-success)]/5 last:border-0">
+                    <td className="py-2.5 pr-3" colSpan={3}>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-full bg-[var(--color-success)]/10 px-2 py-0.5 text-[12px] font-medium text-[var(--color-success)]">
+                          Bonus lunar
+                        </span>
+                        {bonus.reason && (
+                          <span className="text-[12px] text-[var(--color-ink-muted)]">{bonus.reason}</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-2.5 pr-3 text-right font-[var(--font-mono)] text-[var(--color-ink-muted)]">—</td>
+                    <td className="py-2.5 pr-3 text-right font-[var(--font-mono)] text-[var(--color-ink-muted)]">—</td>
+                    <td className="py-2.5 text-right font-[var(--font-mono)] font-semibold text-[var(--color-success)]">
+                      {ron.format(parseFloat(bonus.amount))} RON
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

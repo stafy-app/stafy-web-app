@@ -34,6 +34,10 @@ export interface UserOut {
   job_title?: string | null;
   /** Whether the manager onboarding step has been completed. */
   onboarding_completed?: boolean | null;
+  /** Name of the company referenced by company_id. Only populated by GET /profile. */
+  company_name?: string | null;
+  /** True if company_id still equals personal_company_id (never joined another manager's team); false if the user is currently assigned to a company they joined via an accepted invitation. Only populated by GET /profile. */
+  is_own_company?: boolean | null;
   /** Account creation timestamp, UTC. */
   created_at?: string | null;
   /** Whether the account is active. */
@@ -155,15 +159,93 @@ export interface EmployeeMonthlyHistoryEntryOut {
   /** Total hours worked that month. */
   total_hours: number;
   /**
-     * Estimated gross pay that month.
+     * Pay from hours that month (rate_applied-based), excluding any bonus.
      * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
      */
   estimated_gross: string;
+  /**
+     * Payroll bonus for that month, if any set by the manager. Zero when none.
+     * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+     */
+  bonus_amount?: string;
 }
 
 export interface EmployeeMonthlyHistoryOut {
   /** Monthly totals, oldest to newest, current month last. */
   data: EmployeeMonthlyHistoryEntryOut[];
+}
+
+export interface ReportCompanyOut {
+  /** Company name, shown in the document header. */
+  name: string;
+  /** Company address, shown in the document header. */
+  address?: string | null;
+}
+
+export interface PayrollBonusOut {
+  /**
+     * Gross bonus amount.
+     * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+     */
+  amount: string;
+  /** Optional reason shown on the report. */
+  reason?: string | null;
+  /** The manager who last set this bonus. */
+  updated_by: UserOut;
+  /** When this bonus was first set. */
+  created_at: string;
+  /** When this bonus was last replaced. */
+  updated_at: string;
+}
+
+export interface ReportActivityGroupOut {
+  /** Activity ID. */
+  activity_id: number;
+  /** Activity name. */
+  activity_name: string;
+  /**
+     * The rate_applied shared by every entry in this group.
+     * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+     */
+  rate_applied: string;
+  /** Total hours logged at this rate. */
+  hours: number;
+  /**
+     * hours * rate_applied for this group.
+     * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+     */
+  subtotal: string;
+}
+
+export interface EmployeeReportOut {
+  /** Identity block for the document header. */
+  company: ReportCompanyOut;
+  /** The employee this report is for. */
+  employee: UserOut;
+  /** The manager who generated this report. */
+  generated_by: UserOut;
+  /** When this report was generated. */
+  generated_at: string;
+  /** Calendar year. */
+  year: number;
+  /** Calendar month, 1-12. */
+  month: number;
+  /** Total hours worked that month. */
+  total_hours: number;
+  /**
+     * Sum of every activity group's subtotal, before any bonus.
+     * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+     */
+  pay_from_hours: string;
+  /** This month's bonus, if one has been set. */
+  bonus?: PayrollBonusOut | null;
+  /**
+     * pay_from_hours plus bonus.amount, if any.
+     * @pattern ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+     */
+  total_pay: string;
+  /** Hours/pay grouped by (activity_id, rate_applied) — see module docs for why the grouping includes rate_applied, not just activity_id. */
+  activity_groups: ReportActivityGroupOut[];
 }
 
 export interface TimeEntryActivityOut {
@@ -328,6 +410,13 @@ export interface OnboardingIn {
      * @maxLength 150
      */
   job_title: string;
+}
+
+export interface PayrollBonusSetIn {
+  /** Gross bonus amount. */
+  amount: number | string;
+  /** Optional reason shown on the report. */
+  reason?: string | null;
 }
 
 export interface RootOut {
@@ -529,6 +618,51 @@ month: number;
 };
 
 export type ListTeamMembersParams = {
+/**
+ * Calendar year, e.g. 2026.
+ * @minimum 2000
+ * @maximum 2100
+ */
+year: number;
+/**
+ * Calendar month, 1-12.
+ * @minimum 1
+ * @maximum 12
+ */
+month: number;
+};
+
+export type GetEmployeeReportParams = {
+/**
+ * Calendar year, e.g. 2026.
+ * @minimum 2000
+ * @maximum 2100
+ */
+year: number;
+/**
+ * Calendar month, 1-12.
+ * @minimum 1
+ * @maximum 12
+ */
+month: number;
+};
+
+export type SetEmployeeBonusParams = {
+/**
+ * Calendar year, e.g. 2026.
+ * @minimum 2000
+ * @maximum 2100
+ */
+year: number;
+/**
+ * Calendar month, 1-12.
+ * @minimum 1
+ * @maximum 12
+ */
+month: number;
+};
+
+export type ClearEmployeeBonusParams = {
 /**
  * Calendar year, e.g. 2026.
  * @minimum 2000

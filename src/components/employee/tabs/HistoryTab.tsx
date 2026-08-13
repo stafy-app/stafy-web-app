@@ -43,6 +43,7 @@ interface ChartPoint {
   label: string
   hours: number
   pay: number
+  bonus: number
   isCurrent: boolean
 }
 
@@ -69,7 +70,31 @@ function PayTooltip({ active, payload }: MinimalTooltipProps) {
     <div className="rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2 shadow-[var(--shadow-md)]">
       <div className="text-[11px] text-[var(--color-ink-muted)]">{monthYearFormatter.format(new Date(point.year, point.month - 1, 1))}</div>
       <div className="font-[var(--font-mono)] text-[14px] font-bold text-[var(--color-ink)]">{formatRon(point.pay)}</div>
+      {point.bonus > 0 && (
+        <div className="font-[var(--font-mono)] text-[11px] text-[var(--color-ink-muted)]">
+          din care bonus {formatRon(point.bonus)}
+        </div>
+      )}
     </div>
+  )
+}
+
+interface MinimalDotProps {
+  cx?: number
+  cy?: number
+  payload?: ChartPoint
+}
+
+// Distinct marker (hollow ring vs. filled dot) only on months with an active bonus —
+// same "mark the exception, don't label every point" rule endpointLabel follows above.
+function payDot(rawProps: unknown) {
+  const { cx, cy, payload } = rawProps as MinimalDotProps
+  if (cx == null || cy == null) return <g />
+  const hasBonus = (payload?.bonus ?? 0) > 0
+  return hasBonus ? (
+    <circle cx={cx} cy={cy} r={5} fill="var(--color-surface)" stroke={PAY_COLOR} strokeWidth={2.5} />
+  ) : (
+    <circle cx={cx} cy={cy} r={3} fill={PAY_COLOR} stroke="var(--color-surface)" strokeWidth={2} />
   )
 }
 
@@ -126,15 +151,20 @@ export function HistoryTab({ employeeId }: HistoryTabProps) {
 
   const points: ChartPoint[] = useMemo(() => {
     const rows = data?.data ?? []
-    return rows.map((row, index) => ({
-      key: `${row.year}-${row.month}`,
-      year: row.year,
-      month: row.month,
-      label: monthShortFormatter.format(new Date(row.year, row.month - 1, 1)),
-      hours: row.total_hours,
-      pay: parseFloat(row.estimated_gross),
-      isCurrent: index === rows.length - 1,
-    }))
+    return rows.map((row, index) => {
+      const bonus = parseFloat(row.bonus_amount ?? '0')
+      return {
+        key: `${row.year}-${row.month}`,
+        year: row.year,
+        month: row.month,
+        label: monthShortFormatter.format(new Date(row.year, row.month - 1, 1)),
+        hours: row.total_hours,
+        // Bonus-inclusive, same "total pay" convention every other surface uses.
+        pay: parseFloat(row.estimated_gross) + bonus,
+        bonus,
+        isCurrent: index === rows.length - 1,
+      }
+    })
   }, [data])
 
   const totalHours = points.reduce((sum, p) => sum + p.hours, 0)
@@ -163,6 +193,7 @@ export function HistoryTab({ employeeId }: HistoryTabProps) {
               <tr className="border-b border-[var(--color-line-soft)] text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
                 <th className="pb-2 pr-3 font-semibold">Lună</th>
                 <th className="pb-2 pr-3 text-right font-semibold">Ore</th>
+                <th className="pb-2 pr-3 text-right font-semibold">Bonus</th>
                 <th className="pb-2 text-right font-semibold">De plată</th>
               </tr>
             </thead>
@@ -174,6 +205,9 @@ export function HistoryTab({ employeeId }: HistoryTabProps) {
                   </td>
                   <td className="py-2.5 pr-3 text-right font-[var(--font-mono)] text-[var(--color-ink)]">
                     {formatHours(point.hours)}
+                  </td>
+                  <td className="py-2.5 pr-3 text-right font-[var(--font-mono)] text-[var(--color-ink-muted)]">
+                    {point.bonus > 0 ? formatRon(point.bonus) : '—'}
                   </td>
                   <td className="py-2.5 text-right font-[var(--font-mono)] font-semibold text-[var(--color-ink)]">
                     {formatRon(point.pay)}
@@ -230,7 +264,7 @@ export function HistoryTab({ employeeId }: HistoryTabProps) {
                     dataKey="pay"
                     stroke={PAY_COLOR}
                     strokeWidth={2}
-                    dot={{ r: 3, fill: PAY_COLOR, strokeWidth: 2, stroke: 'var(--color-surface)' }}
+                    dot={payDot}
                     activeDot={{ r: 4, fill: PAY_COLOR, strokeWidth: 2, stroke: 'var(--color-surface)' }}
                     label={endpointLabel(formatRon)}
                   />

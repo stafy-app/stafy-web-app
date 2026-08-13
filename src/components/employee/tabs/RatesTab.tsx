@@ -112,7 +112,7 @@ export function RatesTab({ employeeId }: RatesTabProps) {
                           onClick={() => startEditing(rate.activity_id, rate.hourly_rate_gross)}
                           className="font-[var(--font-mono)] font-semibold text-[var(--color-ink)] hover:text-[var(--color-primary)]"
                         >
-                          {ron.format(rate.hours_this_month * parseFloat(rate.hourly_rate_gross!))} RON
+                          {ron.format(parseFloat(rate.estimated_amount))} RON
                         </button>
                       ) : (
                         <button

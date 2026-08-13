@@ -171,3 +171,36 @@ Romanian-only (see workspace-level module-doc conventions).
 |---|---|
 | Search/filter on the invitations list | The list grows large enough in practice to need it (mirrors the backend doc's own Deferred entry) |
 | Confirmation dialog before cancel | A future incident/complaint about accidental cancellations — no such signal exists yet |
+
+---
+
+## Manual Testing Procedure
+
+No automated test suite exists in this repo (see `CLAUDE.md`). Run `pnpm dev`, sign in as a
+manager (seeded `manager@stafy.ro` / `admin123`), and click through the page directly — real
+backend, real Resend email, no mocks. Clean up any invitations left `pending`/`accepted` afterward
+(cancel via the UI, or ask the backend doc's procedure to clear accepted test rows).
+
+1. Navigate to `/invitations` (top nav, or the Team page's "Invită angajat" button) → form + 3
+   summary tiles + table render; tiles read `0` and the table is empty on a clean company.
+2. Submit the invite form with a fresh email → input clears, success toast fires, the row appears
+   in the table as `pending` (badge-warning), the "pending" tile increments.
+3. Submit the same email again while still `pending` → error toast shows the specific duplicate
+   reason (not a generic error) — confirms the 409 `invitation_already_pending` code-mapping in
+   `useSendInvitation`/`getApiError`.
+4. Click resend on the pending row → success toast, `expires_at`-derived date column updates, row
+   stays `pending`.
+5. Click cancel on the pending row → success toast, row disappears from the table entirely (not
+   just re-styled — cancelled rows are excluded from `GET /invitations`), tile count drops back.
+6. Have an employee (via `stafy-mobile`, or a fresh registration with the invited email) accept or
+   reject the invitation from the other side, then reload this page → row now shows `accepted`
+   (badge-success) or `rejected`/`expired` (badge-neutral) with no action buttons, "accepted" or
+   the relevant tile reflects it.
+7. Confirm accepted/rejected/expired rows render no resend/cancel icons (terminal states) — only
+   `pending`/`expired` rows show action buttons.
+8. Trigger an unrelated backend error (e.g. stop the backend briefly, or hit resend/cancel on an
+   invitation ID edited to be invalid) → falls back to the generic error toast rather than crashing
+   the page.
+
+`pnpm run build` and `pnpm run lint` must also pass clean before considering any change to this
+page done, per this repo's `CLAUDE.md`.

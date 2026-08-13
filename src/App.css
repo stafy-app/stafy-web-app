@@ -174,4 +174,23 @@
   .animate-toast-out {
     animation: toast-out 200ms ease-out both;
   }
+
+  @keyframes document-pulse {
+    0% {
+      transform: scale(1);
+      box-shadow: var(--shadow-sm);
+    }
+    50% {
+      transform: scale(1.006);
+      box-shadow: var(--shadow-md);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: var(--shadow-sm);
+    }
+  }
+
+  .animate-document-pulse {
+    animation: document-pulse 220ms var(--ease-out);
+  }
 }

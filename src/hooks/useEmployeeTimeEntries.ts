@@ -6,6 +6,7 @@ export function useEmployeeTimeEntries(
   year: number,
   month: number,
   activityId?: number,
+  enabled = true,
 ) {
   return useQuery({
     queryKey: ['employee-time-entries', employeeId, year, month, activityId ?? null],
@@ -15,5 +16,6 @@ export function useEmployeeTimeEntries(
         month,
         ...(activityId !== undefined ? { activity_id: activityId } : {}),
       }),
+    enabled,
   })
 }
