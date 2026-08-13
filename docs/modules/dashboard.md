@@ -46,10 +46,9 @@ This doc doesn't re-litigate whether `admin` also gets a manager-web session —
 
 ### Owned
 
-None. This page owns no ORM/DB entity — it's a read-only aggregation view. If a manager-dashboard
-backend endpoint is added (see Data Access), the aggregation logic belongs to whichever backend
-module implements it (`app/reports` is the natural home — currently an empty stub, see
-`stafy-backend/CLAUDE.md` Module Status), not to this page.
+None. This page owns no ORM/DB entity — it's a read-only aggregation view. The company-wide
+aggregation this page fetches lives in `app/users`'s `dashboard_router` (see Data Access), not
+`app/reports` — `app/reports` is a separate module backing the Reports (payroll) page instead.
 
 ---
 
@@ -194,7 +193,7 @@ CompanyDashboardOut {
     active_employee_count: number
     total_hours: number
     total_gross_salary: string          // Decimal-as-string, same convention as UserDashboardOut
-    invitation_count: number            // hardcoded 0 — see below
+    invitation_count: number            // real count — see below
     activity_distribution: { activity_name: string; hours: number }[]
     top_employees: {
       user: UserOut
@@ -206,9 +205,10 @@ CompanyDashboardOut {
   }
 ```
 
-`invitation_count` is hardcoded to `0` in the service — `app/invitations` is still an empty stub
-(no model, no repository). Swap this in once that module is live; nothing else in the shape
-changes.
+`invitation_count` is the manager's pending-invitation count, computed via
+`InvitationRepository.count_pending(manager_id)` (post-expiry-sweep) in
+`UserDashboardService.get_company_dashboard` — see `stafy-backend/docs/modules/invitations.md`
+Derived / Aggregated Data.
 
 ---
 
@@ -252,7 +252,6 @@ same string-encoded Decimal convention, never a JS `number`, to avoid float roun
 
 | Item | Trigger |
 |---|---|
-| Real invitation count | `app/invitations` becomes live |
 | Employee drill-down beyond the existing `/team/$employeeId` profile | Product decision once `EmployeeProfilePage` itself is built out |
 | Date range beyond single-month granularity | Explicit ask — out of scope per current spec |
-| Export/print of the dashboard view | `app/reports` becomes live |
+| Export/print of this page's own view | Explicit ask — `app/reports`/the Reports page cover per-employee payroll export, not this page's company-wide view |
