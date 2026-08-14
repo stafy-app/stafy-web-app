@@ -202,13 +202,26 @@ const styles = StyleSheet.create({
     right: 40,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-end',
     paddingTop: 8,
     borderTopWidth: 0.5,
     borderTopColor: '#cccccc',
     fontSize: 8,
     color: '#999999',
   },
+  footerLeft: {
+    flexDirection: 'column',
+  },
+  footerNote: {
+    marginBottom: 2,
+  },
 })
+
+function reportRef(employeeId: number, generatedAt: string): string {
+  const d = new Date(generatedAt)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `RAP-${employeeId}-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`
+}
 
 export function ReportDocument({ report, includeTimeEntries, timeEntries }: ReportDocumentProps) {
   const employeeName = [report.employee.first_name, report.employee.last_name].filter(Boolean).join(' ')
@@ -217,9 +230,16 @@ export function ReportDocument({ report, includeTimeEntries, timeEntries }: Repo
   const periodEnd = new Date(report.year, report.month, 0)
   const periodLabel = `${dateFormat.format(periodStart)} – ${dateFormat.format(periodEnd)}`
   const bonusAmount = report.bonus ? parseFloat(report.bonus.amount) : 0
+  const ref = reportRef(report.employee.id ?? 0, report.generated_at)
 
   return (
-    <Document>
+    <Document
+      title={`Raport de activitate — ${employeeName} — ${periodLabel}`}
+      author={managerName}
+      subject="Raport de activitate și calcul salarial"
+      creator="Stafy.ro"
+      producer="Stafy.ro"
+    >
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View style={styles.headerRow}>
@@ -353,7 +373,10 @@ export function ReportDocument({ report, includeTimeEntries, timeEntries }: Repo
         </View>
 
         <View style={styles.footer} fixed>
-          <Text>Document generat automat de Stafy.ro</Text>
+          <View style={styles.footerLeft}>
+            <Text style={styles.footerNote}>Confidențial — conține date cu caracter personal</Text>
+            <Text>Document generat automat de Stafy.ro · Ref: {ref}</Text>
+          </View>
           <Text render={({ pageNumber, totalPages }) => `Pagina ${pageNumber} / ${totalPages}`} />
         </View>
       </Page>

@@ -268,6 +268,16 @@ with no effect and no synchronizing setState at all. The employee auto-select de
 (`pickedEmployeeId ?? members[0]?.user.id ?? null`) follows the same "derive at render time, don't
 effect it" rule for the same reason.
 
+**Footer carries a confidentiality note and a per-generation reference code, since this document
+leaves the app.** The report is explicitly an internal working document a manager forwards to
+accounting to replace manual hour/salary tallying — not an official payslip (no CNP/CUI, no
+gross/net breakdown; deliberately out of scope, see Scope). Once a PDF leaves the app as an email
+attachment or download, there's no in-app trail of which version was sent, so the footer adds a
+`RAP-{employeeId}-{yyyyMMdd-HHmm}` reference derived from `generated_at` (lets accounting cite a
+specific generation instant) alongside a one-line data-protection note. `<Document>` also now sets
+PDF metadata (`title`/`author`/`subject`/`creator`) so the file has a readable name/author in any
+PDF viewer instead of appearing blank.
+
 **This feature also changes already-shipped pages.** Employee Profile's History tab renders
 `EmployeeMonthlyHistoryEntryOut.bonus_amount` (new field) as its own line/marker per month, rather
 than only the pre-existing hours/pay chart — see `stafy-backend/docs/modules/reports.md`'s Derived /
