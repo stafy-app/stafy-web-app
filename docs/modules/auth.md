@@ -34,12 +34,14 @@ litigated, just defaulted to "allow" since nothing here has an admin-specific co
 
 ## Data Objects
 
-### From Firebase (referenced, not owned)
+### Referenced (not owned)
 
 Same as `stafy-mobile/docs/modules/auth.md` — Firebase owns `uid`, `email`, `email_verified`, and
 the password credential. The backend never sees a password, only a verified ID token.
 
-### Backend objects (existing `users`/`companies` tables, fields added this pass)
+### Owned
+
+Existing `users`/`companies` table fields, plus a new `job_titles` table:
 
 | Field | Table | Type | Notes |
 |---|---|---|---|
@@ -47,11 +49,9 @@ the password credential. The backend never sees a password, only a verified ID t
 | `onboarding_completed` | `users` | `bool`, default `false` | Gates `AppLayout`/`OnboardingLayout` |
 | `city`, `address` | `companies` | `str \| null` | Set once, at onboarding |
 
-### `job_titles` (new table, owned by this module)
-
-Global reference list for the onboarding picklist — not a foreign key on `users.job_title` (that
-stays free text so "Altceva" can save anything). `id`, `label` (unique), `is_active`,
-`created_at`. Seeded directly in its migration
+**`job_titles`** — global reference list for the onboarding picklist, not a foreign key on
+`users.job_title` (that stays free text so "Altceva" can save anything). `id`, `label` (unique),
+`is_active`, `created_at`. Seeded directly in its migration
 (`alembic/versions/0ba02102c0ce_add_job_titles_table.py`) with: Owner, Director, Administrator,
 Coordonator, Manager HR, Manager Operațional. No write endpoint exists yet — see Deferred.
 

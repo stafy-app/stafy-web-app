@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { PeriodBar } from '../../dashboard/PeriodBar'
 import { useEmployeeTimeEntries } from '../../../hooks/useEmployeeTimeEntries'
 import { useEmployeeReport } from '../../../hooks/useReports'
-import { getCurrentPeriod } from '../../../utils/period'
+import { getAdjacentPeriod, getCurrentPeriod } from '../../../utils/period'
 
 interface AttendanceTabProps {
   employeeId: number
@@ -41,11 +41,11 @@ export function AttendanceTab({ employeeId }: AttendanceTabProps) {
   )
 
   function goToPrevMonth() {
-    setPeriod((p) => (p.month === 1 ? { year: p.year - 1, month: 12 } : { year: p.year, month: p.month - 1 }))
+    setPeriod((p) => getAdjacentPeriod(p, -1))
   }
 
   function goToNextMonth() {
-    setPeriod((p) => (p.month === 12 ? { year: p.year + 1, month: 1 } : { year: p.year, month: p.month + 1 }))
+    setPeriod((p) => getAdjacentPeriod(p, 1))
   }
 
   return (

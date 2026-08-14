@@ -7,7 +7,7 @@ import { TopEmployeesTable } from '../../components/dashboard/TopEmployeesTable'
 import { useTopBar } from '../../hooks/useTopBar'
 import { useCompanyDashboard } from '../../hooks/useCompanyDashboard'
 import { useTeam } from '../../hooks/useTeam'
-import { getCurrentPeriod } from '../../utils/period'
+import { getAdjacentPeriod, getCurrentPeriod } from '../../utils/period'
 
 const ronFormatter = new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 0 })
 const monthYearFormatter = new Intl.DateTimeFormat('ro-RO', { month: 'long', year: 'numeric' })
@@ -28,11 +28,11 @@ export default function DashboardPage() {
   const teamCount = team?.data.filter((u) => u.role === 'employee').length ?? 0
 
   function goToPrevMonth() {
-    setPeriod((p) => (p.month === 1 ? { year: p.year - 1, month: 12 } : { year: p.year, month: p.month - 1 }))
+    setPeriod((p) => getAdjacentPeriod(p, -1))
   }
 
   function goToNextMonth() {
-    setPeriod((p) => (p.month === 12 ? { year: p.year + 1, month: 1 } : { year: p.year, month: p.month + 1 }))
+    setPeriod((p) => getAdjacentPeriod(p, 1))
   }
 
   function jumpToCurrent() {

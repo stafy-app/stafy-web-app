@@ -1,10 +1,6 @@
 import type { TimeEntryOut } from '../api/generated/endpoints/index.schemas'
 import { showToast } from '../lib/toast'
-
-const MONTHS_RO = [
-  'ianuarie', 'februarie', 'martie', 'aprilie', 'mai', 'iunie',
-  'iulie', 'august', 'septembrie', 'octombrie', 'noiembrie', 'decembrie',
-]
+import { MONTHS_RO } from './period'
 
 const dateFormatter = new Intl.DateTimeFormat('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' })
 const timeFormatter = new Intl.DateTimeFormat('ro-RO', { hour: '2-digit', minute: '2-digit' })

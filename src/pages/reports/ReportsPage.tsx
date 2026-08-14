@@ -4,7 +4,7 @@ import { useTopBar } from '../../hooks/useTopBar'
 import { useTeamMembers } from '../../hooks/useTeamMembers'
 import { useEmployeeReport, useSetReportBonus, useClearReportBonus } from '../../hooks/useReports'
 import { useEmployeeTimeEntries } from '../../hooks/useEmployeeTimeEntries'
-import { getCurrentPeriod } from '../../utils/period'
+import { getAdjacentPeriod, getCurrentPeriod } from '../../utils/period'
 import { PeriodBar } from '../../components/dashboard/PeriodBar'
 import { ReportEmployeePicker } from '../../components/reports/ReportEmployeePicker'
 import { BonusCard } from '../../components/reports/BonusCard'
@@ -46,11 +46,11 @@ export default function ReportsPage() {
   const clearBonusMutation = useClearReportBonus(selectedEmployeeId ?? 0, period.year, period.month)
 
   function goToPrevMonth() {
-    setPeriod((p) => (p.month === 1 ? { year: p.year - 1, month: 12 } : { year: p.year, month: p.month - 1 }))
+    setPeriod((p) => getAdjacentPeriod(p, -1))
   }
 
   function goToNextMonth() {
-    setPeriod((p) => (p.month === 12 ? { year: p.year + 1, month: 1 } : { year: p.year, month: p.month + 1 }))
+    setPeriod((p) => getAdjacentPeriod(p, 1))
   }
 
   async function handleDownload() {

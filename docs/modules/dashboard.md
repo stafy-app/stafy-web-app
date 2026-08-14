@@ -231,12 +231,10 @@ the dataviz skill's validated default categorical palette (`#2a78d6`, `#008300`,
 per-activity hash — acceptable here because each donut is an independent per-month snapshot, not
 a live-filterable single chart instance where an activity's color must stay fixed while filtering.
 
-**Source spec used demo data.** The spec this doc was adapted from used fixed demo constants
-(`TEACHERS`, `HOURS_THIS_MONTH`, `computeMonthly()`) pinned to a fixed month, from a
-differently-themed source project. The real implementation has no such fixture — every number in
-this spec is illustrative only, not a data source. The source project also used domain-specific
-terminology tied to that other project instead of `employee`; this doc uses `employee`/
-`onOpenEmployee` terminology throughout, per `stafy-web-app/CLAUDE.md`'s terminology rule.
+**No demo/fixture data in the implementation.** Every number in this doc is illustrative only —
+the real page has no fixed demo constants or pinned-month fixture; all values come from the live
+API. This doc uses `employee`/`onOpenEmployee` terminology throughout, per
+`stafy-web-app/CLAUDE.md`'s terminology rule.
 
 **No avatar/photo field on `UserOut`.** The top-5 table's avatar is an initials badge, not an
 uploaded image — there's no `avatar_url` in the schema today.

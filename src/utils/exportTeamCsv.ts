@@ -1,10 +1,6 @@
 import type { CompanyTopEmployeeOut } from '../api/generated/endpoints/index.schemas'
 import { showToast } from '../lib/toast'
-
-const MONTHS_RO = [
-  'ianuarie', 'februarie', 'martie', 'aprilie', 'mai', 'iunie',
-  'iulie', 'august', 'septembrie', 'octombrie', 'noiembrie', 'decembrie',
-]
+import { MONTHS_RO } from './period'
 
 const gross = new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 0 })
 

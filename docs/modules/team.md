@@ -149,9 +149,9 @@ omitting them. This is the defining difference from any hours-ranked "top N" vie
 product.
 
 **Employee scoping is by company assignment, not a separate membership table.** A `TeamMembership`
-concept exists at the data-model level but has no reader or writer anywhere in the backend today —
-it would return an empty result if relied on. This page scopes employees the same way the rest of
-the backend currently does.
+row is written on invitation acceptance (both register-time auto-join and explicit accept), but
+nothing reads it yet — this page's roster query, like the rest of the backend, scopes employees by
+`User.company_id` instead.
 
 **No shared `Card`/`Badge`/`Button` primitives were introduced for this page.** `EmployeeCard` is
 built with page-scoped styling, consistent with how other feature-specific cards in this codebase
