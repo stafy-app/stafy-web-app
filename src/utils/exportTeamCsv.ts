@@ -1,5 +1,5 @@
-import type { CompanyTopEmployeeOut } from '../api/generated/endpoints/index.schemas'
-import { showToast } from '../lib/toast'
+import type { CompanyTopEmployeeOut } from '@stafy/api/generated/endpoints/index.schemas'
+import { showToast } from '@stafy/lib/toast'
 import { MONTHS_RO } from './period'
 
 const gross = new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 0 })

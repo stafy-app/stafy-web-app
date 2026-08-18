@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from '@tanstack/react-router'
-import logoMark from '../../assets/stafy_logo.svg'
-import { useAuth } from '../../hooks/useAuth'
-import { consumeBlockedMessage } from '../../utils/authBlockedMessage'
+import logoMark from '@stafy/assets/stafy_logo.svg'
+import { useAuth } from '@stafy/hooks/useAuth'
+import { consumeBlockedMessage } from '@stafy/utils/authBlockedMessage'
 
 export default function LoginPage() {
   const { login } = useAuth()

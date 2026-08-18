@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { PayrollBonusOut } from '../../api/generated/endpoints/index.schemas'
+import type { PayrollBonusOut } from '@stafy/api/generated/endpoints/index.schemas'
 
 interface BonusCardProps {
   bonus: PayrollBonusOut | null | undefined

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from '@tanstack/react-router'
-import logoMark from '../../assets/stafy_logo.svg'
-import { useAuth } from '../../hooks/useAuth'
+import logoMark from '@stafy/assets/stafy_logo.svg'
+import { useAuth } from '@stafy/hooks/useAuth'
 
 export default function RegisterPage() {
   const { register } = useAuth()

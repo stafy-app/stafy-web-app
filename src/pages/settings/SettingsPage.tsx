@@ -1,4 +1,4 @@
-import { useTopBar } from '../../hooks/useTopBar'
+import { useTopBar } from '@stafy/hooks/useTopBar'
 
 export default function SettingsPage() {
   useTopBar({ title: 'Setări', subtitle: 'Setările contului și ale companiei' })

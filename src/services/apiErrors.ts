@@ -1,5 +1,5 @@
 import { isAxiosError } from 'axios'
-import type { ErrorOut, ValidationErrorOut } from '../api/generated/endpoints/index.schemas'
+import type { ErrorOut, ValidationErrorOut } from '@stafy/api/generated/endpoints/index.schemas'
 
 const DEFAULT_ERROR_MESSAGE = 'A apărut o eroare neașteptată. Încearcă din nou.'
 

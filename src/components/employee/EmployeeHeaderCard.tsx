@@ -1,15 +1,15 @@
 import { useState } from 'react'
-import { getInitials } from '../../utils/initials'
-import { getCurrentPeriod } from '../../utils/period'
-import { exportEmployeeTimeEntriesCsv } from '../../utils/exportEmployeeTimeEntriesCsv'
-import { useEmployeeSummary } from '../../hooks/useEmployeeSummary'
-import { useEmployeeTimeEntries } from '../../hooks/useEmployeeTimeEntries'
+import { getInitials } from '@stafy/utils/initials'
+import { getCurrentPeriod } from '@stafy/utils/period'
+import { exportEmployeeTimeEntriesCsv } from '@stafy/utils/exportEmployeeTimeEntriesCsv'
+import { useEmployeeSummary } from '@stafy/hooks/useEmployeeSummary'
+import { useEmployeeTimeEntries } from '@stafy/hooks/useEmployeeTimeEntries'
 import {
   useReactivateEmployee,
   useSuspendEmployee,
   useUpdateEmployeeJobTitle,
-} from '../../hooks/useEmployeeActions'
-import { Delta } from '../shared/Delta'
+} from '@stafy/hooks/useEmployeeActions'
+import { Delta } from '@stafy/components/shared/Delta'
 import { EmployeeActionsMenu } from './EmployeeActionsMenu'
 
 interface EmployeeHeaderCardProps {

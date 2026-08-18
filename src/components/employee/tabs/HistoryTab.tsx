@@ -11,8 +11,8 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { useEmployeeMonthlyHistory } from '../../../hooks/useEmployeeMonthlyHistory'
-import { KpiCard } from '../../dashboard/KpiCard'
+import { useEmployeeMonthlyHistory } from '@stafy/hooks/useEmployeeMonthlyHistory'
+import { KpiCard } from '@stafy/components/dashboard/KpiCard'
 
 interface HistoryTabProps {
   employeeId: number

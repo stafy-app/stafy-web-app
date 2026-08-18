@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getReports } from '../api/generated/endpoints/reports/reports'
-import { showToast } from '../lib/toast'
-import type { PayrollBonusSetIn } from '../api/generated/endpoints/index.schemas'
+import { getReports } from '@stafy/api/generated/endpoints/reports/reports'
+import { showToast } from '@stafy/lib/toast'
+import type { PayrollBonusSetIn } from '@stafy/api/generated/endpoints/index.schemas'
 
 export function useEmployeeReport(employeeId: number, year: number, month: number, enabled = true) {
   return useQuery({

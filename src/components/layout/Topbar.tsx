@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { ChevronRight } from 'lucide-react'
-import { useTopBarState } from '../../hooks/useTopBar'
+import { useTopBarState } from '@stafy/hooks/useTopBar'
 
 export function Topbar() {
   const { title, subtitle, breadcrumb, action } = useTopBarState()

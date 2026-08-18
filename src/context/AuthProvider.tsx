@@ -6,8 +6,8 @@ import {
   signOut,
   type User as FirebaseUser,
 } from 'firebase/auth'
-import { getAuth as getAuthApi } from '../api/generated/endpoints/auth/auth'
-import { auth } from '../services/firebase'
+import { getAuth as getAuthApi } from '@stafy/api/generated/endpoints/auth/auth'
+import { auth } from '@stafy/services/firebase'
 import { AuthContext, type RegisterData } from './AuthContext'
 
 // Maps Firebase Auth error codes and the backend's {code, detail} error shape

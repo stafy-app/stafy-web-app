@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { useSendInvitation } from '../../hooks/useInvitations'
-import { ICONS } from '../../lib/icons'
+import { useSendInvitation } from '@stafy/hooks/useInvitations'
+import { ICONS } from '@stafy/lib/icons'
 
 export function InvitationForm() {
   const [email, setEmail] = useState('')

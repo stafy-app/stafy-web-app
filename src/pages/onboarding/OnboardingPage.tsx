@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
-import logoMark from '../../assets/stafy_logo.svg'
-import { useCompleteOnboarding } from '../../hooks/useCompleteOnboarding'
-import { useJobTitles } from '../../hooks/useJobTitles'
+import logoMark from '@stafy/assets/stafy_logo.svg'
+import { useCompleteOnboarding } from '@stafy/hooks/useCompleteOnboarding'
+import { useJobTitles } from '@stafy/hooks/useJobTitles'
 
 const OTHER_VALUE = '__other__'
 

@@ -1,8 +1,8 @@
 import { ChevronRight } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
-import type { CompanyTopEmployeeOut } from '../../api/generated/endpoints/index.schemas'
-import { getInitials } from '../../utils/initials'
-import { Delta } from '../shared/Delta'
+import type { CompanyTopEmployeeOut } from '@stafy/api/generated/endpoints/index.schemas'
+import { getInitials } from '@stafy/utils/initials'
+import { Delta } from '@stafy/components/shared/Delta'
 
 interface TopEmployeesTableProps {
   employees: CompanyTopEmployeeOut[]

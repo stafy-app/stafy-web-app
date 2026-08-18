@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import { PeriodBar } from '../../dashboard/PeriodBar'
-import { useEmployeeTimeEntries } from '../../../hooks/useEmployeeTimeEntries'
-import { useEmployeeReport } from '../../../hooks/useReports'
-import { getAdjacentPeriod, getCurrentPeriod } from '../../../utils/period'
+import { PeriodBar } from '@stafy/components/dashboard/PeriodBar'
+import { useEmployeeTimeEntries } from '@stafy/hooks/useEmployeeTimeEntries'
+import { useEmployeeReport } from '@stafy/hooks/useReports'
+import { getAdjacentPeriod, getCurrentPeriod } from '@stafy/utils/period'
 
 interface AttendanceTabProps {
   employeeId: number

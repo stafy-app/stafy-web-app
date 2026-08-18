@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
-import { useTopBar } from '../../hooks/useTopBar'
-import { useInvitations } from '../../hooks/useInvitations'
-import { InvitationForm } from '../../components/invitations/InvitationForm'
-import { InvitationsTable } from '../../components/invitations/InvitationsTable'
-import { KpiCard } from '../../components/dashboard/KpiCard'
-import { ICONS } from '../../lib/icons'
+import { useTopBar } from '@stafy/hooks/useTopBar'
+import { useInvitations } from '@stafy/hooks/useInvitations'
+import { InvitationForm } from '@stafy/components/invitations/InvitationForm'
+import { InvitationsTable } from '@stafy/components/invitations/InvitationsTable'
+import { KpiCard } from '@stafy/components/dashboard/KpiCard'
+import { ICONS } from '@stafy/lib/icons'
 
 export default function InvitationsPage() {
   useTopBar({ title: 'Invitații', subtitle: 'Invitații trimise către angajați' })

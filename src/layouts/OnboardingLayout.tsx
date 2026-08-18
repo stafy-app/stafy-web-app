@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from '@tanstack/react-router'
-import { FullscreenSpinner } from '../components/layout/FullscreenSpinner'
-import { useAuth } from '../hooks/useAuth'
-import { useProfile } from '../hooks/useProfile'
+import { FullscreenSpinner } from '@stafy/components/layout/FullscreenSpinner'
+import { useAuth } from '@stafy/hooks/useAuth'
+import { useProfile } from '@stafy/hooks/useProfile'
 
 export function OnboardingLayout() {
   const { authResolved, firebaseUser } = useAuth()

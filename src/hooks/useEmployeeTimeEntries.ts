@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getUsers } from '../api/generated/endpoints/users/users'
+import { getUsers } from '@stafy/api/generated/endpoints/users/users'
 
 export function useEmployeeTimeEntries(
   employeeId: number,

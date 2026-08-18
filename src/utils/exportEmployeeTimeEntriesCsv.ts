@@ -1,5 +1,5 @@
-import type { TimeEntryOut } from '../api/generated/endpoints/index.schemas'
-import { showToast } from '../lib/toast'
+import type { TimeEntryOut } from '@stafy/api/generated/endpoints/index.schemas'
+import { showToast } from '@stafy/lib/toast'
 import { MONTHS_RO } from './period'
 
 const dateFormatter = new Intl.DateTimeFormat('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' })

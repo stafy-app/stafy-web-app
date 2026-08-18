@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react'
-import { TopBarContext, type TopBarConfig } from '../context/TopBarContext'
+import { TopBarContext, type TopBarConfig } from '@stafy/context/TopBarContext'
 
 export function useTopBarState() {
   const ctx = useContext(TopBarContext)

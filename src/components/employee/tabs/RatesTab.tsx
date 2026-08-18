@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useEmployeeRates, useSetEmployeeRate } from '../../../hooks/useEmployeeRates'
-import { getCurrentPeriod } from '../../../utils/period'
+import { useEmployeeRates, useSetEmployeeRate } from '@stafy/hooks/useEmployeeRates'
+import { getCurrentPeriod } from '@stafy/utils/period'
 
 interface RatesTabProps {
   employeeId: number

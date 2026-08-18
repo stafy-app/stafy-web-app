@@ -1,5 +1,5 @@
 import { Document, Page, View, Text, StyleSheet, Svg, Rect, G, Path, Circle, Line, Font } from '@react-pdf/renderer'
-import type { EmployeeReportOut, TimeEntryOut } from '../../api/generated/endpoints/index.schemas'
+import type { EmployeeReportOut, TimeEntryOut } from '@stafy/api/generated/endpoints/index.schemas'
 import interRegular from '@fontsource/inter/files/inter-latin-ext-400-normal.woff?url'
 import interBold from '@fontsource/inter/files/inter-latin-ext-700-normal.woff?url'
 import interItalic from '@fontsource/inter/files/inter-latin-ext-400-italic.woff?url'

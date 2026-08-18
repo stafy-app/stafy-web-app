@@ -1,7 +1,7 @@
-import type { InvitationOut } from '../../api/generated/endpoints/index.schemas'
-import { useCancelInvitation, useResendInvitation } from '../../hooks/useInvitations'
+import type { InvitationOut } from '@stafy/api/generated/endpoints/index.schemas'
+import { useCancelInvitation, useResendInvitation } from '@stafy/hooks/useInvitations'
 import { InvitationStatusBadge } from './InvitationStatusBadge'
-import { ICONS } from '../../lib/icons'
+import { ICONS } from '@stafy/lib/icons'
 
 const dateFormatter = new Intl.DateTimeFormat('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' })
 

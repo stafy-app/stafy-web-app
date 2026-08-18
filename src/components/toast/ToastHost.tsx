@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom'
 import { useSyncExternalStore } from 'react'
 import { Toast } from './Toast'
-import { dismissToast, getSnapshot, subscribe } from '../../lib/toast'
+import { dismissToast, getSnapshot, subscribe } from '@stafy/lib/toast'
 
 // Portaled to document.body so position: fixed can never be broken by a
 // future ancestor with a transform/filter (e.g. inside AppLayout's main).

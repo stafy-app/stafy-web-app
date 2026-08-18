@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getInvitations } from '../api/generated/endpoints/invitations/invitations'
-import { getApiError } from '../services/apiErrors'
-import { showToast } from '../lib/toast'
+import { getInvitations } from '@stafy/api/generated/endpoints/invitations/invitations'
+import { getApiError } from '@stafy/services/apiErrors'
+import { showToast } from '@stafy/lib/toast'
 
 const INVITATIONS_KEY = ['invitations']
 

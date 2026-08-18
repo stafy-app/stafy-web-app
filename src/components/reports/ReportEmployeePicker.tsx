@@ -1,6 +1,6 @@
-import type { CompanyTopEmployeeOut } from '../../api/generated/endpoints/index.schemas'
-import { getInitials } from '../../utils/initials'
-import { ICONS } from '../../lib/icons'
+import type { CompanyTopEmployeeOut } from '@stafy/api/generated/endpoints/index.schemas'
+import { getInitials } from '@stafy/utils/initials'
+import { ICONS } from '@stafy/lib/icons'
 
 interface ReportEmployeePickerProps {
   members: CompanyTopEmployeeOut[]

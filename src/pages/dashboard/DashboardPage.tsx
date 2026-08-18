@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { Clock, Mail, Users, Wallet } from 'lucide-react'
-import { ActivityDonut } from '../../components/dashboard/ActivityDonut'
-import { KpiCard } from '../../components/dashboard/KpiCard'
-import { PeriodBar } from '../../components/dashboard/PeriodBar'
-import { TopEmployeesTable } from '../../components/dashboard/TopEmployeesTable'
-import { useTopBar } from '../../hooks/useTopBar'
-import { useCompanyDashboard } from '../../hooks/useCompanyDashboard'
-import { useTeam } from '../../hooks/useTeam'
-import { getAdjacentPeriod, getCurrentPeriod } from '../../utils/period'
+import { ActivityDonut } from '@stafy/components/dashboard/ActivityDonut'
+import { KpiCard } from '@stafy/components/dashboard/KpiCard'
+import { PeriodBar } from '@stafy/components/dashboard/PeriodBar'
+import { TopEmployeesTable } from '@stafy/components/dashboard/TopEmployeesTable'
+import { useTopBar } from '@stafy/hooks/useTopBar'
+import { useCompanyDashboard } from '@stafy/hooks/useCompanyDashboard'
+import { useTeam } from '@stafy/hooks/useTeam'
+import { getAdjacentPeriod, getCurrentPeriod } from '@stafy/utils/period'
 
 const ronFormatter = new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 0 })
 const monthYearFormatter = new Intl.DateTimeFormat('ro-RO', { month: 'long', year: 'numeric' })

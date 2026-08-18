@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { useCountUp } from '../../hooks/useCountUp'
+import { useCountUp } from '@stafy/hooks/useCountUp'
 
 interface KpiCardProps {
   label: string

@@ -1,4 +1,4 @@
-import { showToast } from '../../lib/toast'
+import { showToast } from '@stafy/lib/toast'
 
 // Dev-only shadow page — see src/routes/index.tsx (registered only when
 // import.meta.env.DEV). Not part of the product; not wired to useTopBar().

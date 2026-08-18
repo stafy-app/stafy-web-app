@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useParams } from '@tanstack/react-router'
-import { useTopBar } from '../../hooks/useTopBar'
-import { EmployeeHeaderCard } from '../../components/employee/EmployeeHeaderCard'
-import { EmployeeTabs, type EmployeeTabKey } from '../../components/employee/EmployeeTabs'
-import { AttendanceTab } from '../../components/employee/tabs/AttendanceTab'
-import { RatesTab } from '../../components/employee/tabs/RatesTab'
-import { HistoryTab } from '../../components/employee/tabs/HistoryTab'
+import { useTopBar } from '@stafy/hooks/useTopBar'
+import { EmployeeHeaderCard } from '@stafy/components/employee/EmployeeHeaderCard'
+import { EmployeeTabs, type EmployeeTabKey } from '@stafy/components/employee/EmployeeTabs'
+import { AttendanceTab } from '@stafy/components/employee/tabs/AttendanceTab'
+import { RatesTab } from '@stafy/components/employee/tabs/RatesTab'
+import { HistoryTab } from '@stafy/components/employee/tabs/HistoryTab'
 
 export default function EmployeeProfilePage() {
   useTopBar({

@@ -1,11 +1,11 @@
 import { Navigate, Outlet } from '@tanstack/react-router'
-import { FullscreenSpinner } from '../components/layout/FullscreenSpinner'
-import { Sidebar } from '../components/layout/Sidebar'
-import { Topbar } from '../components/layout/Topbar'
-import { TopBarProvider } from '../context/TopBarProvider'
-import { useAuth } from '../hooks/useAuth'
-import { useProfile } from '../hooks/useProfile'
-import { setBlockedMessage } from '../utils/authBlockedMessage'
+import { FullscreenSpinner } from '@stafy/components/layout/FullscreenSpinner'
+import { Sidebar } from '@stafy/components/layout/Sidebar'
+import { Topbar } from '@stafy/components/layout/Topbar'
+import { TopBarProvider } from '@stafy/context/TopBarProvider'
+import { useAuth } from '@stafy/hooks/useAuth'
+import { useProfile } from '@stafy/hooks/useProfile'
+import { setBlockedMessage } from '@stafy/utils/authBlockedMessage'
 
 export function AppLayout() {
   const { authResolved, firebaseUser, logout } = useAuth()

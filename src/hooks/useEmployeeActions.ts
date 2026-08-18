@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { getUsers } from '../api/generated/endpoints/users/users'
-import { showToast } from '../lib/toast'
+import { getUsers } from '@stafy/api/generated/endpoints/users/users'
+import { showToast } from '@stafy/lib/toast'
 
 export function useUpdateEmployeeJobTitle(employeeId: number) {
   const queryClient = useQueryClient()

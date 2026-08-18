@@ -2,11 +2,11 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { Home, Users, Mail, Download, Settings, ChevronLeft, LogOut } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import logoMark from '../../assets/stafy_logo.svg'
-import { useAuth } from '../../hooks/useAuth'
-import { useProfile } from '../../hooks/useProfile'
-import { useTeam } from '../../hooks/useTeam'
-import { getInitials } from '../../utils/initials'
+import logoMark from '@stafy/assets/stafy_logo.svg'
+import { useAuth } from '@stafy/hooks/useAuth'
+import { useProfile } from '@stafy/hooks/useProfile'
+import { useTeam } from '@stafy/hooks/useTeam'
+import { getInitials } from '@stafy/utils/initials'
 
 interface NavItem {
   to: string

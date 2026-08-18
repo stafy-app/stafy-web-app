@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { useTopBar } from '../../hooks/useTopBar'
-import { useTeamMembers } from '../../hooks/useTeamMembers'
-import { getCurrentPeriod } from '../../utils/period'
-import { exportTeamCsv } from '../../utils/exportTeamCsv'
-import { EmployeeCard } from '../../components/team/EmployeeCard'
-import { ICONS } from '../../lib/icons'
+import { useTopBar } from '@stafy/hooks/useTopBar'
+import { useTeamMembers } from '@stafy/hooks/useTeamMembers'
+import { getCurrentPeriod } from '@stafy/utils/period'
+import { exportTeamCsv } from '@stafy/utils/exportTeamCsv'
+import { EmployeeCard } from '@stafy/components/team/EmployeeCard'
+import { ICONS } from '@stafy/lib/icons'
 
 export default function TeamPage() {
   useTopBar({ title: 'Echipă', subtitle: 'Roster complet al companiei' })

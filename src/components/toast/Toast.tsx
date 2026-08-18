@@ -1,5 +1,5 @@
-import { ICONS } from '../../lib/icons'
-import type { ToastItem, ToastTone } from '../../lib/toast'
+import { ICONS } from '@stafy/lib/icons'
+import type { ToastItem, ToastTone } from '@stafy/lib/toast'
 
 interface ToastProps {
   item: ToastItem
