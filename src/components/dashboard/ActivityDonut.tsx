@@ -1,3 +1,5 @@
+import { CATEGORICAL_COLORS } from '@stafy/utils/activityColor'
+
 interface ActivitySegment {
   activity_name: string
   hours: number
@@ -8,11 +10,9 @@ interface ActivityDonutProps {
   totalHours: number
 }
 
-// Stafy's theme has no defined categorical ramp (semantic success/error/warning tokens fail the
-// dataviz skill's CVD/lightness checks when repurposed for series identity) — these are the
-// dataviz skill's validated default categorical slots 1-4, used as-is. Each donut is an independent
-// per-month snapshot (not a live-filterable single instance), so slot is assigned by display rank.
-const CATEGORICAL_COLORS = ['#2a78d6', '#008300', '#e87ba4', '#eda100']
+// Each donut is an independent per-month snapshot (not a live-filterable single
+// instance), so slot is assigned by display rank, not by activity identity — see
+// utils/activityColor.ts for the id-keyed variant used by chips elsewhere.
 const OTHER_COLOR = 'var(--color-ink-muted)'
 const MAX_SLICES = 4
 

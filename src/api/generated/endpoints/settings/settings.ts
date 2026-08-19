@@ -5,10 +5,14 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  AccountUpdateIn,
+  CompanyOut,
+  CompanyUpdateIn,
   HourlyRateOut,
   HourlyRateUpdate,
   HourlyRatesListOut,
-  UserActivityCreate
+  UserActivityCreate,
+  UserOut
 } from '../index.schemas';
 
 import { api } from '../../../../services/api';
@@ -17,6 +21,43 @@ import { api } from '../../../../services/api';
 
   export const getSettings = () => {
 /**
+ * @summary Update the authenticated manager's account details
+ */
+const updateMyAccount = (
+    accountUpdateIn: AccountUpdateIn,
+ ) => {
+      return api<UserOut>(
+      {url: `/api/v1/users/me/settings/account`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: accountUpdateIn
+    },
+      );
+    }
+  /**
+ * @summary Get the authenticated manager's company details
+ */
+const getMyCompany = (
+
+ ) => {
+      return api<CompanyOut>(
+      {url: `/api/v1/users/me/settings/company`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Update the authenticated manager's company details
+ */
+const updateMyCompany = (
+    companyUpdateIn: CompanyUpdateIn,
+ ) => {
+      return api<CompanyOut>(
+      {url: `/api/v1/users/me/settings/company`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: companyUpdateIn
+    },
+      );
+    }
+  /**
  * @summary List the authenticated user's hourly rates
  */
 const listMyHourlyRates = (
@@ -64,7 +105,10 @@ const deleteMyActivity = (
     },
       );
     }
-  return {listMyHourlyRates,updateMyHourlyRate,createMyActivity,deleteMyActivity}};
+  return {updateMyAccount,getMyCompany,updateMyCompany,listMyHourlyRates,updateMyHourlyRate,createMyActivity,deleteMyActivity}};
+export type UpdateMyAccountResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['updateMyAccount']>>>
+export type GetMyCompanyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['getMyCompany']>>>
+export type UpdateMyCompanyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['updateMyCompany']>>>
 export type ListMyHourlyRatesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['listMyHourlyRates']>>>
 export type UpdateMyHourlyRateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['updateMyHourlyRate']>>>
 export type CreateMyActivityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['createMyActivity']>>>

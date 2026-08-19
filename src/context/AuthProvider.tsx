@@ -8,31 +8,8 @@ import {
 } from 'firebase/auth'
 import { getAuth as getAuthApi } from '@stafy/api/generated/endpoints/auth/auth'
 import { auth } from '@stafy/services/firebase'
+import { mapAuthError } from '@stafy/utils/authError'
 import { AuthContext, type RegisterData } from './AuthContext'
-
-// Maps Firebase Auth error codes and the backend's {code, detail} error shape
-// (app/core/errors.py's AppHTTPException) to user-facing Romanian messages.
-function mapAuthError(error: unknown): string {
-  const err = error as { code?: string; response?: { data?: { detail?: string } }; message?: string }
-  switch (err?.code) {
-    case 'auth/invalid-credential':
-    case 'auth/wrong-password':
-    case 'auth/user-not-found':
-      return 'Email sau parolă incorectă'
-    case 'auth/email-already-in-use':
-      return 'Există deja un cont cu acest email'
-    case 'auth/weak-password':
-      return 'Parola trebuie să aibă minim 6 caractere'
-    case 'auth/invalid-email':
-      return 'Adresa de email nu este validă'
-    case 'auth/too-many-requests':
-      return 'Prea multe încercări. Încearcă din nou mai târziu'
-    case 'auth/network-request-failed':
-      return 'Fără conexiune la internet'
-    default:
-      return err?.response?.data?.detail ?? err?.message ?? 'A apărut o eroare neașteptată'
-  }
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null)

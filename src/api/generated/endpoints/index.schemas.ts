@@ -4,6 +4,42 @@
  * Stafy Time Tracking API
  * OpenAPI spec version: 1.0.0
  */
+export interface AccountUpdateIn {
+  /**
+     * First name.
+     * @minLength 2
+     * @maxLength 30
+     */
+  first_name: string;
+  /**
+     * Last name.
+     * @minLength 2
+     * @maxLength 30
+     */
+  last_name: string;
+}
+
+export interface ActivityOut {
+  /** Activity ID. */
+  id: number;
+  /** Activity name. */
+  activity_name: string;
+}
+
+export interface ActivitiesListOut {
+  /** Activities defined for the caller's company. */
+  data: ActivityOut[];
+}
+
+export interface ActivityCreateIn {
+  /**
+     * Name of the activity to create.
+     * @minLength 2
+     * @maxLength 30
+     */
+  activity_name: string;
+}
+
 export interface ActivityDistributionOut {
   /** Activity name. */
   activity_name: string;
@@ -11,11 +47,20 @@ export interface ActivityDistributionOut {
   hours: number;
 }
 
+export interface ActivityUpdateIn {
+  /**
+     * New name for the activity.
+     * @minLength 2
+     * @maxLength 30
+     */
+  activity_name: string;
+}
+
 export interface UserOut {
   /** Internal user ID. */
   id?: number | null;
   /** Firebase Auth UID. */
-  firebase_uid?: string;
+  firebase_uid?: string | null;
   /** User's first name. */
   first_name?: string | null;
   /** User's last name. */
@@ -27,7 +72,7 @@ export interface UserOut {
   /** Auth provider used to create this account. */
   auth_provider: string;
   /** Whether Firebase has verified the user's email. */
-  email_verified?: boolean;
+  email_verified?: boolean | null;
   /** One of employee, manager, admin. */
   role?: string | null;
   /** Free-text job title/position (e.g. 'Director'), not the role enum. The client offers a fixed picklist + custom 'other' option; the backend stores whatever string is submitted. */
@@ -76,6 +121,38 @@ export interface CompanyDashboardOut {
   activity_distribution: ActivityDistributionOut[];
   /** Top 5 employees by total hours this month, descending. */
   top_employees: CompanyTopEmployeeOut[];
+}
+
+export interface CompanyOut {
+  /** Company ID. */
+  id: number;
+  /** Company/organization name. */
+  name: string;
+  /** Company city. */
+  city?: string | null;
+  /** Company address. */
+  address?: string | null;
+}
+
+export interface CompanyUpdateIn {
+  /**
+     * Company/organization name.
+     * @minLength 2
+     * @maxLength 255
+     */
+  name: string;
+  /**
+     * Company city.
+     * @minLength 2
+     * @maxLength 255
+     */
+  city: string;
+  /**
+     * Company address.
+     * @minLength 2
+     * @maxLength 500
+     */
+  address: string;
 }
 
 export interface DashboardTimeEntryOut {
@@ -446,7 +523,7 @@ export interface UserActivityCreate {
   /**
      * Name of the activity to create.
      * @minLength 2
-     * @maxLength 100
+     * @maxLength 30
      */
   activity_name: string;
   /** Gross hourly rate for this activity. */
