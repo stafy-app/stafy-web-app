@@ -194,6 +194,13 @@ export function Sidebar() {
             </div>
           </div>
         </div>
+        <div
+          className={`overflow-hidden whitespace-nowrap text-[11px] text-[var(--color-ink-muted)] transition-[max-height,opacity] duration-[220ms] ease-[var(--ease-out)] ${
+            collapsed ? 'max-h-0 opacity-0' : 'max-h-4 opacity-100'
+          }`}
+        >
+          v{__APP_VERSION__}
+        </div>
         <button
           type="button"
           onClick={() => logout()}
