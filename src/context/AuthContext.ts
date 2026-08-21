@@ -8,11 +8,17 @@ export interface RegisterData {
   password: string
 }
 
+export interface CompleteRegistrationData {
+  firstName: string
+  lastName: string
+}
+
 export interface AuthContextValue {
   firebaseUser: FirebaseUser | null
   authResolved: boolean
   login: (email: string, password: string) => Promise<void>
   register: (data: RegisterData) => Promise<void>
+  completeRegistration: (data: CompleteRegistrationData) => Promise<void>
   logout: () => Promise<void>
 }
 

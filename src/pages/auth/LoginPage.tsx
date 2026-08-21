@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import logoMark from '@stafy/assets/stafy_logo.svg'
 import { useAuth } from '@stafy/hooks/useAuth'
+import { OrphanRegistrationError } from '@stafy/utils/authError'
 import { consumeBlockedMessage } from '@stafy/utils/authBlockedMessage'
 
 export default function LoginPage() {
   const { login } = useAuth()
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(() => consumeBlockedMessage())
@@ -18,6 +20,10 @@ export default function LoginPage() {
     try {
       await login(email, password)
     } catch (err) {
+      if (err instanceof OrphanRegistrationError) {
+        navigate({ to: '/complete-registration' })
+        return
+      }
       setError(err instanceof Error ? err.message : 'A apărut o eroare neașteptată')
     } finally {
       setIsSubmitting(false)

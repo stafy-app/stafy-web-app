@@ -2,6 +2,7 @@ import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/re
 import { AppLayout } from '@stafy/layouts/AppLayout'
 import { AuthLayout } from '@stafy/layouts/AuthLayout'
 import { OnboardingLayout } from '@stafy/layouts/OnboardingLayout'
+import { CompleteRegistrationLayout } from '@stafy/layouts/CompleteRegistrationLayout'
 import DashboardPage from '@stafy/pages/dashboard/DashboardPage'
 import TeamPage from '@stafy/pages/team/TeamPage'
 import EmployeeProfilePage from '@stafy/pages/team/EmployeeProfilePage'
@@ -10,6 +11,7 @@ import ReportsPage from '@stafy/pages/reports/ReportsPage'
 import SettingsPage from '@stafy/pages/settings/SettingsPage'
 import LoginPage from '@stafy/pages/auth/LoginPage'
 import RegisterPage from '@stafy/pages/auth/RegisterPage'
+import CompleteRegistrationPage from '@stafy/pages/auth/CompleteRegistrationPage'
 import OnboardingPage from '@stafy/pages/onboarding/OnboardingPage'
 import TestsPage from '@stafy/pages/tests/TestsPage'
 
@@ -89,6 +91,18 @@ const onboardingRoute = createRoute({
   component: OnboardingPage,
 })
 
+const completeRegistrationLayoutRoute = createRoute({
+  id: '_complete-registration',
+  getParentRoute: () => rootRoute,
+  component: CompleteRegistrationLayout,
+})
+
+const completeRegistrationRoute = createRoute({
+  path: '/complete-registration',
+  getParentRoute: () => completeRegistrationLayoutRoute,
+  component: CompleteRegistrationPage,
+})
+
 // Dev-only shadow route — never spliced into the tree in production builds,
 // so it doesn't exist in the prod route tree at all (not just unlinked).
 const testsRoute = createRoute({
@@ -108,6 +122,7 @@ const routeTree = rootRoute.addChildren([
   ]),
   authLayoutRoute.addChildren([loginRoute, registerRoute]),
   onboardingLayoutRoute.addChildren([onboardingRoute]),
+  completeRegistrationLayoutRoute.addChildren([completeRegistrationRoute]),
   ...(import.meta.env.DEV ? [testsRoute] : []),
 ])
 

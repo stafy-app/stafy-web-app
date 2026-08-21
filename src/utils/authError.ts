@@ -1,3 +1,18 @@
+// Thrown by AuthProvider's login() when the Firebase account exists but the
+// backend row doesn't (a previous registration attempt was interrupted
+// before the backend call completed). The user is already
+// Firebase-authenticated at this point, so the caller (LoginPage) should
+// route to /complete-registration instead of showing a dead-end error — see
+// docs/modules/auth.md, Special Aspects → Orphan registration. Lives here
+// rather than in AuthProvider.tsx so that file keeps exporting only the
+// AuthProvider component (react-refresh/only-export-components).
+export class OrphanRegistrationError extends Error {
+  constructor() {
+    super('Înregistrarea nu a fost finalizată ultima dată.')
+    this.name = 'OrphanRegistrationError'
+  }
+}
+
 // Maps Firebase Auth error codes and the backend's {code, detail} error shape
 // (stafy-backend's AppHTTPException) to user-facing Romanian messages. Shared by
 // AuthProvider (login/register) and useSendPasswordResetEmail — both hit the same
