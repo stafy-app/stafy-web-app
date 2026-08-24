@@ -170,6 +170,14 @@ controls (not `form-control`/`label-text`/`input-bordered` — those are DaisyUI
 exist in the v5 installed here), errors in an `alert alert-error`. No new design tokens — same
 `--color-*` variables as the rest of the app (`src/App.css`).
 
+`OnboardingPage` staggers its entrance with the shared `animate-fade-slide-in` keyframe (`src/App.css`,
+same one `DashboardPage`/`EmployeeCard`/`EmployeeHeaderCard` use) — header block, error alert, each
+fieldset/row, and the submit button each carry the class with an increasing inline `animationDelay`
+(0ms through 220ms), so the form cascades in top-to-bottom instead of popping in as one block. The
+conditional "Altceva" custom-job-title fieldset gets the class with no explicit delay, since it mounts
+fresh on user interaction rather than on page load. `LoginPage`/`RegisterPage`/`CompleteRegistrationPage`
+don't have this yet — nothing rules it out, just not asked for.
+
 `FullscreenSpinner` (`src/components/layout/FullscreenSpinner.tsx`) is the one shared loading
 state across all three gates — `bg-[var(--color-page)]` + a DaisyUI `loading loading-spinner`.
 

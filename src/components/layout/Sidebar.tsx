@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Home, Users, Mail, Download, Settings, ChevronLeft, LogOut } from 'lucide-react'
+import { Home, Users, Mail, Download, Settings, History, ChevronLeft, LogOut } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import logoMark from '@stafy/assets/stafy_logo.svg'
 import { useAuth } from '@stafy/hooks/useAuth'
@@ -20,6 +20,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/team', label: 'Echipă', icon: Users, badge: 'team' },
   { to: '/invitations', label: 'Invitații', icon: Mail, badge: 'invitations' },
   { to: '/reports', label: 'Rapoarte', icon: Download },
+  { to: '/audit-log', label: 'Audit', icon: History },
   { to: '/settings', label: 'Setări', icon: Settings },
 ]
 
