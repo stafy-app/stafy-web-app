@@ -1,26 +1,23 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Home, Users, Mail, Download, Settings, History, ChevronLeft, LogOut } from 'lucide-react'
+import { Home, Users, Mail, Download, Settings, ChevronLeft, LogOut } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import logoMark from '@stafy/assets/stafy_logo.svg'
 import { useAuth } from '@stafy/hooks/useAuth'
 import { useProfile } from '@stafy/hooks/useProfile'
-import { useTeam } from '@stafy/hooks/useTeam'
 import { getInitials } from '@stafy/utils/initials'
 
 interface NavItem {
   to: string
   label: string
   icon: LucideIcon
-  badge?: 'team' | 'invitations'
 }
 
 const NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Acasă', icon: Home },
-  { to: '/team', label: 'Echipă', icon: Users, badge: 'team' },
-  { to: '/invitations', label: 'Invitații', icon: Mail, badge: 'invitations' },
+  { to: '/team', label: 'Echipă', icon: Users },
+  { to: '/invitations', label: 'Invitații', icon: Mail },
   { to: '/reports', label: 'Rapoarte', icon: Download },
-  { to: '/audit-log', label: 'Audit', icon: History },
   { to: '/settings', label: 'Setări', icon: Settings },
 ]
 
@@ -36,8 +33,6 @@ export function Sidebar() {
 
   const { logout } = useAuth()
   const { data: profile } = useProfile()
-  const { data: team } = useTeam()
-  const teamCount = team?.data.filter((u) => u.role === 'employee').length
 
   const pillRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef(new Map<string, HTMLAnchorElement>())
@@ -123,7 +118,6 @@ export function Sidebar() {
         {NAV_ITEMS.map((item) => {
           const active = isActivePath(item.to, pathname)
           const Icon = item.icon
-          const count = item.badge === 'team' ? teamCount : undefined
           return (
             <Link
               key={item.to}
@@ -133,7 +127,7 @@ export function Sidebar() {
                 else itemRefs.current.delete(item.to)
               }}
               aria-label={item.label}
-              title={collapsed && count ? `${item.label} (${count})` : item.label}
+              title={item.label}
               className={`relative z-10 flex items-center rounded-[var(--radius-md)] text-[14px] font-medium no-underline transition-[color,background-color,padding,gap] duration-[220ms] ease-[var(--ease-out)] ${
                 collapsed ? 'justify-center gap-0 px-0 py-[11px]' : 'gap-2.5 px-3 py-2.5'
               } ${
@@ -142,12 +136,9 @@ export function Sidebar() {
                   : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-surface-2)]'
               }`}
             >
-              <span className="relative flex flex-shrink-0">
-                <Icon className={`h-[18px] w-[18px] ${active ? 'text-[var(--color-primary)]' : 'text-current'}`} />
-                {collapsed && !!count && (
-                  <span className="absolute -right-1.5 -top-1 h-4 w-4 rounded-full border-2 border-[var(--color-surface)] bg-[var(--color-primary)]" />
-                )}
-              </span>
+              <Icon
+                className={`h-[18px] w-[18px] flex-shrink-0 ${active ? 'text-[var(--color-primary)]' : 'text-current'}`}
+              />
               <span
                 className={`overflow-hidden text-ellipsis whitespace-nowrap transition-[max-width,opacity] duration-[220ms] ease-[var(--ease-out)] ${
                   collapsed ? 'max-w-0 opacity-0' : 'max-w-[140px] opacity-100'
@@ -155,19 +146,6 @@ export function Sidebar() {
               >
                 {item.label}
               </span>
-              {!!count && (
-                <span
-                  className={`ml-auto overflow-hidden rounded-full font-[var(--font-mono)] text-[11px] transition-[max-width,opacity,padding] duration-[220ms] ease-[var(--ease-out)] ${
-                    collapsed ? 'max-w-0 px-0 py-[2px] opacity-0' : 'max-w-[32px] px-[7px] py-[2px] opacity-100'
-                  } ${
-                    active
-                      ? 'bg-[var(--color-primary-soft-strong)] text-[var(--color-primary-active)]'
-                      : 'bg-[var(--color-surface-2)] text-[var(--color-ink-muted)]'
-                  }`}
-                >
-                  {count}
-                </span>
-              )}
             </Link>
           )
         })}

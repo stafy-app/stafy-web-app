@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useTopBar } from '@stafy/hooks/useTopBar'
 import { useProfile } from '@stafy/hooks/useProfile'
 import { useAuditLogs } from '@stafy/hooks/useAuditLogs'
 import { ACTION_LABELS, formatAuditDetail } from '@stafy/utils/auditLogFormat'
@@ -14,9 +13,7 @@ const dateTimeFormatter = new Intl.DateTimeFormat('ro-RO', {
   minute: '2-digit',
 })
 
-export default function AuditLogPage() {
-  useTopBar({ title: 'Audit', subtitle: 'Istoric al acțiunilor sensibile din companie' })
-
+export function AuditSection() {
   const { data: profile } = useProfile()
   const isAdmin = profile?.role === 'admin'
 
@@ -42,8 +39,13 @@ export default function AuditLogPage() {
   const entries = data?.data ?? []
 
   return (
-    <div className="mx-auto flex max-w-[1280px] flex-col gap-5">
-      <div className="flex flex-wrap items-end gap-3 rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">
+    <div className="flex flex-col gap-4">
+      <div>
+        <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">Audit</h2>
+        <p className="text-[13px] text-[var(--color-ink-muted)]">Istoric al acțiunilor sensibile din companie.</p>
+      </div>
+
+      <div className="flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1 text-[12px] text-[var(--color-ink-muted)]">
           Acțiune
           <select
@@ -107,11 +109,11 @@ export default function AuditLogPage() {
       </div>
 
       {isLoading ? null : entries.length === 0 ? (
-        <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-10 text-center shadow-[var(--shadow-sm)]">
+        <div className="rounded-[var(--radius-lg)] border border-[var(--color-line)] p-10 text-center">
           <div className="text-[13px] text-[var(--color-ink-muted)]">Nicio acțiune înregistrată.</div>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-[var(--radius-lg)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)]">
+        <div className="overflow-x-auto rounded-[var(--radius-lg)] border border-[var(--color-line)]">
           <table className="table">
             <thead>
               <tr className="text-[12px] uppercase tracking-[0.06em] text-[var(--color-ink-muted)]">

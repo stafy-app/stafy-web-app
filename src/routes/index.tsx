@@ -8,7 +8,6 @@ import TeamPage from '@stafy/pages/team/TeamPage'
 import EmployeeProfilePage from '@stafy/pages/team/EmployeeProfilePage'
 import InvitationsPage from '@stafy/pages/invitations/InvitationsPage'
 import ReportsPage from '@stafy/pages/reports/ReportsPage'
-import AuditLogPage from '@stafy/pages/audit-log/AuditLogPage'
 import SettingsPage from '@stafy/pages/settings/SettingsPage'
 import LoginPage from '@stafy/pages/auth/LoginPage'
 import RegisterPage from '@stafy/pages/auth/RegisterPage'
@@ -54,12 +53,6 @@ const reportsRoute = createRoute({
   path: '/reports',
   getParentRoute: () => appLayoutRoute,
   component: ReportsPage,
-})
-
-const auditLogRoute = createRoute({
-  path: '/audit-log',
-  getParentRoute: () => appLayoutRoute,
-  component: AuditLogPage,
 })
 
 const settingsRoute = createRoute({
@@ -125,7 +118,6 @@ const routeTree = rootRoute.addChildren([
     employeeProfileRoute,
     invitationsRoute,
     reportsRoute,
-    auditLogRoute,
     settingsRoute,
   ]),
   authLayoutRoute.addChildren([loginRoute, registerRoute]),

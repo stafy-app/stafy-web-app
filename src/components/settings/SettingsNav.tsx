@@ -1,6 +1,6 @@
 import { ICONS, type IconName } from '@stafy/lib/icons'
 
-export type SettingsSectionKey = 'account' | 'company' | 'activities' | 'security'
+export type SettingsSectionKey = 'account' | 'company' | 'activities' | 'audit' | 'security'
 
 interface SettingsNavProps {
   active: SettingsSectionKey
@@ -11,6 +11,7 @@ const SECTIONS: { key: SettingsSectionKey; label: string; icon: IconName }[] = [
   { key: 'account', label: 'Cont', icon: 'user' },
   { key: 'company', label: 'Companie', icon: 'building' },
   { key: 'activities', label: 'Activități', icon: 'tags' },
+  { key: 'audit', label: 'Audit', icon: 'history' },
   { key: 'security', label: 'Securitate', icon: 'shield' },
 ]
 

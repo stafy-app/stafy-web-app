@@ -13,14 +13,14 @@ Layout); a compact
 employee picker (avatar + name, one selected at a time); a checkbox to include the detailed
 time-entry list; a bonus field (amount + optional reason, three quick-amount buttons, a clear-bonus
 link when a bonus is already set for the selected employee/month); a PDF-download action (fully
-functional); a send-by-email action (visible, disabled — see Deferred); a live A4 preview of the exact
-document that gets downloaded, rendered via `@react-pdf/renderer`'s `<PDFViewer>` — not a separate
-DOM mockup kept visually in sync by hand.
+functional); a live A4 preview of the exact document that gets downloaded, rendered via
+`@react-pdf/renderer`'s `<PDFViewer>` — not a separate DOM mockup kept visually in sync by hand.
 
-**Out of scope (this release):** actually sending the report by email (button ships disabled, no
-backend call wired); the *employer's own* logo or phone number in the document header (identity
-block is name + address text only — the header does show a static Stafy brand mark, see Special
-Aspects; per-company branding is a separate, still-deferred feature — see
+**Out of scope (this release):** sending the report by email — no button, no backend call wired
+(see Deferred; a prior disabled placeholder button was removed rather than left non-functional —
+see Special Aspects); the *employer's own* logo or phone number in the document header (identity
+block is name + address text only — see Special Aspects for why no logo of any kind is shown there;
+per-company branding is a separate, still-deferred feature — see
 `stafy-backend/docs/modules/reports.md`); a mobile/tablet layout
 (the two-column layout is desktop-only for now, no collapse breakpoint); editing a past month's
 bonus retroactively from anywhere other than this page (History, Dashboard, Team only ever *display*
@@ -105,7 +105,6 @@ currently generating (drives the pulse/spinner, see UI / Layout).
 7. Manager clicks the PDF-download button → button disables and shows a spinner, the preview
    document pulses (a brief shadow/scale animation) for the duration of `pdf(document).toBlob()`,
    then the file downloads and a toast confirms.
-8. The send-by-email button is visible but disabled — no flow yet.
 
 ---
 
@@ -136,8 +135,7 @@ not a dialog.
   `EmployeeReportOut.bonus` is non-null for the current selection. Keyed by
   `${employeeId}-${year}-${month}` from the parent so React remounts it (fresh local draft state)
   whenever employee or period changes, instead of an effect that writes state — see Special Aspects.
-- **Final actions card** — two full-width stacked buttons: a PDF-download button (`btn-primary`) and
-  a send-by-email button (`btn-outline`, `disabled`, no click handler wired).
+- **Final actions card** — one full-width PDF-download button (`btn-primary`).
 
 All left-panel text stays small/muted/uppercase-label, so the document preview stays the visual
 focus.
@@ -153,21 +151,26 @@ focus.
   monospace for every number — hours, RON, rates), not color. This is a deliberate departure from
   the rest of the app's visual language — see Special Aspects.
 - Sections, top to bottom: a header block, four rows separated by a heavy rule below — row 1 is the
-  static Stafy brand mark (left, hand-drawn `Svg` primitives, not an imported raster/SVG asset — see
-  Special Aspects) and the static document title (right); row 2 is a Company field (+ optional
-  address subtext) and a Period field (always the full calendar month's first–last day range,
-  independent of when the report is actually generated); row 3 is an Employee field (+ email
+  masthead: `report.company.name` (left, large/bold — no logo of any kind, see Special Aspects) and
+  the static document title (right); row 2 is an optional Address field (left, only when
+  `company.address` is set) and a Period field (always the full calendar month's first–last day
+  range, independent of when the report is actually generated); row 3 is an Employee field (+ email
   subtext) and a Generated-by field (manager name + email subtext, right-aligned via
   `headerFieldGroupRight`); row 4 is a Job-title field (`employee.job_title`, em-dash when unset)
-  and a Generated-on field (generation date **and** time, not date-only).
+  and a Generated-on field (generation date **and** time, not date-only). Rows 2–4 align their
+  fields to the top (`flex-start`), not centered, since several pair a two-line field against a
+  single-line one.
   A large summary block follows (total hours,
   total pay side by side, bold, with the bonus note when applicable); the activity-breakdown table
-  (activity, rate, hours, subtotal — one row per `(activity_id, rate_applied)` group, a starred bonus
-  row when active, a bold larger grand-total row); the optional time-entries table (same columns as
-  the Employee Profile Attendance tab) when the checkbox is checked; a one-time (not repeated per
-  page) manager signature block — blank line + a manager-signature label, no name — right-aligned
-  after the last content block; a thin fixed footer rule noting the document was generated
-  automatically by Stafy.ro, and the page number.
+  (activity, rate, hours, subtotal — one row per `(activity_id, rate_applied)` group, a bulleted
+  bonus row when active, a bold larger grand-total row); the optional time-entries table (same
+  columns as the Employee Profile Attendance tab, plus its own total row) when the checkbox is
+  checked; a one-time (not repeated per page) manager signature block — blank line + a
+  manager-signature label, no name — right-aligned after the last content block; a thin fixed footer
+  rule noting the document was generated automatically by Stafy.ro, and the page number. Table
+  header rows repeat on every page (`fixed`) and no table/summary/signature row is allowed to split
+  across a page break (`wrap={false}`) — relevant once the optional time-entries table pushes the
+  document past one page.
 - Density is generous (large padding, relaxed line-height) — reads as a printed document, not an
   app screen.
 
@@ -178,9 +181,6 @@ focus.
   real-latency feedback, not decoration (`toBlob()` is not instant). The button shows an inline
   spinner and is disabled for the same duration. A toast confirms once the browser download
   actually starts.
-- The same pulse (and disabled/spinner state) is defined for the send-by-email button for when that
-  button is enabled in a future release, even though it currently never fires.
-
 Design tokens for everything **outside** the document (cards, buttons, labels) come from
 `src/App.css`'s `"stafy"` theme, same as every other page.
 
@@ -226,25 +226,50 @@ hand-maintained DOM/Tailwind mockup to keep visually in sync — the alternative
 template rendered to PDF via something like WeasyPrint, previewed via a separate React component)
 was considered and rejected specifically to avoid two templates drifting apart over time.
 
-**The document deliberately does not use the `"stafy"` theme.** Every other surface in this app uses
-the brand-orange DaisyUI theme; this one page's exported artifact is a monochrome, typographically
-hierarchical document on purpose — it's meant to read as an official printed payslip, not as an
-extension of the app UI. Don't "fix" this by reintroducing brand color into the report styles.
-**One deliberate exception:** the header's Stafy brand mark keeps its real orange (`#FF6B00`) fill —
-it's a small fixed logo mark, not a theming choice, and the surrounding document stays monochrome.
-The mark is drawn with react-pdf's native `Svg`/`Path`/`Circle`/`Line`/`G`/`Rect` primitives (copied
-from `src/assets/stafy_logo.svg`'s paths) rather than rendered as an `Image` — react-pdf's `Image`
-component doesn't rasterize arbitrary SVG, so importing the asset file directly wouldn't render.
+**The document deliberately does not use the `"stafy"` theme, and carries no app/vendor logo of any
+kind.** Every other surface in this app uses the brand-orange DaisyUI theme; this one page's
+exported artifact is a monochrome, typographically hierarchical document on purpose — it's meant to
+read as an official printed document, not as an extension of the app UI or a screenshot of it. The
+masthead's left slot shows `report.company.name` (the *client's* company, large/bold) rather than a
+Stafy brand mark — that slot belongs to whichever company issued the report, and Stafy's own
+attribution is confined to the footer's "generat automat de Stafy.ro" line and the PDF's
+`creator`/`producer` metadata, not the masthead. Don't reintroduce brand color or an app logo into
+the report styles; per-company branding (the employer's own logo) is a separate, still-deferred
+feature — see Deferred.
 
-**Body text uses a registered `Inter` font, not react-pdf's built-in `Helvetica`.** The base-14 PDF
-fonts (`Helvetica`, `Courier`, ...) use WinAnsi encoding, which has no Romanian diacritics at all
-(ă, â, î, ș, ț silently vanish from the rendered PDF). `@fontsource/inter`'s `latin-ext` WOFF (not WOFF2 — react-pdf/fontkit's WOFF2 embedding is
-unreliable and throws `RangeError: Offset is outside the bounds of the DataView`) subset
-(400/700, normal/italic — the four weights/styles this document actually uses) is registered via
-`Font.register` at module load and set as the page's base `fontFamily`; bold/italic are expressed as
-`fontWeight`/`fontStyle` on top of that one family, not as separate `Helvetica-Bold`-style family
-names. `Courier`/`Courier-Bold` are untouched — they're only ever applied to numbers/currency/RON,
-which have no diacritics, so the base-14 encoding gap doesn't apply there.
+**Body text uses two registered Inter font families, not react-pdf's built-in `Helvetica`.** The
+base-14 PDF fonts (`Helvetica`, `Courier`, ...) use WinAnsi encoding, which has no Romanian
+diacritics at all (ă, â, î, ș, ț silently vanish from the rendered PDF). `@fontsource/inter` ships
+Romanian coverage as two *disjoint* subsets — `latin` (digits, base punctuation, plain letters) and
+`latin-ext` (only ă/â/î/ș/ț, nothing else) — so both are registered as separate families
+(`InterLatin`, `InterLatinExt`) and the page's `fontFamily` is set to the array
+`['InterLatin', 'InterLatinExt']`. react-pdf/textkit's `fontSubstitution` pass resolves each
+character against that stack in order (`pickFontFromFontStack`, per-codepoint `hasGlyphForCodePoint`
+checks) before falling further back to `Helvetica` — registering only one of the two subsets under
+a single family (an earlier version of this file did) leaves every codepoint the registered subset
+doesn't cover silently falling all the way to `Helvetica`, which is most of the alphabet for a
+`latin-ext`-only registration. Each family registers 400/700 normal/italic (the four weights/styles
+this document actually uses) as `.woff`, not `.woff2` — react-pdf/fontkit's WOFF2 embedding is
+unreliable and throws `RangeError: Offset is outside the bounds of the DataView`. `Courier`/
+`Courier-Bold` stay on numeric/currency cells only (a `mono` style, applied to value cells, never to
+`th` column-label cells — those need the Inter stack for labels like "Durată"/"Sumă") — Courier has
+no diacritics either, but every numeric value it's applied to is diacritic-free by construction.
+
+**The `latin-ext` font files are byte-patched copies, committed under `src/assets/fonts/`, not
+imported from `@fontsource/inter` directly.** `@fontsource/inter`'s `latin` and `latin-ext` subset
+files for the same weight self-report the *identical* internal font name (both "Inter-Bold", etc.)
+— they're the same font, only split by Unicode range for web `@font-face` performance.
+`@react-pdf/pdfkit` caches embedded fonts by that internal name (`FontsMixin.font()`'s
+`this._fontFamilies[this._font.name]` check, confirmed by reading the installed package source),
+so once `latin` is embedded as "Inter-Bold", `latin-ext` silently reuses that same embedded
+(diacritic-free) font object instead of being embedded at all — react-pdf/textkit still resolves
+diacritic glyphs against `latin-ext`'s own glyph indices, but pdfkit draws them from `latin`'s glyph
+table, which produces a garbage character (not a blank one) for every diacritic. `scripts/patch-
+report-fonts.cjs` (`pnpm run patch-report-fonts`) regenerates `src/assets/fonts/inter-latin-ext-*
+.woff` from the installed package by rewriting only the `latin-ext` copies' `name` table
+("Inter" → "IntrX"), verified against the original with fontkit (`numGlyphs`/`characterSet`/
+`hasGlyphForCodePoint` all unchanged, only `postscriptName`/`familyName` differ) — nothing else in
+the font is touched. Re-run it after bumping `@fontsource/inter`.
 
 **The employee picker is a new page-scoped component, not a reuse of `EmployeeCard`.** `EmployeeCard`
 (Team page) is a richer card (status pill, hours/delta/pay stats, activity chips) built for a grid;
@@ -273,10 +298,14 @@ leaves the app.** The report is explicitly an internal working document a manage
 accounting to replace manual hour/salary tallying — not an official payslip (no CNP/CUI, no
 gross/net breakdown; deliberately out of scope, see Scope). Once a PDF leaves the app as an email
 attachment or download, there's no in-app trail of which version was sent, so the footer adds a
-`RAP-{employeeId}-{yyyyMMdd-HHmm}` reference derived from `generated_at` (lets accounting cite a
-specific generation instant) alongside a one-line data-protection note. `<Document>` also now sets
-PDF metadata (`title`/`author`/`subject`/`creator`) so the file has a readable name/author in any
-PDF viewer instead of appearing blank.
+`RA-{employeeId}-{yyyyMMdd-HHmm}` reference derived from `generated_at` using UTC getters, not
+local ones — the same instant must produce the same ref regardless of which timezone the manager's
+browser is in — alongside a one-line data-protection note. The footer also prints a
+`TEMPLATE_VERSION` constant (currently `v1.0`, defined in `ReportDocument.tsx`) so a template
+layout/field change later stays identifiable on documents already sent to accounting — bump it
+whenever the template's structure changes. `<Document>` also now sets PDF metadata
+(`title`/`author`/`subject`/`creator`) so the file has a readable name/author in any PDF viewer
+instead of appearing blank.
 
 **This feature also changes already-shipped pages.** Employee Profile's History tab renders
 `EmployeeMonthlyHistoryEntryOut.bonus_amount` (new field) as its own line/marker per month, rather
@@ -296,6 +325,7 @@ message only shows when both are absent.
 
 | Item | Trigger |
 |---|---|
-| Send-by-email actually sending | A backend endpoint exists to accept the client's generated PDF blob and relay it via `app/email`/Resend |
+| Send-by-email (manager → a configured accounting address, not the employee directly, to avoid this document being treated as an official payslip) | A backend endpoint exists to accept the client's generated PDF blob and relay it via `app/email`/Resend |
 | Company logo / phone in the document header | `Company` gains those fields for an unrelated reason |
+| Batch export (whole roster, one month, one action) | A concrete need surfaces for exporting more than one employee at a time |
 | Mobile/tablet responsive layout (panel collapses above preview) | A concrete need to use this page from a narrow viewport |

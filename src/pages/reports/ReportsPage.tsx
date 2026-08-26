@@ -63,9 +63,11 @@ export default function ReportsPage() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `raport-${report.employee.last_name ?? 'angajat'}-${period.year}-${String(period.month).padStart(2, '0')}.pdf`
+      link.download = `RA-${report.employee.last_name ?? 'angajat'}-${period.year}-${String(period.month).padStart(2, '0')}.pdf`
       link.click()
-      URL.revokeObjectURL(url)
+      // Deferred, not synchronous — revoking the object URL immediately after click() is
+      // browser-timing-dependent and can cancel the download before it actually starts.
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
       showToast('PDF descărcat.')
     } catch {
       showToast('Nu s-a putut genera PDF-ul.', { tone: 'danger' })
@@ -122,25 +124,19 @@ export default function ReportsPage() {
           onClear={() => clearBonusMutation.mutate()}
         />
 
-        <div className="flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={handleDownload}
-            disabled={!report || isDownloading}
-            className="btn btn-primary w-full gap-2"
-          >
-            {isDownloading ? (
-              <ICONS.loading className="h-4 w-4 animate-spin" />
-            ) : (
-              <ICONS.download className="h-4 w-4" />
-            )}
-            Descarcă PDF
-          </button>
-          <button type="button" disabled className="btn btn-outline w-full gap-2 opacity-50">
-            <ICONS.mail className="h-4 w-4" />
-            Trimite pe email
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={!report || isDownloading}
+          className="btn btn-primary w-full gap-2"
+        >
+          {isDownloading ? (
+            <ICONS.loading className="h-4 w-4 animate-spin" />
+          ) : (
+            <ICONS.download className="h-4 w-4" />
+          )}
+          Descarcă PDF
+        </button>
       </div>
 
       <div className="min-w-0 flex-1">

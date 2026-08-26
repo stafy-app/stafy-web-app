@@ -1,20 +1,30 @@
 # Settings
 
 Manager-only settings page: personal account details, the manager's company profile, the
-company's shared activity list, and account security (password reset, account deletion).
+company's shared activity list, a read-only feed of sensitive company actions, and account
+security (password reset, account deletion).
 
 ## Scope
 
 **In scope:** viewing/editing the caller's own account name (email and job title render read-only);
 viewing/editing the caller's own company (name, city, address); listing, creating, and renaming
-company-wide activities; triggering a Firebase password-reset email; a Danger Zone entry point for
-account deletion.
+company-wide activities; an Audit section listing sensitive actions across the company (rate
+changes, bonuses, deleted time entries, invitation lifecycle, employee suspend/reactivate, company
+settings edits, activity create/rename), filterable by action type, date range, and — admin only —
+a company ID; triggering a Firebase password-reset email; a Danger Zone entry point for account
+deletion.
 
 **Out of scope (this release):** email address editing; phone number field; profile photo upload;
 manual per-activity color picker; account deletion itself (the Danger Zone button exists, the
 action shows a "not available yet" notice — no backend endpoint, no cascade-delete design); an
 "unsaved changes" leave-section warning; activity deletion (matches the backend invariant that a
-company's activity row is never deleted, only per-employee rate assignments are).
+company's activity row is never deleted, only per-employee rate assignments are); an actor picker
+for the Audit section (filtering by a specific person) — the backend endpoint accepts an
+`actor_user_id` filter, but no user-search component exists in this app to drive it, and building
+one for this alone would be premature; the actor's name is still shown per row. A company
+switcher/picker for the Audit section's admin view — it instead shows a plain `company_name` column
+per row plus a numeric `company_id` text filter, not a dropdown (see backend
+`docs/modules/audit-logs.md`).
 
 ---
 
@@ -35,6 +45,8 @@ company's activity row is never deleted, only per-employee rate assignments are)
 - `Company` (name, city, address) — owned by the `stafy-backend` users domain.
 - `Activity` (id, name) — owned by the `stafy-backend` activities domain; also referenced by the
   Employee Profile page's Rates tab and the Dashboard's activity breakdown.
+- `AuditLogOut` / `AuditLogsListOut` (`src/api/generated/endpoints/index.schemas.ts`) — generated
+  from the backend's `stafy/audit_logs` module, read by the Audit section.
 
 ### Owned
 
@@ -78,16 +90,22 @@ a given activity's color stays stable across the app rather than shifting with i
 5. **Delete account (Danger Zone)** — manager clicks the outlined red button in the visually
    distinct Danger Zone block; a toast states the action isn't available yet. No network call, no
    state change.
+6. **Review audit trail** — manager or admin switches to the Audit section, sees the first 50
+   entries for their scope, newest first; filters by action type or date range (re-fetches from
+   `offset=0`); clicks "Încarcă mai multe" to grow the page size by 50. Admin additionally enters a
+   company ID to scope to one company.
 
 ---
 
 ## Information Architecture
 
 Sidebar nav item "Settings" → `/settings` route → `SettingsPage`, which renders a fixed vertical
-left nav (`SettingsNav`, four items: Account/Company/Activities/Security) and the active section's
-component inside a single card. Section switching is local component state
+left nav (`SettingsNav`, five items: Account/Company/Activities/Audit/Security) and the active
+section's component inside a single card. Section switching is local component state
 (`useState<SettingsSectionKey>`), not nested router routes — no section has its own URL, same
-non-routed approach the Employee Profile page's tabs already use. No modals.
+non-routed approach the Employee Profile page's tabs already use. No modals. The Audit section has
+no route or sidebar item of its own — manager/admin read-only config-adjacent content, not a
+distinct workflow.
 
 ---
 
@@ -100,7 +118,7 @@ non-routed approach the Employee Profile page's tabs already use. No modals.
   `text-[var(--color-primary-active)]` / `font-semibold`, inactive
   `text-[var(--color-ink-soft)]` with `hover:bg-[var(--color-surface-2)]` — same token pattern as
   `Sidebar.tsx`, without its sliding-pill animation (this nav switches on local state, not route
-  navigation). `ICONS` entries: `user`, `building`, `tags`, `shield`.
+  navigation). `ICONS` entries: `user`, `building`, `tags`, `history`, `shield`.
 - Forms: `fieldset`/`legend`/`input` DaisyUI pattern (uppercase small legend, bordered input),
   matching `OnboardingPage.tsx`. One primary (`btn btn-primary`) save action per section,
   right-aligned.
@@ -109,6 +127,12 @@ non-routed approach the Employee Profile page's tabs already use. No modals.
   in this section.
 - Security section: a single explanatory line + one `btn btn-primary` reset-email action — no
   password fields anywhere on this page (see Special Aspects).
+- Audit section: filter row (action `<select>`, two `<input type="date">`, and — admin only — a
+  numeric company-ID `<input>`) above a DaisyUI `table` (bordered wrapper, not a nested
+  surface+shadow card, since it already sits inside the section's own card) — modeled on
+  `InvitationsTable`'s column/empty-state/row-size conventions. Columns: Dată, Acțiune, Cine, Pentru
+  cine, (Companie — admin only), Detalii. "Load more": centered outline button, shown only when the
+  response's `has_more` is true.
 - Danger Zone: the only red surface on the page —
   `border-[var(--color-error)] bg-[var(--color-error-soft)]/40`, outlined red button
   (`btn btn-outline btn-error`), visually separated from the reset-password block above it.
@@ -126,7 +150,8 @@ non-routed approach the Employee Profile page's tabs already use. No modals.
 | `/api/v1/activities` | GET | Manager/admin only. Lists the company's activities. |
 | `/api/v1/activities` | POST | Manager/admin only. Creates an activity; 409 on a case-insensitive duplicate name within the company. |
 | `/api/v1/activities/{id}` | PATCH | Manager/admin only. Renames an activity; 404 if outside the caller's company, 409 on duplicate name. |
-| `/api/v1/profile` | GET | Existing endpoint (not owned by this page) — hydrates the Account section and supplies `is_own_company`/`auth_provider` for the Company/Security sections' gating. |
+| `/api/v1/profile` | GET | Existing endpoint (not owned by this page) — hydrates the Account section and supplies `is_own_company`/`auth_provider` for the Company/Security sections' gating, and `role` for the Audit section's admin-only columns/filter. |
+| `/api/v1/audit-logs?limit=&offset=&company_id=&actor_user_id=&action=&date_from=&date_to=` | GET | Manager scoped to their own company; admin cross-company by default or filtered via `company_id`. Backs the Audit section, via `useAuditLogs` (`src/hooks/useAuditLogs.ts`). See `stafy-backend/docs/modules/audit-logs.md`. |
 
 Password reset and account deletion have no backend endpoint — password reset is a direct Firebase
 Auth client SDK call (`sendPasswordResetEmail`); account deletion has none yet (see Special
@@ -178,6 +203,17 @@ activity endpoints (`require_role("employee", "admin")`) exist for employees man
 rate — a different actor and role than this manager-only page; this page's Activities section calls
 the newer `/api/v1/activities` endpoints instead.
 
+**Audit section pagination grows `limit`, not `offset`.** "Load more" increases the requested
+`limit` by 50 and re-fetches from `offset=0` each time rather than tracking an accumulated array
+across pages — the response at any point already contains the full visible set, so a `useState`
+counter is the entire pagination mechanism, matching this app's preference for derived state over
+`useEffect`-driven merges (see `CompanySection`/`BonusCard`'s remount-by-`key` approach).
+
+**Audit section's "Detalii" column is computed client-side.** `formatAuditDetail`
+(`src/utils/auditLogFormat.ts`) renders one before→after summary line per `action` string, since the
+raw `before`/`after` JSON shape varies by action; `ACTION_LABELS` (same file) maps each `action`
+string to a Romanian label for both the filter dropdown and the row's action column.
+
 ---
 
 ## Deferred
@@ -191,3 +227,5 @@ the newer `/api/v1/activities` endpoints instead.
 | Profile photo upload | A photo storage/CDN decision is made elsewhere in the app |
 | Manual activity color picker | Only if product feedback specifically asks for user-chosen colors over the auto-assigned palette |
 | "Unsaved changes" indicator on leaving a section | Real signal of users losing edits, not hypothetical |
+| Audit actor filter/picker | A general user-search component exists elsewhere in the app to reuse, or this specific filter is requested |
+| Audit company picker (dropdown instead of a numeric ID field) for the admin view | Admin usage grows beyond occasional cross-company spot-checks |
