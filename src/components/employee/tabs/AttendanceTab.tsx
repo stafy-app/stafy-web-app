@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { PeriodBar } from '@stafy/components/dashboard/PeriodBar'
+import { BonusCard } from '@stafy/components/reports/BonusCard'
 import { useEmployeeTimeEntries } from '@stafy/hooks/useEmployeeTimeEntries'
-import { useEmployeeReport } from '@stafy/hooks/useReports'
+import { useEmployeeReport, useSetReportBonus, useClearReportBonus } from '@stafy/hooks/useReports'
 import { getAdjacentPeriod, getCurrentPeriod } from '@stafy/utils/period'
 
 interface AttendanceTabProps {
@@ -21,6 +22,8 @@ export function AttendanceTab({ employeeId }: AttendanceTabProps) {
   const entries = useMemo(() => data?.data ?? [], [data])
   const { data: report } = useEmployeeReport(employeeId, period.year, period.month)
   const bonus = report?.bonus && parseFloat(report.bonus.amount) > 0 ? report.bonus : null
+  const setBonusMutation = useSetReportBonus(employeeId, period.year, period.month)
+  const clearBonusMutation = useClearReportBonus(employeeId, period.year, period.month)
 
   const [activityFilter, setActivityFilter] = useState<'all' | number>('all')
 
@@ -50,14 +53,26 @@ export function AttendanceTab({ employeeId }: AttendanceTabProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <PeriodBar
-        year={period.year}
-        month={period.month}
-        isCurrentMonth={isCurrentMonth}
-        onPrev={goToPrevMonth}
-        onNext={goToNextMonth}
-        onJumpToCurrent={() => setPeriod(getCurrentPeriod())}
-      />
+      <div className="flex flex-wrap items-start gap-4">
+        <div className="min-w-[280px] flex-1">
+          <PeriodBar
+            year={period.year}
+            month={period.month}
+            isCurrentMonth={isCurrentMonth}
+            onPrev={goToPrevMonth}
+            onNext={goToNextMonth}
+            onJumpToCurrent={() => setPeriod(getCurrentPeriod())}
+          />
+        </div>
+        <div className="w-[260px] flex-shrink-0">
+          <BonusCard
+            key={`${employeeId}-${period.year}-${period.month}`}
+            bonus={report?.bonus}
+            onSave={(amount, reason) => setBonusMutation.mutate({ amount, reason })}
+            onClear={() => clearBonusMutation.mutate()}
+          />
+        </div>
+      </div>
 
       <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">

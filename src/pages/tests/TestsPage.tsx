@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react'
 import { showToast } from '@stafy/lib/toast'
 
 // Dev-only shadow page — see src/routes/index.tsx (registered only when
@@ -36,6 +37,16 @@ export default function TestsPage() {
             }
           >
             Info toast (custom duration + icon)
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline btn-error"
+            onClick={() => {
+              const eventId = Sentry.captureException(new Error('Sentry test error (TestsPage)'))
+              console.log('Sentry event id:', eventId)
+            }}
+          >
+            Trigger Sentry test error
           </button>
         </div>
       </div>

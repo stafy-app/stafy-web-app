@@ -17,6 +17,11 @@ import {
   RefreshCw,
   Trash2,
   Clock,
+  User,
+  Building2,
+  Tags,
+  ShieldCheck,
+  History,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -39,6 +44,11 @@ export const ICONS = {
   refresh: RefreshCw,
   trash: Trash2,
   clock: Clock,
+  user: User,
+  building: Building2,
+  tags: Tags,
+  shield: ShieldCheck,
+  history: History,
 } satisfies Record<string, LucideIcon>
 
 export type IconName = keyof typeof ICONS

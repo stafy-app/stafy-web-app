@@ -47,23 +47,28 @@ export default function OnboardingPage() {
   return (
     <div className="card w-full max-w-md bg-base-100 shadow-xl">
       <div className="card-body">
-        <div className="mb-1 flex items-center gap-2">
+        <div className="animate-fade-slide-in mb-1 flex items-center gap-2" style={{ animationDelay: '0ms' }}>
           <img src={logoMark} alt="Stafy" className="h-8 w-8 rounded-[7px]" />
           <span className="text-[20px] font-bold text-[var(--color-ink)]">Stafy</span>
         </div>
-        <h1 className="text-xl font-semibold text-[var(--color-ink)]">Completează profilul companiei</h1>
-        <p className="mb-2 text-sm text-[var(--color-ink-muted)]">
+        <h1
+          className="animate-fade-slide-in text-xl font-semibold text-[var(--color-ink)]"
+          style={{ animationDelay: '30ms' }}
+        >
+          Completează profilul companiei
+        </h1>
+        <p className="animate-fade-slide-in mb-2 text-sm text-[var(--color-ink-muted)]" style={{ animationDelay: '60ms' }}>
           Câteva detalii despre organizația ta înainte să continui
         </p>
 
         {error && (
-          <div role="alert" className="alert alert-error mb-2 text-sm">
+          <div role="alert" className="alert alert-error animate-fade-slide-in mb-2 text-sm">
             <span>{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <fieldset className="fieldset">
+          <fieldset className="fieldset animate-fade-slide-in" style={{ animationDelay: '100ms' }}>
             <legend className="fieldset-legend">Numele organizației</legend>
             <input
               type="text"
@@ -75,7 +80,7 @@ export default function OnboardingPage() {
             />
           </fieldset>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="animate-fade-slide-in grid grid-cols-2 gap-3" style={{ animationDelay: '140ms' }}>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Oraș</legend>
               <input
@@ -100,7 +105,7 @@ export default function OnboardingPage() {
             </fieldset>
           </div>
 
-          <fieldset className="fieldset">
+          <fieldset className="fieldset animate-fade-slide-in" style={{ animationDelay: '180ms' }}>
             <legend className="fieldset-legend">Funcția ta în organizație</legend>
             <select
               value={selectedJobTitle}
@@ -118,7 +123,7 @@ export default function OnboardingPage() {
           </fieldset>
 
           {isOtherJobTitle && (
-            <fieldset className="fieldset">
+            <fieldset className="fieldset animate-fade-slide-in">
               <legend className="fieldset-legend">Specifică funcția</legend>
               <input
                 type="text"
@@ -131,7 +136,12 @@ export default function OnboardingPage() {
             </fieldset>
           )}
 
-          <button type="submit" disabled={isPending} className="btn btn-primary mt-2">
+          <button
+            type="submit"
+            disabled={isPending}
+            className="animate-fade-slide-in btn btn-primary mt-2"
+            style={{ animationDelay: '220ms' }}
+          >
             {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Continuă'}
           </button>
         </form>

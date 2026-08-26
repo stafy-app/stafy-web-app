@@ -52,7 +52,7 @@ export default function RegisterPage() {
                 value={firstName}
                 onChange={(event) => setFirstName(event.target.value)}
                 className="input w-full"
-                placeholder="Andrei"
+                placeholder="Ion"
               />
             </fieldset>
             <fieldset className="fieldset">
@@ -64,7 +64,7 @@ export default function RegisterPage() {
                 value={lastName}
                 onChange={(event) => setLastName(event.target.value)}
                 className="input w-full"
-                placeholder="Ticăra"
+                placeholder="Popescu"
               />
             </fieldset>
           </div>

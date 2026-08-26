@@ -12,8 +12,7 @@ app, and the mandatory manager-onboarding form (organization name/city/address +
 gates every other page until completed.
 
 **Out of scope (this release):** password reset / forgot-password, email-verification UX,
-social/OAuth providers, an orphan-registration recovery screen (see Special Aspects — same gap as
-`stafy-mobile`), an admin panel to manage the `job_titles` picklist (the table exists and is
+social/OAuth providers, an admin panel to manage the `job_titles` picklist (the table exists and is
 seeded, but nothing edits it yet — see Deferred).
 
 ---
@@ -96,7 +95,10 @@ vs. `stafy-mobile`).
 ### Flow 2: Login
 1. `/login` → `LoginPage.tsx`: email, password.
 2. `signInWithEmailAndPassword` → `getAuth().loginUser()`.
-3. On 404 (orphaned Firebase account, no backend row): distinct "registration not finished" message.
+3. On 404 (orphaned Firebase account, no backend row): `login()` sets `firebaseUser` to the real
+   Firebase session (the happy-path `setFirebaseUser` below never runs on this branch) and throws
+   `OrphanRegistrationError`; `LoginPage` catches it and navigates to `/complete-registration`
+   (Flow 6) instead of showing an error.
 4. On success, gate redirects to `/` (if onboarded) or `/onboarding` (if not).
 
 ### Flow 3: Onboarding (mandatory, once)
@@ -113,6 +115,25 @@ vs. `stafy-mobile`).
 1. `logout()` (from `useAuth()`) → `signOut(auth)` → `firebaseUser` becomes `null` → `AppLayout`'s gate redirects to `/login`.
 2. Also triggered automatically if an `employee` role is detected (see Special Aspects).
 
+### Flow 6: Orphan-registration recovery
+1. Reached only via Flow 2 step 3 (`OrphanRegistrationError`) — `firebaseUser` is guaranteed set at
+   this point.
+2. `/complete-registration` → `CompleteRegistrationPage.tsx`: first name, last name only — no role
+   field, `register()`'s `role: 'manager'` hardcode applies here too.
+3. `completeRegistration()` calls `getAuth().registerUser({ first_name, last_name, role: 'manager' })`
+   directly against the already-signed-in session — no `signInWithEmailAndPassword` call, unlike
+   Flow 1/2.
+4. On success: `setFirebaseUser(auth.currentUser)`, then the page calls `navigate({ to: '/' })`
+   explicitly — `CompleteRegistrationLayout`'s gate only checks "signed in", not "onboarded" (it
+   can't; no profile exists until this call succeeds), so it can't declaratively catch this
+   transition the way `AuthLayout` catches a successful login/register. `AppLayout`'s own gate takes
+   over from `/` and redirects to `/onboarding`, same destination a fresh `register()` reaches.
+5. On repeated backend failure: same generic distinct-error message as Flow 1 step 5, retryable from
+   the same screen — no dead end.
+6. A "Deconectează-te" action calls `logout()` with no manual navigate — `CompleteRegistrationLayout`'s
+   own gate (`!firebaseUser` → `/login`) handles the redirect, same pattern as everywhere else `logout()`
+   is called in this app (e.g. `Sidebar.tsx`).
+
 ---
 
 ## Information Architecture
@@ -125,24 +146,37 @@ _auth  (AuthLayout — signed-out only, redirects to / if already signed in)
 _onboarding  (OnboardingLayout — signed-in only, redirects to / once completed)
 └── /onboarding
 
+_complete-registration  (CompleteRegistrationLayout — signed-in only, no profile/onboarding check)
+└── /complete-registration   (see Flow 6)
+
 _app  (AppLayout — signed-in + onboarded + non-employee only)
 ├── /            (Dashboard)
 ├── /team, /team/$employeeId, /invitations, /reports, /settings
 ```
 
-Three sibling root-level layouts (`_auth`, `_onboarding`, `_app`), each gating independently rather
-than one shared guard — see Special Aspects for why.
+Four sibling root-level layouts (`_auth`, `_onboarding`, `_complete-registration`, `_app`), each
+gating independently rather than one shared guard — see Special Aspects for why.
+`_complete-registration` can't reuse `_onboarding`'s gate: `OnboardingLayout` requires `useProfile()`
+to succeed, but an orphaned account has no profile at all yet — that's the whole reason it's stuck.
 
 ---
 
 ## UI / Layout
 
-`LoginPage`, `RegisterPage`, `OnboardingPage` share one visual pattern: a `card` (DaisyUI, `w-full
-max-w-sm`/`max-w-md`, `shadow-xl`) centered on `bg-base-200`, logo (`stafy_logo.svg`) + "Stafy"
-wordmark, DaisyUI `fieldset`/`fieldset-legend`/`input`/`select` form controls (not
-`form-control`/`label-text`/`input-bordered` — those are DaisyUI v4 classes and don't exist in the
-v5 installed here), errors in an `alert alert-error`. No new design tokens — same `--color-*`
-variables as the rest of the app (`src/App.css`).
+`LoginPage`, `RegisterPage`, `OnboardingPage`, `CompleteRegistrationPage` share one visual pattern: a
+`card` (DaisyUI, `w-full max-w-sm`/`max-w-md`, `shadow-xl`) centered on `bg-base-200`, logo
+(`stafy_logo.svg`) + "Stafy" wordmark, DaisyUI `fieldset`/`fieldset-legend`/`input`/`select` form
+controls (not `form-control`/`label-text`/`input-bordered` — those are DaisyUI v4 classes and don't
+exist in the v5 installed here), errors in an `alert alert-error`. No new design tokens — same
+`--color-*` variables as the rest of the app (`src/App.css`).
+
+`OnboardingPage` staggers its entrance with the shared `animate-fade-slide-in` keyframe (`src/App.css`,
+same one `DashboardPage`/`EmployeeCard`/`EmployeeHeaderCard` use) — header block, error alert, each
+fieldset/row, and the submit button each carry the class with an increasing inline `animationDelay`
+(0ms through 220ms), so the form cascades in top-to-bottom instead of popping in as one block. The
+conditional "Altceva" custom-job-title fieldset gets the class with no explicit delay, since it mounts
+fresh on user interaction rather than on page load. `LoginPage`/`RegisterPage`/`CompleteRegistrationPage`
+don't have this yet — nothing rules it out, just not asked for.
 
 `FullscreenSpinner` (`src/components/layout/FullscreenSpinner.tsx`) is the one shared loading
 state across all three gates — `bg-[var(--color-page)]` + a DaisyUI `loading loading-spinner`.
@@ -151,7 +185,7 @@ state across all three gates — `bg-[var(--color-page)]` + a DaisyUI `loading l
 
 ## Data Access
 
-- `POST /api/v1/auth/register` — `{first_name, last_name, role}`, Bearer Firebase ID token → `UserOut`.
+- `POST /api/v1/auth/register` — `{first_name, last_name, role}`, Bearer Firebase ID token → `UserOut`. Also the endpoint Flow 6 (`completeRegistration()`) calls, reusing the token from the already-signed-in session instead of one just minted by `createUserWithEmailAndPassword` — same request shape either way, the backend can't tell the two calls apart.
 - `POST /api/v1/auth/login` — Bearer token only → `UserOut`.
 - `GET /api/v1/profile` — `UserOut` (now includes `job_title`, `onboarding_completed`).
 - `PATCH /api/v1/users/me/onboarding` — `require_role("manager", "admin")`. Body: `OnboardingIn {organization_name, city, address, job_title}` (all required strings). → `UserOut`. Backed by `UserRepository.complete_onboarding()` — one atomic commit across `companies` + `users`, following the same exception as `create_firebase_user`/`create_activity_with_rate_for_user` (see `stafy-backend/CLAUDE.md`).
@@ -198,10 +232,16 @@ save an arbitrary string, which a Postgres `ENUM` column would reject.
 job title — not industry, company size, phone, or website. Nothing here blocks adding more later;
 the endpoint and form both take a flat, easily-extended shape.
 
-**Orphan registration — same unresolved gap as mobile.** If `createUserWithEmailAndPassword`
-succeeds but the backend call fails, the Firebase account is deliberately left in place (no
-rollback). No recovery screen exists on web either — see `stafy-mobile/docs/modules/auth.md`'s
-Special Aspects for the full rationale, which applies unchanged here.
+**Orphan registration.** If `createUserWithEmailAndPassword` succeeds but the backend call fails
+(Flow 1 step 5), the Firebase account is deliberately left in place — no rollback, deletion can
+itself fail offline and a half-rolled-back state is worse than a recoverable one. The user can't
+re-register (`auth/email-already-in-use`) and a normal login 404s. Self-service recovery is Flow 6
+(`/complete-registration`), reached automatically when `login()` throws `OrphanRegistrationError`.
+`OrphanRegistrationError` lives in `src/utils/authError.ts`, not `AuthProvider.tsx` — co-locating it
+there would make that file export a non-component alongside `AuthProvider`, tripping
+`react-refresh/only-export-components`. Same underlying gap and fix shape as
+`stafy-mobile/docs/modules/auth.md`'s Special Aspects, adapted to this app's gate-per-layout routing
+instead of `router.replace()` calls.
 
 ---
 
@@ -211,5 +251,4 @@ Special Aspects for the full rationale, which applies unchanged here.
 |---|---|
 | Admin CRUD for `job_titles` | An admin panel exists to host it |
 | Password reset / forgot-password | User-facing request for self-service recovery |
-| Orphan-registration recovery screen | Same trigger as mobile — real users hitting it in practice |
 | More onboarding fields (industry, size, phone, website) | Explicit product ask |

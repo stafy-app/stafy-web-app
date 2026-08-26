@@ -8,31 +8,8 @@ import {
 } from 'firebase/auth'
 import { getAuth as getAuthApi } from '@stafy/api/generated/endpoints/auth/auth'
 import { auth } from '@stafy/services/firebase'
-import { AuthContext, type RegisterData } from './AuthContext'
-
-// Maps Firebase Auth error codes and the backend's {code, detail} error shape
-// (app/core/errors.py's AppHTTPException) to user-facing Romanian messages.
-function mapAuthError(error: unknown): string {
-  const err = error as { code?: string; response?: { data?: { detail?: string } }; message?: string }
-  switch (err?.code) {
-    case 'auth/invalid-credential':
-    case 'auth/wrong-password':
-    case 'auth/user-not-found':
-      return 'Email sau parolă incorectă'
-    case 'auth/email-already-in-use':
-      return 'Există deja un cont cu acest email'
-    case 'auth/weak-password':
-      return 'Parola trebuie să aibă minim 6 caractere'
-    case 'auth/invalid-email':
-      return 'Adresa de email nu este validă'
-    case 'auth/too-many-requests':
-      return 'Prea multe încercări. Încearcă din nou mai târziu'
-    case 'auth/network-request-failed':
-      return 'Fără conexiune la internet'
-    default:
-      return err?.response?.data?.detail ?? err?.message ?? 'A apărut o eroare neașteptată'
-  }
-}
+import { mapAuthError, OrphanRegistrationError } from '@stafy/utils/authError'
+import { AuthContext, type CompleteRegistrationData, type RegisterData } from './AuthContext'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null)
@@ -67,16 +44,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (status === 404) {
           // Firebase account exists but the backend row doesn't — a previous
           // registration attempt was interrupted before the backend call
-          // completed. There's no first_name/last_name to auto-retry with.
-          throw new Error('Înregistrarea nu a fost finalizată. Încearcă să te înregistrezi din nou.', {
-            cause: backendError,
-          })
+          // completed. Reflect the real Firebase session in context state
+          // (the happy-path setFirebaseUser below never runs) so the
+          // /complete-registration gate sees a signed-in user.
+          setFirebaseUser(auth.currentUser)
+          throw new OrphanRegistrationError()
         }
         throw backendError
       }
 
       setFirebaseUser(auth.currentUser)
     } catch (error) {
+      if (error instanceof OrphanRegistrationError) {
+        throw error
+      }
       throw new Error(mapAuthError(error), { cause: error })
     } finally {
       isAuthenticating.current = false
@@ -94,6 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Firebase account now exists but the backend row doesn't (network blip,
         // backend down). Deliberately not rolled back — deletion can itself fail
         // offline, and a half-rolled-back state is worse than a recoverable one.
+        // The user recovers via /complete-registration, reached from login()'s
+        // OrphanRegistrationError (see completeRegistration() below).
         throw new Error('Cont creat, dar înregistrarea pe server a eșuat. Contactează administratorul.', {
           cause: backendError,
         })
@@ -107,13 +90,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // Finishes provisioning the backend row for a Firebase account that
+  // already exists — the orphan-registration recovery path. auth.currentUser
+  // is guaranteed to be set here: this is only reachable via login()'s
+  // OrphanRegistrationError, which fires after signInWithEmailAndPassword
+  // already succeeded. Role is hardcoded 'manager', same as register() — this
+  // app never collects a role, it's manager-only.
+  async function completeRegistration({ firstName, lastName }: CompleteRegistrationData) {
+    try {
+      if (!auth.currentUser) {
+        throw new Error('Sesiunea a expirat. Te rugăm să te autentifici din nou.')
+      }
+
+      try {
+        await getAuthApi().registerUser({ first_name: firstName, last_name: lastName, role: 'manager' })
+      } catch (backendError) {
+        throw new Error('Înregistrarea nu a putut fi finalizată. Încearcă din nou mai târziu.', {
+          cause: backendError,
+        })
+      }
+
+      setFirebaseUser(auth.currentUser)
+    } catch (error) {
+      throw new Error(mapAuthError(error), { cause: error })
+    }
+  }
+
   async function logout() {
     await signOut(auth)
     setFirebaseUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ firebaseUser, authResolved, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ firebaseUser, authResolved, login, register, completeRegistration, logout }}
+    >
       {children}
     </AuthContext.Provider>
   )

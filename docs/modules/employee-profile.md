@@ -11,10 +11,11 @@ reproduce the shipped Romanian strings verbatim.
 
 **In scope:** profile header (avatar, name, active/suspended status, email, join date,
 inline-editable job title, this-month hours + delta, this-month estimated pay); a three-tab body
-— Attendance (this employee's time entries, own month picker, activity filter), Rates (every
-company activity with this employee's rate or an "activate" affordance, inline edit), History
-(last 5 months of hours/pay, chart + table-view toggle + summary stats); a "⋯" actions menu
-(edit job title, export this employee's time entries to CSV, suspend/reactivate).
+— Attendance (this employee's time entries, own month picker, activity filter, bonus editor for
+the picked month), Rates (every company activity with this employee's rate or an "activate"
+affordance, inline edit), History (last 5 months of hours/pay, chart + table-view toggle + summary
+stats); a "⋯" actions menu (edit job title, export this employee's time entries to CSV,
+suspend/reactivate).
 
 **Out of scope (this release):** editing name/email (Firebase-owned identity); any
 messaging/notification action (no messaging subsystem exists anywhere in the product); a "remove
@@ -82,12 +83,16 @@ synced to the URL.
    data stays cached, no full-page reload.
 3. Manager steps the Attendance tab's month picker or picks an activity filter → the entries table
    re-renders for that scope.
-4. Manager clicks "activate" or an existing rate in the Rates tab → the cell becomes an inline
+4. Manager sets or clears a bonus in the Attendance tab's `BonusCard`, for whatever month
+   `PeriodBar` currently shows → same `setEmployeeBonus`/`clearEmployeeBonus` endpoints the Reports
+   page uses (see `reports.md`); the tab's own report query invalidates and the table's bonus row
+   updates immediately.
+5. Manager clicks "activate" or an existing rate in the Rates tab → the cell becomes an inline
    input with Save/Cancel; Save calls the upsert endpoint and refetches the row.
-5. Manager opens the "⋯" menu → edits the job title inline in the header, exports the
+6. Manager opens the "⋯" menu → edits the job title inline in the header, exports the
    current month's time entries as a CSV download, or suspends/reactivates the employee (each with
    a toast confirming the result).
-6. Manager views the History tab → the last 5 months render as two small charts (hours, pay) with
+7. Manager views the History tab → the last 5 months render as two small charts (hours, pay) with
    a synced hover crosshair; a "view as table" toggle swaps to a plain data table of the same rows.
 
 ---
@@ -125,13 +130,20 @@ No modals — job-title edit and rate edit are both inline, not dialogs.
 
 ### Attendance tab
 
-- Own `PeriodBar` instance (reused component, independent state from any other tab).
+- Own `PeriodBar` instance (reused component, independent state from any other tab), paired with a
+  `BonusCard` (reused from `components/reports/`) in a wrapping flex row — same component and
+  `useSetReportBonus`/`useClearReportBonus` hooks the Reports page uses, both keyed off this tab's
+  own `period` state so the bonus editor always targets the exact month `PeriodBar` shows, with no
+  separate period concept to fall out of sync. `BonusCard` remounts via a `key` on
+  employeeId/period change, same reset-by-remount pattern as its Reports page usage.
 - Card: title + count/total-hours summary + a plain `<select>` activity filter (only shown when
   the loaded month has more than one distinct activity).
 - Table: date, time range (mono), activity (neutral pill, same visual language as `EmployeeCard`'s
   activity chips — no per-activity color mapping exists in this design system), duration (mono),
   rate (mono, muted), amount (mono, bold). Duration/amount computed client-side from
-  `time_start`/`time_end`/`rate_applied` — never sent pre-formatted by the backend.
+  `time_start`/`time_end`/`rate_applied` — never sent pre-formatted by the backend. A bonus set for
+  the picked month renders as a read-only summary row here, same `PayrollBonusOut` the `BonusCard`
+  above edits.
 
 ### Rates tab
 
@@ -189,6 +201,12 @@ EmployeeActivityRateOut {
 None of these existed before this page — see `stafy-backend/docs/modules/employee-profile.md` for
 the backend-side design (scoping guard, why the rate-set endpoint diverges from self-service, why
 suspend/reactivate are POST actions).
+
+The Attendance tab's bonus editor calls the `reports`-tag endpoints instead — `GET
+/api/v1/reports/{id}`, `PUT`/`DELETE /api/v1/reports/{id}/bonus` (all `year`/`month` query params)
+via `useEmployeeReport`/`useSetReportBonus`/`useClearReportBonus` in `src/hooks/useReports.ts`, the
+same hooks and `BonusCard` component the Reports page uses — see `reports.md` for the
+endpoint/schema detail, not repeated here.
 
 ---
 

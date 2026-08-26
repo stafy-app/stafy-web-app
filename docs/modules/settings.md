@@ -1,18 +1,30 @@
 # Settings
 
-Manager-only page for editing the manager's own account name, the company profile, and the
-company's shared activity list, plus a password-reset trigger. Route `/settings`,
-`src/pages/settings/SettingsPage.tsx`.
+Manager-only settings page: personal account details, the manager's company profile, the
+company's shared activity list, a read-only feed of sensitive company actions, and account
+security (password reset, account deletion).
 
 ## Scope
 
-**In scope:** four sections behind a page-internal vertical nav — Account (edit first/last name),
-Company (edit name/city/address), Activities (list + create + rename the company's shared
-activities), Security (trigger a Firebase password-reset email).
+**In scope:** viewing/editing the caller's own account name (email and job title render read-only);
+viewing/editing the caller's own company (name, city, address); listing, creating, and renaming
+company-wide activities; an Audit section listing sensitive actions across the company (rate
+changes, bonuses, deleted time entries, invitation lifecycle, employee suspend/reactivate, company
+settings edits, activity create/rename), filterable by action type, date range, and — admin only —
+a company ID; triggering a Firebase password-reset email; a Danger Zone entry point for account
+deletion.
 
 **Out of scope (this release):** email address editing; phone number field; profile photo upload;
-manual per-activity color; account deletion (a destructive, clearly separated "danger zone"); an
-"unsaved changes" leave-section warning.
+manual per-activity color picker; account deletion itself (the Danger Zone button exists, the
+action shows a "not available yet" notice — no backend endpoint, no cascade-delete design); an
+"unsaved changes" leave-section warning; activity deletion (matches the backend invariant that a
+company's activity row is never deleted, only per-employee rate assignments are); an actor picker
+for the Audit section (filtering by a specific person) — the backend endpoint accepts an
+`actor_user_id` filter, but no user-search component exists in this app to drive it, and building
+one for this alone would be premature; the actor's name is still shown per row. A company
+switcher/picker for the Audit section's admin view — it instead shows a plain `company_name` column
+per row plus a numeric `company_id` text filter, not a dropdown (see backend
+`docs/modules/audit-logs.md`).
 
 ---
 
@@ -20,7 +32,7 @@ manual per-activity color; account deletion (a destructive, clearly separated "d
 
 | Actor | Interface | Role |
 |---|---|---|
-| Manager | `stafy-web-app` (Portal) | Edits their own name, their company's profile, and their company's activity list; can request a password-reset email |
+| Manager / admin | Settings page (`/settings`) | Views and edits their own account, their own company (if they own it), and the company's activity list; can trigger a password-reset email |
 
 ---
 
@@ -28,182 +40,179 @@ manual per-activity color; account deletion (a destructive, clearly separated "d
 
 ### Referenced (not owned)
 
-- `UserOut` (`stafy-backend/app/users/schemas.py`) — `first_name`/`last_name`/`email` prefill the
-  Account section; already fetched via the existing `useProfile()` (`GET /profile`).
-- `Company` (`stafy-backend/app/models/models.py`) — `name`/`city`/`address` prefill the Company
-  section. No `CompanyOut` schema or read/write endpoint exists yet — see Data Access.
-- `Activity` (`stafy-backend/app/models/models.py`) — `company_id`-scoped, `activity_name` only (no
-  `color` column). The Activities section lists and edits these rows directly, not through
-  `HourlyRate`.
+- `User` (account fields: first/last name (editable), email and job title (read-only display),
+  auth provider) — owned by the `stafy-backend` users domain.
+- `Company` (name, city, address) — owned by the `stafy-backend` users domain.
+- `Activity` (id, name) — owned by the `stafy-backend` activities domain; also referenced by the
+  Employee Profile page's Rates tab and the Dashboard's activity breakdown.
+- `AuditLogOut` / `AuditLogsListOut` (`src/api/generated/endpoints/index.schemas.ts`) — generated
+  from the backend's `stafy/audit_logs` module, read by the Audit section.
 
 ### Owned
 
-None. Every field this page edits already exists on `User`, `Company`, or `Activity`; no new
-client-side or backend entity is introduced.
+None — this page reads and writes existing entities through backend endpoints; it introduces no
+new persisted data.
 
 ---
 
 ## Lifecycle
 
-N/A — no stateful entity behind this page. Each section is a plain edit-and-save form or a flat
-list; nothing here has states/transitions.
+N/A — this page edits already-final entities (account, company, activities) with no state machine
+of its own.
 
 ---
 
 ## Derived / Aggregated Data
 
-None. The Activities list renders `activity_name` as returned by the backend, in whatever order
-the list endpoint returns it — no client-side sort, count, or color computation. This deliberately
-does not reuse the rank-based color assignment `ActivityDonut`/`EmployeeCard` use for chips
-elsewhere (see Special Aspects).
+Each activity chip's color is computed client-side from the activity's id (`getActivityColor`,
+`src/utils/activityColor.ts`) against a fixed 4-slot categorical palette, not stored or fetched —
+the same palette the Dashboard's activity donut uses, but keyed by id instead of by display rank so
+a given activity's color stays stable across the app rather than shifting with its rank each month.
 
 ---
 
 ## User Flows
 
-1. Manager opens `/settings` → Account section loads by default, name fields pre-filled from
-   `useProfile()`; email renders as a disabled input, not fetched into editable state. Manager
-   edits first/last name and submits → `PATCH /users/me` (new) → success toast → `useProfile()`
-   cache invalidated/refetched.
-2. Manager clicks Company in the section nav → fields pre-filled from `GET /companies/me` (new).
-   Edits name/city/address and submits → `PATCH /companies/me` (new, manager-only, scoped to
-   `current_user.company_id`) → success toast.
-3. Manager clicks Activities → `GET` company activities (new) renders as chips. Clicks the pencil
-   on a chip → inline rename → `PATCH` that activity (new) → toast, list refetches.
-4. Manager fills the add-activity form (name only) and submits → `POST` a new company activity
-   (new) → toast, chip list refetches with the new entry appended. If the name collides
-   case-insensitively with an existing company activity (`uq_activities_company_name_lower`), the
-   new endpoint returns 409 and the form shows an inline duplicate-name error — it does not
-   silently reuse the existing row (see Special Aspects).
-5. Manager clicks the pencil on a chip, edits the name, and confirms → `PATCH` that activity (new)
-   → toast, list refetches. The same collision as flow 4 applies: renaming onto an existing name
-   returns 409, shown inline on the edit field, not applied silently.
-6. Manager clicks Security → triggers the password-reset action → client-side
-   `sendPasswordResetEmail(auth, profile.email)` (Firebase JS SDK) fires directly, no backend call
-   → toast confirms the email was sent, or surfaces the Firebase error. Only reachable for
-   `auth_provider: 'email_password'` accounts — see Special Aspects.
+1. **Edit account** — manager opens Settings (defaults to the Account section), edits first/last
+   name, saves; a toast confirms; the sidebar's displayed name updates on the next profile read.
+   Email and job title render as disabled inputs for context, not sent in the update.
+2. **Edit company** — manager switches to the Company section, edits name/city/address, saves. If
+   the manager joined their company via an accepted invitation rather than owning it, the section
+   renders read-only with an explanatory line and no save button.
+3. **Manage activities** — manager switches to the Activities section, sees existing activities as
+   chips; clicking a chip's edit affordance turns it into an inline rename field; a short form
+   below adds a new activity by name. Duplicate names (case-insensitive, scoped to the company)
+   are rejected with a toast, both on create and on rename.
+4. **Reset password** — manager switches to the Security section and triggers the reset action;
+   `sendPasswordResetEmail(auth, profile.email)` (Firebase JS SDK) fires directly, no backend call;
+   a toast confirms the email was sent, or surfaces the Firebase error. Hidden (with an explanatory
+   line) if the account's auth provider isn't email/password.
+5. **Delete account (Danger Zone)** — manager clicks the outlined red button in the visually
+   distinct Danger Zone block; a toast states the action isn't available yet. No network call, no
+   state change.
+6. **Review audit trail** — manager or admin switches to the Audit section, sees the first 50
+   entries for their scope, newest first; filters by action type or date range (re-fetches from
+   `offset=0`); clicks "Încarcă mai multe" to grow the page size by 50. Admin additionally enters a
+   company ID to scope to one company.
 
 ---
 
 ## Information Architecture
 
-Route: `/settings` (`settingsRoute` in `src/routes/index.tsx`, already registered under
-`appLayoutRoute`; top-level Settings item in the main Sidebar nav). Within the page: a new
-page-scoped vertical section nav (Account / Company / Activities / Security) holding the selected
-section in local component state, not sub-routed — no per-section URL, same non-routed approach the
-Employee Profile page's tabs already use. No modals.
+Sidebar nav item "Settings" → `/settings` route → `SettingsPage`, which renders a fixed vertical
+left nav (`SettingsNav`, five items: Account/Company/Activities/Audit/Security) and the active
+section's component inside a single card. Section switching is local component state
+(`useState<SettingsSectionKey>`), not nested router routes — no section has its own URL, same
+non-routed approach the Employee Profile page's tabs already use. No modals. The Audit section has
+no route or sidebar item of its own — manager/admin read-only config-adjacent content, not a
+distinct workflow.
 
 ---
 
 ## UI / Layout
 
-### Section nav (left column)
-
-New component, page-scoped (not a `Sidebar` extension). Four items, each an icon + label on one
-row. Active item: `--color-primary-soft` background, `--color-primary-active` text, same tokens
-`Sidebar.tsx`'s active pill already uses. Inactive: muted ink, `bg-surface-2` on hover. Fixed
-column — does not scroll independently of the page. New `ICONS` entries needed: `user`,
-`building2`, `tags`, `shield` (`pencil` and `plus` already exist and are reused for Activities).
-
-### Account card
-
-`fieldset`/`fieldset-legend` + `input` pairs, same pattern as `OnboardingPage.tsx`: first name,
-last name (editable), email (rendered as a disabled `input`, no legend note beyond the disabled
-state itself). Single `btn btn-primary` save action, bottom-right of the card.
-
-### Company card
-
-Same `fieldset`/`input` pattern: name, city, address. Same save-button position/style as Account.
-No founding-year field — no backing column, and not applicable to a generic employer.
-
-### Activities card
-
-Existing chips reuse `EmployeeCard`'s chip classes (`rounded-full bg-[var(--color-surface-2)]
-px-2 py-0.5 text-[11px] text-[var(--color-ink-soft)]`), each with a small `ICONS.pencil` button.
-Below the chip row, a short inline form: name input + `btn btn-primary` add action. No color
-input, no delete affordance on existing chips.
-
-### Security card
-
-Short explanatory text + a single `btn btn-primary` password-reset action. No danger zone, no red
-styling anywhere on this page.
-
-No new design tokens beyond the four `ICONS` entries above — colors/spacing/radius all come from
-the existing theme; see `docs/ui-guidelines.md`.
+- Two-column layout inside `AppLayout`'s content area: a fixed-width (`w-[220px]`) vertical nav on
+  the left, a single card (`bg-[var(--color-surface)]`, `rounded-[var(--radius-lg)]`,
+  `shadow-[var(--shadow-sm)]`) on the right holding the active section.
+- Nav items: icon + label, active state `bg-[var(--color-primary-soft)]` /
+  `text-[var(--color-primary-active)]` / `font-semibold`, inactive
+  `text-[var(--color-ink-soft)]` with `hover:bg-[var(--color-surface-2)]` — same token pattern as
+  `Sidebar.tsx`, without its sliding-pill animation (this nav switches on local state, not route
+  navigation). `ICONS` entries: `user`, `building`, `tags`, `history`, `shield`.
+- Forms: `fieldset`/`legend`/`input` DaisyUI pattern (uppercase small legend, bordered input),
+  matching `OnboardingPage.tsx`. One primary (`btn btn-primary`) save action per section,
+  right-aligned.
+- Activity chips: `rounded-full bg-[var(--color-surface-2)]` pill with a small color dot
+  (`getActivityColor`) + name + inline pencil-icon edit affordance — no delete affordance anywhere
+  in this section.
+- Security section: a single explanatory line + one `btn btn-primary` reset-email action — no
+  password fields anywhere on this page (see Special Aspects).
+- Audit section: filter row (action `<select>`, two `<input type="date">`, and — admin only — a
+  numeric company-ID `<input>`) above a DaisyUI `table` (bordered wrapper, not a nested
+  surface+shadow card, since it already sits inside the section's own card) — modeled on
+  `InvitationsTable`'s column/empty-state/row-size conventions. Columns: Dată, Acțiune, Cine, Pentru
+  cine, (Companie — admin only), Detalii. "Load more": centered outline button, shown only when the
+  response's `has_more` is true.
+- Danger Zone: the only red surface on the page —
+  `border-[var(--color-error)] bg-[var(--color-error-soft)]/40`, outlined red button
+  (`btn btn-outline btn-error`), visually separated from the reset-password block above it.
+- Save confirmations are toasts (`showToast`), never inline page text.
 
 ---
 
 ## Data Access
 
-This page needs several endpoints that do not exist yet on `stafy-backend` — listed as gaps, not
-final paths (naming is the backend's call at implementation time):
+| Endpoint | Method | Notes |
+|---|---|---|
+| `/api/v1/users/me/settings/account` | PATCH | Manager/admin only. Body: first name, last name only — `job_title` isn't accepted (read-only, set at onboarding). Returns the updated user. |
+| `/api/v1/users/me/settings/company` | GET | Manager/admin only. Returns the caller's company (name, city, address). |
+| `/api/v1/users/me/settings/company` | PATCH | Manager/admin only. 403 if the caller joined this company via invitation rather than owning it. |
+| `/api/v1/activities` | GET | Manager/admin only. Lists the company's activities. |
+| `/api/v1/activities` | POST | Manager/admin only. Creates an activity; 409 on a case-insensitive duplicate name within the company. |
+| `/api/v1/activities/{id}` | PATCH | Manager/admin only. Renames an activity; 404 if outside the caller's company, 409 on duplicate name. |
+| `/api/v1/profile` | GET | Existing endpoint (not owned by this page) — hydrates the Account section and supplies `is_own_company`/`auth_provider` for the Company/Security sections' gating, and `role` for the Audit section's admin-only columns/filter. |
+| `/api/v1/audit-logs?limit=&offset=&company_id=&actor_user_id=&action=&date_from=&date_to=` | GET | Manager scoped to their own company; admin cross-company by default or filtered via `company_id`. Backs the Audit section, via `useAuditLogs` (`src/hooks/useAuditLogs.ts`). See `stafy-backend/docs/modules/audit-logs.md`. |
 
-- `GET /profile` — existing (`get_profile`), already wrapped by `useProfile()`. Backs the Account
-  section's prefill.
-- `PATCH /users/me` — **new.** `first_name`/`last_name` only; email is immutable through this
-  route.
-- `GET /companies/me` — **new.** No endpoint currently reads `Company` outside the one-time
-  onboarding write.
-- `PATCH /companies/me` — **new.** Manager-only, scoped to `current_user.company_id`.
-- A manager-facing read of the company's `Activity` list — **new.** The existing
-  `GET /users/me/settings/hourly-rates` (`settings_router`) is `require_role("employee", "admin")`
-  and returns per-user rates, not a bare company activity list — wrong shape and wrong role for
-  this page.
-- A manager-facing create — **new.** The existing `POST /users/me/settings/activities` always
-  attaches an `hourly_rate_gross` for the calling user; this page needs to create an `Activity` row
-  with no rate attached, as a manager. Must return 409 on a case-insensitive name collision within
-  the company (`uq_activities_company_name_lower`) rather than silently reusing the existing row —
-  see Special Aspects.
-- A manager-facing rename — **new.** No endpoint edits `Activity.activity_name` today. Same 409
-  collision rule as create applies when the new name matches another activity in the company.
-- Password reset — **no backend call.** Client-side `sendPasswordResetEmail` via the existing
-  Firebase `auth` singleton (`src/services/firebase.ts`).
-
-The generated `getSettings()` client (`src/api/generated/endpoints/settings/settings.ts`) is **not
-reused** by this page — see Special Aspects.
-
-These six new endpoints will get their own `stafy-backend/docs/modules/settings.md` when built,
-same split as `invitations.md`'s frontend/backend pair — not written yet since none of them exist.
+Password reset and account deletion have no backend endpoint — password reset is a direct Firebase
+Auth client SDK call (`sendPasswordResetEmail`); account deletion has none yet (see Special
+Aspects). See [`stafy-backend/docs/modules/settings.md`](../../../stafy-backend/docs/modules/settings.md)
+for the backend side of the account/company/activities endpoints.
 
 ---
 
 ## Special Aspects
 
-**Password change has no backend leg at all.** Auth is Firebase ID-token only —
-`stafy-backend/app/auth/CLAUDE.md` states plainly that no password-based auth is active. This page
-never calls the backend for the Security action; it's a direct Firebase JS SDK call, same as
-login/register already are.
-
-**Activities here is the company-wide list, not the per-user hourly-rate settings the generated
-client already exposes.** `settings_router`'s hourly-rate/activity endpoints
-(`require_role("employee", "admin")`) exist for employees managing their own rate — a different
-actor and a different role than this manager-only page. Reusing them would be reusing the wrong
-resource, not a shortcut; new manager-facing endpoints are required instead of adapting these.
-
-**Create and rename both reject duplicate names outright — no get-or-create.** This deliberately
-diverges from `create_activity_with_rate_for_user`'s existing get-or-create-on-Activity behavior
-(its 409 today comes from the duplicate `HourlyRate`, not the `Activity` row). A manager-created
-activity has no rate to collide on, so without an explicit rule the same call would silently reuse
-an existing row. This page treats that as an error instead, surfaced inline on the form/chip being
-edited, not a toast — the manager is actively naming a thing, not submitting a background sync.
+**Password reset never touches the backend, and never asks for a current password.** Auth is
+Firebase ID-token only — `stafy-backend/stafy/auth/CLAUDE.md` states plainly that no password-based
+auth is active there. This page's Security section is a single `sendPasswordResetEmail` trigger,
+not an in-page current/new/confirm form — that would require reauthenticating the Firebase session
+client-side for no real benefit over the standard reset-email flow, which every other auth surface
+in this app (login/register error mapping) already has plumbing for via `mapAuthError`
+(`src/utils/authError.ts`).
 
 **Password reset only applies to `auth_provider: 'email_password'` accounts.** The DB enum also
 allows `'google'`, but `stafy-web-app` has no Google sign-in anywhere (`RegisterPage` only calls
-`createUserWithEmailAndPassword`) — so every manager account reaching this page is
-`email_password`, and the `'google'` case is unreachable here. No conditional UI is needed unless
-Google sign-in is added to this app later.
+`createUserWithEmailAndPassword`) — so every manager account reaching this page today is
+`email_password`; the conditional UI exists for when Google sign-in is added, not because it's
+reachable now.
 
-**No stored activity color.** `Activity` has no `color` column. Chip colors elsewhere in the app
-(`ActivityDonut`, `EmployeeCard`) are computed by display rank at render time, not persisted — this
-page manages `activity_name` only, consistent with that.
+**Account deletion is UI-only.** The Danger Zone button shows a "not available yet" toast instead
+of calling an endpoint. A manager's account deletion has an unresolved data-model question (what
+happens to the company, its employees, their time entries, and payroll history) that wasn't worth
+deciding under this page's scope — the UI exists so the entry point and visual warning pattern are
+in place ahead of that decision.
 
-**Email is read-only this iteration**, not because the backend can't store a new value, but
-because changing it would drift from Firebase's own auth identity (`updateEmail` + re-verification)
-without a matching flow — deferred as a pair, not just a missing input.
+**Job title is read-only, same treatment as email.** It's set once at onboarding
+(`OnboardingPage.tsx`) with no edit path afterward — the Account section displays it as a disabled
+input alongside email rather than omitting it, so the manager still sees what's on file. Unlike
+email (deferred pending an `updateEmail` + re-verification flow), there's no plan to make it
+editable here at all; it's authoritative context, not a deferred feature.
 
-**No delete-account section.** This is a product decision (what happens to the company/employees
-when the, likely sole, manager for that company deletes their account) rather than a UI omission —
-it needs to be thought through before any spec work, not merely implemented later.
+**Activity colors are assigned, not chosen.** Colors come from a fixed, id-keyed categorical
+palette shared with the Dashboard's activity donut, not a stored `color` column or a manual picker
+— no schema change was needed and colors stay visually consistent across both surfaces.
+
+**Company section can render fully read-only.** A manager whose `company_id` no longer equals
+their `personal_company_id` (they joined another manager's company via an accepted invitation) sees
+the Company form with every field disabled and no save button — matches the backend's 403 guard on
+the PATCH endpoint, checked client-side first so no request is ever sent that would fail.
+
+**Activities here is the company-wide list, not the per-user hourly-rate settings the generated
+client already exposed before this page existed.** `settings_router`'s pre-existing hourly-rate/
+activity endpoints (`require_role("employee", "admin")`) exist for employees managing their own
+rate — a different actor and role than this manager-only page; this page's Activities section calls
+the newer `/api/v1/activities` endpoints instead.
+
+**Audit section pagination grows `limit`, not `offset`.** "Load more" increases the requested
+`limit` by 50 and re-fetches from `offset=0` each time rather than tracking an accumulated array
+across pages — the response at any point already contains the full visible set, so a `useState`
+counter is the entire pagination mechanism, matching this app's preference for derived state over
+`useEffect`-driven merges (see `CompanySection`/`BonusCard`'s remount-by-`key` approach).
+
+**Audit section's "Detalii" column is computed client-side.** `formatAuditDetail`
+(`src/utils/auditLogFormat.ts`) renders one before→after summary line per `action` string, since the
+raw `before`/`after` JSON shape varies by action; `ACTION_LABELS` (same file) maps each `action`
+string to a Romanian label for both the filter dropdown and the row's action column.
 
 ---
 
@@ -211,9 +220,12 @@ it needs to be thought through before any spec work, not merely implemented late
 
 | Item | Trigger |
 |---|---|
-| Delete account (a separated, destructive "danger zone") | A cascade-behavior decision for company/employees when the manager account is the only manager |
+| Account deletion endpoint + cascade design | Once the company/employee/time-entry/payroll deletion semantics for a manager account are decided |
+| Confirmation modal before account deletion | Same trigger as above — no modal component exists in this codebase yet; building one only makes sense once the action is real |
 | Email address editing | A matching Firebase `updateEmail` + re-verification flow is designed |
 | Phone number field | Added to the `User` model if the product actually needs it |
 | Profile photo upload | A photo storage/CDN decision is made elsewhere in the app |
-| Manual per-activity color picker | Chip coloring across the app moves off rank-based auto-assignment |
+| Manual activity color picker | Only if product feedback specifically asks for user-chosen colors over the auto-assigned palette |
 | "Unsaved changes" indicator on leaving a section | Real signal of users losing edits, not hypothetical |
+| Audit actor filter/picker | A general user-search component exists elsewhere in the app to reuse, or this specific filter is requested |
+| Audit company picker (dropdown instead of a numeric ID field) for the admin view | Admin usage grows beyond occasional cross-company spot-checks |
