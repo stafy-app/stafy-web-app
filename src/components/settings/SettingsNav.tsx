@@ -1,6 +1,7 @@
 import { ICONS, type IconName } from '@stafy/lib/icons'
+import { useProfile } from '@stafy/hooks/useProfile'
 
-export type SettingsSectionKey = 'account' | 'company' | 'activities' | 'audit' | 'security'
+export type SettingsSectionKey = 'account' | 'company' | 'activities' | 'audit' | 'security' | 'admin'
 
 interface SettingsNavProps {
   active: SettingsSectionKey
@@ -13,12 +14,16 @@ const SECTIONS: { key: SettingsSectionKey; label: string; icon: IconName }[] = [
   { key: 'activities', label: 'Activități', icon: 'tags' },
   { key: 'audit', label: 'Audit', icon: 'history' },
   { key: 'security', label: 'Securitate', icon: 'shield' },
+  { key: 'admin', label: 'Admin', icon: 'dashboard' },
 ]
 
 export function SettingsNav({ active, onChange }: SettingsNavProps) {
+  const { data: profile } = useProfile()
+  const sections = SECTIONS.filter((section) => section.key !== 'admin' || profile?.role === 'admin')
+
   return (
     <nav className="flex w-[220px] flex-shrink-0 flex-col gap-0.5">
-      {SECTIONS.map((section) => {
+      {sections.map((section) => {
         const Icon = ICONS[section.icon]
         const isActive = active === section.key
         return (
