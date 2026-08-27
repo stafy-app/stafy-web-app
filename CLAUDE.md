@@ -156,6 +156,7 @@ pnpm add -D <pkg>        # install dev dependency
 | Orval codegen config | `orval.config.ts` |
 | Backend contract (routes, shapes, auth) | [`../stafy-backend/CLAUDE.md`](../stafy-backend/CLAUDE.md) |
 | Full feature scope / brainstorming | [`../MANAGER-WEBAPP-IDEAS.md`](../MANAGER-WEBAPP-IDEAS.md) |
+| Released versions & what shipped in each | [`CHANGELOG.md`](CHANGELOG.md) — update when cutting a release |
 | Dashboard design spec | [`docs/modules/dashboard.md`](docs/modules/dashboard.md) |
 | Team page design spec | [`docs/modules/team.md`](docs/modules/team.md) |
 | Reports page design spec | [`docs/modules/reports.md`](docs/modules/reports.md) |
