@@ -56,6 +56,41 @@ export interface ActivityUpdateIn {
   activity_name: string;
 }
 
+export interface AdminActivityPointOut {
+  period_start: string;
+  time_entries_count: number;
+}
+
+export interface AdminActivityOut {
+  data: AdminActivityPointOut[];
+}
+
+export interface AdminGrowthPointOut {
+  period_start: string;
+  new_managers: number;
+  new_employees: number;
+}
+
+export interface AdminGrowthOut {
+  data: AdminGrowthPointOut[];
+}
+
+export interface AdminInvitationFunnelOut {
+  pending: number;
+  accepted: number;
+  rejected: number;
+  expired: number;
+  cancelled: number;
+}
+
+export interface AdminOverviewOut {
+  total_managers: number;
+  total_employees: number;
+  total_users: number;
+  /** Employees whose company_id still equals their personal_company_id — never joined a real manager's company via invitation. */
+  employees_without_manager: number;
+}
+
 /**
  * State before the action.
  */
@@ -815,4 +850,28 @@ action?: string | null;
 date_from?: string | null;
 date_to?: string | null;
 };
+
+export type GetAdminGrowthParams = {
+period?: GetAdminGrowthPeriod;
+};
+
+export type GetAdminGrowthPeriod = typeof GetAdminGrowthPeriod[keyof typeof GetAdminGrowthPeriod];
+
+
+export const GetAdminGrowthPeriod = {
+  week: 'week',
+  month: 'month',
+} as const;
+
+export type GetAdminActivityParams = {
+period?: GetAdminActivityPeriod;
+};
+
+export type GetAdminActivityPeriod = typeof GetAdminActivityPeriod[keyof typeof GetAdminActivityPeriod];
+
+
+export const GetAdminActivityPeriod = {
+  day: 'day',
+  week: 'week',
+} as const;
 
