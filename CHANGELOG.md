@@ -7,16 +7,15 @@ project uses `Added` / `Changed` / `Fixed` / `Removed` from v0.2.0 onward.
 ## [0.1.0] - 2026-08-27
 
 First release. Manager and internal-admin web dashboard for Stafy —
-React + Vite + TypeScript, Tailwind v4 + DaisyUI v5, TanStack Router + Query,
-Firebase Auth. Consumes the Stafy backend under `/api/v1`.
+React + Vite + TypeScript, Tailwind v4 + DaisyUI v5, TanStack Router + Query.
+Consumes the Stafy backend under `/api/v1`.
 
 ### Added
 
-- **Authentication** — Firebase email/password login and registration
-  (role fixed to `manager`), with a mandatory once-per-manager onboarding step
-  (organization name / city / address + job title). Orphan-registration
-  recovery for accounts that exist in Firebase but not the backend. The `admin`
-  role is confined to the Settings page; every other route redirects it there.
+- **Authentication** — email/password sign-in and registration, with a
+  mandatory once-per-manager onboarding step (organization name / city / address
+  + job title) and a recovery flow for interrupted sign-ups. `admin` accounts
+  are confined to the Settings page; every other route redirects them there.
 - **Dashboard** — company-wide monthly overview: period navigation, KPI strip,
   activity-breakdown donut, and a top-5 employees table.
 - **Team** — searchable grid of employee cards showing this month's hours,
@@ -45,8 +44,8 @@ Firebase Auth. Consumes the Stafy backend under `/api/v1`.
     time chart, an invitation-status funnel, and a time-entries-over-time chart.
     Hidden entirely from the nav for non-admins.
 - **API client** — generated from the backend's OpenAPI schema via Orval,
-  routed through a custom mutator that attaches the Firebase ID token. Regenerate
-  with `pnpm run gen` (or `just gen-api` from the workspace root).
+  routed through a custom mutator that attaches the auth token. Regenerate with
+  `pnpm run gen` (or `just gen-api` from the workspace root).
 - **Error tracking** — Sentry with an error boundary; source maps upload at
   build time on the deploy platform. Disabled locally when no DSN is set.
 - **Styling** — a single custom DaisyUI `"stafy"` theme (CSS-first, no JS
