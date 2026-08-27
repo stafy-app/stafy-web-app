@@ -13,5 +13,11 @@ export function useProfile() {
     queryKey: ['profile'],
     queryFn: () => getUsers().getProfile(),
     enabled: authResolved && !!firebaseUser,
+    // A 404 means "no backend row yet" (interrupted registration), not a
+    // transient failure — don't retry it, AppLayout routes to recovery.
+    retry: (failureCount, error) => {
+      const status = (error as { response?: { status?: number } })?.response?.status
+      return status !== 404 && failureCount < 1
+    },
   })
 }

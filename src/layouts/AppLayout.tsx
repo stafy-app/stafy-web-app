@@ -9,7 +9,7 @@ import { setBlockedMessage } from '@stafy/utils/authBlockedMessage'
 
 export function AppLayout() {
   const { authResolved, firebaseUser, logout } = useAuth()
-  const { data: profile, isLoading: isProfileLoading } = useProfile()
+  const { data: profile, isLoading: isProfileLoading, error: profileError } = useProfile()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
 
   if (!authResolved) {
@@ -18,6 +18,14 @@ export function AppLayout() {
 
   if (!firebaseUser) {
     return <Navigate to="/login" />
+  }
+
+  // Signed into Firebase but the backend has no row for this account yet — an
+  // interrupted registration. GET /profile 404s; recover via the
+  // complete-registration flow instead of spinning on FullscreenSpinner forever.
+  const profileStatus = (profileError as { response?: { status?: number } } | null)?.response?.status
+  if (profileStatus === 404) {
+    return <Navigate to="/complete-registration" />
   }
 
   if (isProfileLoading || !profile) {
