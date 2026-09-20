@@ -1,0 +1,34 @@
+name: Tag release
+
+# Runs on every push to main (same trigger as Vercel's auto-deploy). Tags the
+# commit as vX.Y.Z only when package.json's version doesn't already have a
+# tag on origin — ordinary merges without a version bump are a no-op. This is
+# the only supported way version tags get created; never tag manually.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version
+        id: version
+        run: echo "value=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Tag if new
+        run: |
+          TAG="v${{ steps.version.outputs.value }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" > /dev/null 2>&1; then
+            echo "Tag $TAG already exists on origin, skipping."
+          else
+            git tag "$TAG"
+            git push origin "$TAG"
+            echo "Tagged $TAG"
+          fi

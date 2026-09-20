@@ -39,3 +39,7 @@ add-dev pkg:
 # Remove a package: just remove axios
 remove pkg:
     pnpm remove {{ pkg }}
+
+# Bump project version (patch|minor|major). No commit/tag — write the CHANGELOG.md entry, then commit both together.
+bump-version bump:
+    pnpm version {{ bump }} --no-git-tag-version
