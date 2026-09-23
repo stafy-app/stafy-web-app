@@ -4,6 +4,7 @@ import { getCurrentPeriod } from '@stafy/utils/period'
 import { exportEmployeeTimeEntriesCsv } from '@stafy/utils/exportEmployeeTimeEntriesCsv'
 import { useEmployeeSummary } from '@stafy/hooks/useEmployeeSummary'
 import { useEmployeeTimeEntries } from '@stafy/hooks/useEmployeeTimeEntries'
+import { useProfile } from '@stafy/hooks/useProfile'
 import {
   useReactivateEmployee,
   useSuspendEmployee,
@@ -23,7 +24,7 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
   const { year, month } = getCurrentPeriod()
   const { data: summary } = useEmployeeSummary(employeeId, year, month)
   const { data: currentMonthEntries } = useEmployeeTimeEntries(employeeId, year, month)
-
+  const { data: profile } = useProfile()
   const updateJobTitle = useUpdateEmployeeJobTitle(employeeId)
   const suspend = useSuspendEmployee(employeeId)
   const reactivate = useReactivateEmployee(employeeId)
@@ -35,6 +36,10 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
 
   const { user } = summary
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ')
+  // The manager's own card (the team roster now includes the manager):
+  // on-behalf actions (job-title edit, suspend/reactivate) are meaningless on
+  // yourself — self-service lives under /me/rates.
+  const isSelf = profile?.id === employeeId
 
   function startEditingJobTitle() {
     setDraftJobTitle(user.job_title ?? '')
@@ -74,7 +79,7 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
           </div>
 
           <div className="mt-1.5">
-            {isEditingJobTitle ? (
+            {isEditingJobTitle && !isSelf ? (
               <div className="flex items-center gap-2">
                 <input
                   type="text"
@@ -131,16 +136,18 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
           </div>
         </div>
 
-        <EmployeeActionsMenu
-          isActive={user.is_active ?? true}
-          onEditJobTitle={startEditingJobTitle}
-          onExportCsv={() =>
-            exportEmployeeTimeEntriesCsv(currentMonthEntries?.data ?? [], fullName, year, month)
-          }
-          onSuspend={() => suspend.mutate()}
-          onReactivate={() => reactivate.mutate()}
-          disabled={suspend.isPending || reactivate.isPending}
-        />
+        {!isSelf && (
+          <EmployeeActionsMenu
+            isActive={user.is_active ?? true}
+            onEditJobTitle={startEditingJobTitle}
+            onExportCsv={() =>
+              exportEmployeeTimeEntriesCsv(currentMonthEntries?.data ?? [], fullName, year, month)
+            }
+            onSuspend={() => suspend.mutate()}
+            onReactivate={() => reactivate.mutate()}
+            disabled={suspend.isPending || reactivate.isPending}
+          />
+        )}
       </div>
     </div>
   )

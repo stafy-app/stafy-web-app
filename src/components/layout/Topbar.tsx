@@ -1,9 +1,11 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useRouterState } from '@tanstack/react-router'
 import { ChevronRight } from 'lucide-react'
 import { useTopBarState } from '@stafy/hooks/useTopBar'
 
 export function Topbar() {
   const { title, subtitle, breadcrumb, action } = useTopBarState()
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const isPersonal = pathname === '/me' || pathname.startsWith('/me/')
 
   return (
     <header className="sticky top-0 z-10 flex min-h-[72px] flex-shrink-0 items-center gap-4 border-b border-[var(--color-line)] bg-white/85 px-8 py-3.5 [backdrop-filter:saturate(180%)_blur(12px)]">
@@ -32,6 +34,11 @@ export function Topbar() {
         )}
         <h1 className="truncate text-[22px] font-bold tracking-[-0.015em] text-[var(--color-ink)]">{title}</h1>
         {subtitle && <p className="mt-0.5 truncate text-[13px] text-[var(--color-ink-muted)]">{subtitle}</p>}
+        {isPersonal && (
+          <span className="mt-1.5 inline-flex items-center rounded-full bg-[var(--color-primary-soft)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--color-primary-active)]">
+            Vizualizare personală
+          </span>
+        )}
       </div>
       {action && <div className="flex-shrink-0">{action}</div>}
     </header>
