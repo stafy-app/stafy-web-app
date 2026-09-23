@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { Clock, Wallet } from 'lucide-react'
 import { ActivityDonut } from '@stafy/components/dashboard/ActivityDonut'
 import { KpiCard } from '@stafy/components/dashboard/KpiCard'
 import { useTopBar } from '@stafy/hooks/useTopBar'
 import { useMyDashboard } from '@stafy/hooks/useMyTime'
 import { useProfile } from '@stafy/hooks/useProfile'
+import { useMyInvitations, useAcceptInvitation, useRejectInvitation } from '@stafy/hooks/useInvitations'
 import { getCurrentPeriod } from '@stafy/utils/period'
 import { Link } from '@tanstack/react-router'
 
@@ -19,6 +21,11 @@ export default function MyDashboardPage() {
   const { year, month } = getCurrentPeriod()
   const { data: dashboard } = useMyDashboard()
   const { data: profile } = useProfile()
+  const { data: invitationsData } = useMyInvitations()
+  const acceptInvitation = useAcceptInvitation()
+  const rejectInvitation = useRejectInvitation()
+  const [respondingId, setRespondingId] = useState<string | null>(null)
+  const invitations = invitationsData?.data ?? []
 
   const donutSegments = Object.entries(dashboard?.activity_gross ?? {}).map(([name]) => ({
     activity_name: name,
@@ -29,9 +36,50 @@ export default function MyDashboardPage() {
   const hasRates = (dashboard?.hourly_rates.length ?? 0) > 0
 
   return (
-    <div className="mx-auto flex max-w-[1280px] flex-col gap-5">
+    <div className="mx-auto flex max-w-[1280px] flex-col gap-4 sm:gap-5">
+      {invitations.map((invitation) => (
+        <div
+          key={invitation.id}
+          className="animate-fade-slide-in rounded-[var(--radius-lg)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 p-4 shadow-[var(--shadow-sm)] sm:p-5"
+        >
+          <div className="text-[14px] font-semibold text-[var(--color-ink)]">
+            Invitație de la {invitation.manager_name} · {invitation.company_name}
+          </div>
+          <div className="mt-1 text-[13px] text-[var(--color-ink-soft)]">
+            Acceptă pentru a intra în echipa {invitation.company_name}. Pontajele și tarifele tale se reîncarcă automat.
+          </div>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+            <button
+              type="button"
+              disabled={respondingId === invitation.id}
+              onClick={() => {
+                setRespondingId(invitation.id)
+                acceptInvitation.mutate(invitation.id, {
+                  onSettled: () => setRespondingId(null),
+                })
+              }}
+              className="btn btn-primary min-h-12 flex-1 sm:btn-sm disabled:opacity-50"
+            >
+              {respondingId === invitation.id ? 'Se procesează…' : 'Acceptă invitația'}
+            </button>
+            <button
+              type="button"
+              disabled={respondingId === invitation.id}
+              onClick={() => {
+                setRespondingId(invitation.id)
+                rejectInvitation.mutate(invitation.id, {
+                  onSettled: () => setRespondingId(null),
+                })
+              }}
+              className="btn btn-ghost min-h-12 flex-1 sm:btn-sm disabled:opacity-50"
+            >
+              Respinge
+            </button>
+          </div>
+        </div>
+      ))}
       {!hasRates && (
-        <div className="animate-fade-slide-in rounded-[var(--radius-lg)] border border-[var(--color-warning)]/30 bg-[var(--color-warning)]/10 p-5 shadow-[var(--shadow-sm)]">
+        <div className="animate-fade-slide-in rounded-[var(--radius-lg)] border border-[var(--color-warning)]/30 bg-[var(--color-warning)]/10 p-4 shadow-[var(--shadow-sm)] sm:p-5">
           <div className="text-[14px] font-semibold text-[var(--color-ink)]">
             Nu ai niciun tarif configurat încă
           </div>
@@ -40,7 +88,7 @@ export default function MyDashboardPage() {
           </div>
           <Link
             to="/me/rates"
-            className="btn btn-primary btn-sm mt-3"
+            className="btn btn-primary btn-sm mt-3 min-h-11 sm:min-h-0"
           >
             Configurează tarife
           </Link>
@@ -48,7 +96,7 @@ export default function MyDashboardPage() {
       )}
 
       <div
-        className="animate-fade-slide-in grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        className="animate-fade-slide-in grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3"
         style={{ animationDelay: '60ms' }}
       >
         <KpiCard
@@ -75,7 +123,7 @@ export default function MyDashboardPage() {
       </div>
 
       <div
-        className="animate-fade-slide-in rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]"
+        className="animate-fade-slide-in rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)] sm:p-5"
         style={{ animationDelay: '120ms' }}
       >
         <div className="mb-4 flex items-center justify-between">

@@ -1,15 +1,17 @@
 # Auth & Onboarding
 
-Firebase-based sign-in for `stafy-web-app` (manager-only), plus the mandatory onboarding step a
-manager completes once, right after their first login. Route protection, session state, and the
-onboarding gate all live together here because they're one continuous gate chain in `AppLayout`.
+Firebase-based sign-in for `stafy-web-app` (managers and employees — employees use the `/me`
+personal shell only, see `docs/modules/personal-workspace.md`), plus the mandatory onboarding step
+each role completes once, right after their first login. Route protection, session state, and the
+onboarding gates all live together here because they're one continuous gate chain in `AppLayout`.
 
 ## Scope
 
 **In scope:** Firebase email/password registration and sign-in from `stafy-web-app`, session state
-via `onAuthStateChanged`, route protection (layout gates), blocking the `employee` role from this
-app, and the mandatory manager-onboarding form (organization name/city/address + job title) that
-gates every other page until completed.
+via `onAuthStateChanged`, route protection (layout gates), confining the `employee` role to `/me*`
+plus `/employee-onboarding` (with redirect back to `/me` for company routes), and the mandatory
+onboarding forms — manager (organization name/city/address + job title) and employee (names + job
+title, no company write) — that gate every other page until completed.
 
 **Out of scope (this release):** password reset / forgot-password, email-verification UX,
 social/OAuth providers, an admin panel to manage the `job_titles` picklist (the table exists and is
@@ -21,11 +23,13 @@ seeded, but nothing edits it yet — see Deferred).
 
 | Actor | Interface | Role |
 |---|---|---|
-| Manager | `stafy-web-app` | Registers/logs in, completes onboarding once, then uses the app |
+| Manager | `stafy-web-app` | Registers/logs in, completes company onboarding once, then uses company + personal shells |
+| Employee | `stafy-web-app` | Logs in (register picks the employee path), completes profile onboarding once, then uses the `/me` personal shell only |
 | Backend | FastAPI (`stafy-backend`) | Verifies Firebase ID tokens, provisions/syncs `users` rows, stores onboarding data |
 | Firebase Auth | Google-managed service | Owns credential storage, issues and verifies ID tokens |
 
-This app blocks the `employee` role — the inverse of `stafy-mobile`, which blocks `manager`
+This app no longer blocks the `employee` role outright (that was the old rule, now replaced by
+confinement to the personal shell) — the inverse of `stafy-mobile`, which blocks `manager`
 entirely. `admin` is allowed through both onboarding and the app; this wasn't separately
 litigated, just defaulted to "allow" since nothing here has an admin-specific concern.
 
@@ -45,8 +49,8 @@ Existing `users`/`companies` table fields, plus a new `job_titles` table:
 | Field | Table | Type | Notes |
 |---|---|---|---|
 | `job_title` | `users` | `str \| null` | Free text — NOT the `role` enum. Client offers a picklist (from `job_titles`) + "Altceva" custom option; backend stores whatever string arrives |
-| `onboarding_completed` | `users` | `bool`, default `false` | Gates `AppLayout`/`OnboardingLayout` |
-| `city`, `address` | `companies` | `str \| null` | Set once, at onboarding |
+| `onboarding_completed` | `users` | `bool`, default `false` | Gates `AppLayout`/`OnboardingLayout` (managers) and `AppLayout`'s employee branch (employees) |
+| `city`, `address` | `companies` | `str \| null` | Set once, at manager onboarding only — never touched by employee onboarding |
 
 **`job_titles`** — global reference list for the onboarding picklist, not a foreign key on
 `users.job_title` (that stays free text so "Altceva" can save anything). `id`, `label` (unique),
@@ -149,10 +153,11 @@ _onboarding  (OnboardingLayout — signed-in only, redirects to / once completed
 _complete-registration  (CompleteRegistrationLayout — signed-in only, no profile/onboarding check)
 └── /complete-registration   (see Flow 6)
 
-_app  (AppLayout — signed-in + onboarded + non-employee only)
-├── /            (Dashboard)
-├── /team, /team/$employeeId, /invitations, /reports, /settings
-```
+_app  (AppLayout — signed-in + onboarded; employees confined to /me* + /employee-onboarding)
+├── /            (Dashboard, manager/admin only — employees redirect to /me)
+├── /team, /team/$employeeId, /invitations, /reports, /settings (manager/admin only — employees redirect to /me)
+├── /me, /me/attendance, /me/history, /me/rates (both roles — the personal shell, see personal-workspace.md)
+└── /employee-onboarding (employee profile onboarding; completed employees redirect to /me)
 
 Four sibling root-level layouts (`_auth`, `_onboarding`, `_complete-registration`, `_app`), each
 gating independently rather than one shared guard — see Special Aspects for why.
@@ -217,11 +222,21 @@ submit. Three per-layout gates (`AppLayout`, `AuthLayout`, `OnboardingLayout`), 
 do the same job with less machinery — and the onboarding gate slotted in as a fourth branch in
 `AppLayout` with no new pattern needed.
 
-**`employee` blocked, not `manager` — inverse of `stafy-mobile`.** `AppLayout` calls `logout()` and
-redirects to `/login` with a message (via `src/utils/authBlockedMessage.ts`'s sessionStorage
-flag — read once by `LoginPage` on mount, then cleared) if the authenticated profile's `role` is
-`employee`. Do not confuse this with mobile's manager-block memory; they're opposite gates on
-opposite apps.
+**`employee` confined to the personal shell, not blocked — inverse of `stafy-mobile` in shape but
+not in mechanism.** Mobile blocks `manager` outright (dedicated blocked screen); web used to block
+`employee` the same way (forced logout + message), now `AppLayout` keeps employees signed in and
+redirects company routes to `/me` with the same sessionStorage flash message `LoginPage` already
+consumed (the helper is message-agnostic). The `/me*` routes themselves need no gate — they were
+already role-agnostic reads, and the role variations (rates read-only, bonus editor hidden) live at
+the call sites, not the router. Do not confuse this with mobile's manager-block memory; they're
+opposite gates on opposite apps.
+
+**Employee onboarding is profile-only by construction.** The manager's `PATCH /users/me/onboarding`
+(`require_role("manager", "admin")`) writes the company row, so employees get a dedicated
+`PATCH /users/me/employee-onboarding` (`require_role("employee")`, `EmployeeOnboardingIn`
+`{first_name, last_name, job_title}`) with a single-table repo write and its own page
+(`EmployeeOnboardingPage.tsx`, same card/picklist/"Altceva" pattern as the manager form, no company
+fields). Reusing the manager endpoint would let an employee rename their manager's company.
 
 **`job_title` is free text, not a DB enum, despite looking like a fixed list.** The picklist
 (`job_titles` table) is a suggestion source for the UI, not a constraint — `users.job_title` has

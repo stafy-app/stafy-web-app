@@ -26,13 +26,13 @@ export default function MyHistoryPage() {
   if (!employeeId) return null
 
   return (
-    <div className="mx-auto flex max-w-[1280px] flex-col gap-5">
+    <div className="mx-auto flex max-w-[1280px] flex-col gap-4 sm:gap-5">
       <HistoryTab employeeId={employeeId} />
 
-      <AttendanceTab employeeId={employeeId} />
+      <AttendanceTab employeeId={employeeId} allowBonusEdit={false} />
 
       {entries.length > 0 && (
-        <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
+        <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
           <div className="mb-3 text-[16px] font-semibold text-[var(--color-ink)]">Acțiuni pontaje</div>
           <div className="flex flex-col gap-2">
             {entries.map((entry) => {
@@ -43,14 +43,14 @@ export default function MyHistoryPage() {
               return (
                 <div
                   key={entry.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-md)] bg-[var(--color-surface-2)] px-3 py-2 text-[13px]"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-md)] bg-[var(--color-surface-2)] px-3 py-3 text-[13px]"
                 >
                   <span className="text-[var(--color-ink)]">
                     {entry.activity.activity_name} · {timeFormatter.format(start)}–{timeFormatter.format(end)} ·{' '}
                     {hours.toFixed(1)}h
                   </span>
                   {isConfirming ? (
-                    <span className="flex items-center gap-2">
+                    <span className="flex w-full flex-wrap items-center gap-x-3 gap-y-2 sm:w-auto">
                       <span className="text-[var(--color-ink-muted)]">Sigur ștergi?</span>
                       <button
                         type="button"
@@ -58,14 +58,14 @@ export default function MyHistoryPage() {
                           deleteEntry.mutate(entry.id, { onSuccess: () => setConfirmDeleteId(null) })
                         }}
                         disabled={deleteEntry.isPending}
-                        className="font-semibold text-[var(--color-error)] disabled:opacity-50"
+                        className="min-h-11 flex-1 px-3 font-semibold text-[var(--color-error)] disabled:opacity-50 sm:min-h-0 sm:flex-none sm:px-0"
                       >
                         Da, șterge
                       </button>
                       <button
                         type="button"
                         onClick={() => setConfirmDeleteId(null)}
-                        className="text-[var(--color-ink-muted)]"
+                        className="min-h-11 flex-1 px-3 text-[var(--color-ink-muted)] sm:min-h-0 sm:flex-none sm:px-0"
                       >
                         Anulează
                       </button>
@@ -76,9 +76,9 @@ export default function MyHistoryPage() {
                       aria-label="Șterge pontaj"
                       title="Șterge pontaj"
                       onClick={() => setConfirmDeleteId(entry.id)}
-                      className="flex items-center gap-1 text-[var(--color-ink-muted)] transition-colors hover:text-[var(--color-error)]"
+                      className="flex min-h-11 min-w-11 items-center justify-center text-[var(--color-ink-muted)] transition-colors hover:text-[var(--color-error)]"
                     >
-                      <ICONS.trash className="h-4 w-4" />
+                      <ICONS.trash className="h-5 w-5 sm:h-4 sm:w-4" />
                     </button>
                   )}
                 </div>

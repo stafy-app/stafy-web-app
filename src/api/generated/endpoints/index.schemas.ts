@@ -329,6 +329,27 @@ export interface EmployeeMonthlyHistoryOut {
   data: EmployeeMonthlyHistoryEntryOut[];
 }
 
+export interface EmployeeOnboardingIn {
+  /**
+     * First name.
+     * @minLength 2
+     * @maxLength 30
+     */
+  first_name: string;
+  /**
+     * Last name.
+     * @minLength 2
+     * @maxLength 30
+     */
+  last_name: string;
+  /**
+     * Employee's job title — client offers a picklist + custom 'other' option.
+     * @minLength 2
+     * @maxLength 150
+     */
+  job_title: string;
+}
+
 export interface ReportCompanyOut {
   /** Company name, shown in the document header. */
   name: string;

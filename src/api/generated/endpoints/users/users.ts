@@ -10,6 +10,7 @@ import type {
   EmployeeHourlyRateSetIn,
   EmployeeJobTitleUpdateIn,
   EmployeeMonthlyHistoryOut,
+  EmployeeOnboardingIn,
   EmployeeTimeEntriesListOut,
   GetEmployeeMonthlyHistoryParams,
   GetEmployeeSummaryParams,
@@ -48,6 +49,19 @@ const completeOnboarding = (
       {url: `/api/v1/users/me/onboarding`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: onboardingIn
+    },
+      );
+    }
+  /**
+ * @summary Complete employee onboarding (profile fields + job title, no company write)
+ */
+const completeEmployeeOnboarding = (
+    employeeOnboardingIn: EmployeeOnboardingIn,
+ ) => {
+      return api<UserOut>(
+      {url: `/api/v1/users/me/employee-onboarding`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: employeeOnboardingIn
     },
       );
     }
@@ -176,9 +190,10 @@ const listJobTitles = (
     },
       );
     }
-  return {listUsers,completeOnboarding,getEmployeeSummary,listEmployeeTimeEntries,listEmployeeHourlyRates,setEmployeeHourlyRate,getEmployeeMonthlyHistory,updateEmployeeJobTitle,suspendEmployee,reactivateEmployee,getProfile,listJobTitles}};
+  return {listUsers,completeOnboarding,completeEmployeeOnboarding,getEmployeeSummary,listEmployeeTimeEntries,listEmployeeHourlyRates,setEmployeeHourlyRate,getEmployeeMonthlyHistory,updateEmployeeJobTitle,suspendEmployee,reactivateEmployee,getProfile,listJobTitles}};
 export type ListUsersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listUsers']>>>
 export type CompleteOnboardingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['completeOnboarding']>>>
+export type CompleteEmployeeOnboardingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['completeEmployeeOnboarding']>>>
 export type GetEmployeeSummaryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getEmployeeSummary']>>>
 export type ListEmployeeTimeEntriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listEmployeeTimeEntries']>>>
 export type ListEmployeeHourlyRatesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listEmployeeHourlyRates']>>>

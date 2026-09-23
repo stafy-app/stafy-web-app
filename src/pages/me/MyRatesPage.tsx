@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTopBar } from '@stafy/hooks/useTopBar'
-import { useMyHourlyRates, useUpdateMyHourlyRate, useCreateMyActivity, useDeleteMyActivity } from '@stafy/hooks/useMyTime'
-import { useActivities } from '@stafy/hooks/useActivities'
+import { useProfile } from '@stafy/hooks/useProfile'
+import { useMyHourlyRates, useUpdateMyHourlyRate, useDeleteMyActivity } from '@stafy/hooks/useMyTime'
 
 const ron = new Intl.NumberFormat('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
@@ -9,22 +9,14 @@ export default function MyRatesPage() {
   useTopBar({ title: 'Tarife', subtitle: 'Tarifele tale orare pe activități' })
 
   const { data: ratesData, isLoading } = useMyHourlyRates()
-  const { data: activitiesData } = useActivities()
+  const { data: profileData } = useProfile()
+  const isEmployee = profileData?.role === 'employee'
   const updateRate = useUpdateMyHourlyRate()
-  const createActivity = useCreateMyActivity()
   const deleteActivity = useDeleteMyActivity()
-
   const rates = ratesData?.data ?? []
-  const configuredIds = new Set(rates.map((r) => r.activity_id))
-  const unconfigured = (activitiesData?.data ?? []).filter((a) => !configuredIds.has(a.id))
 
   const [editingActivityId, setEditingActivityId] = useState<number | null>(null)
   const [draftValue, setDraftValue] = useState('')
-  const [addingExistingId, setAddingExistingId] = useState<number | null>(null)
-  const [addingExistingRate, setAddingExistingRate] = useState('')
-  const [showNewForm, setShowNewForm] = useState(false)
-  const [newName, setNewName] = useState('')
-  const [newRate, setNewRate] = useState('')
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
 
   function startEditing(activityId: number, currentRate: string) {
@@ -41,57 +33,35 @@ export default function MyRatesPage() {
     )
   }
 
-  function saveExisting(activityId: number) {
-    const value = parseFloat(addingExistingRate)
-    if (!Number.isFinite(value) || value <= 0) return
-    updateRate.mutate(
-      { activityId, hourlyRateGross: addingExistingRate },
-      {
-        onSuccess: () => {
-          setAddingExistingId(null)
-          setAddingExistingRate('')
-        },
-      },
-    )
-  }
-
-  function saveNew() {
-    const name = newName.trim()
-    const value = parseFloat(newRate)
-    if (name.length < 2 || !Number.isFinite(value) || value <= 0) return
-    createActivity.mutate(
-      { activity_name: name, hourly_rate_gross: newRate },
-      {
-        onSuccess: () => {
-          setShowNewForm(false)
-          setNewName('')
-          setNewRate('')
-        },
-      },
-    )
-  }
-
   return (
     <div className="mx-auto flex max-w-[1280px] flex-col gap-4">
       <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
         <p className="text-[12px] text-[var(--color-ink-muted)]">
-          Îți configurezi singur tarifele orare — o schimbare se aplică doar pontajelor viitoare,
-          cele deja înregistrate păstrează tariful din momentul lucrului.
+          {isEmployee
+            ? 'Tarifele sunt stabilite de managerul companiei — aici vezi tarifele tale active.'
+            : 'Îți configurezi singur tarifele orare — o schimbare se aplică doar pontajelor viitoare, cele deja înregistrate păstrează tariful din momentul lucrului.'}
         </p>
       </div>
-
-      <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
+      <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
         {isLoading ? null : rates.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-[var(--color-ink-muted)]">
-            Nu ai niciun tarif configurat încă.
+          <div className="py-8 text-center">
+            <div className="text-[15px] font-semibold text-[var(--color-ink)]">
+              Nu ai niciun tarif configurat încă.
+            </div>
+            <div className="mx-auto mt-1 max-w-[420px] text-[13px] text-[var(--color-ink-muted)]">
+              {isEmployee
+                ? 'Managerul companiei îți va seta tarifele — revino aici după ce le primești.'
+                : 'Configurează-ți tarifele din pagina de setări a activităților companiei.'}
+            </div>
           </div>
         ) : (
-          <table className="w-full text-[13px]">
+          <>
+            <table className="hidden w-full text-[13px] sm:table">
             <thead>
               <tr className="border-b border-[var(--color-line-soft)] text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
                 <th className="pb-2 pr-3 font-semibold">Activitate</th>
                 <th className="pb-2 pr-3 text-right font-semibold">Tarif (RON/h)</th>
-                <th className="pb-2 text-right font-semibold">Acțiuni</th>
+                {!isEmployee && <th className="pb-2 text-right font-semibold">Acțiuni</th>}
               </tr>
             </thead>
             <tbody>
@@ -118,8 +88,9 @@ export default function MyRatesPage() {
                         </span>
                       )}
                     </td>
-                    <td className="py-2.5 text-right">
-                      {isEditing ? (
+                    {!isEmployee && (
+                      <td className="py-2.5 text-right">
+                        {isEditing ? (
                         <div className="flex items-center justify-end gap-2">
                           <button
                             type="button"
@@ -178,136 +149,112 @@ export default function MyRatesPage() {
                           </button>
                         </div>
                       )}
-                    </td>
+                      </td>
+                    )}
                   </tr>
                 )
               })}
             </tbody>
-          </table>
-        )}
-      </div>
-
-      {unconfigured.length > 0 && (
-        <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
-          <div className="mb-3 text-[14px] font-semibold text-[var(--color-ink)]">
-            Activități ale companiei fără tarif
-          </div>
-          <div className="flex flex-col gap-2">
-            {unconfigured.map((activity) => (
-              <div
-                key={activity.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-md)] bg-[var(--color-surface-2)] px-3 py-2"
-              >
-                <span className="text-[13px] text-[var(--color-ink)]">{activity.activity_name}</span>
-                {addingExistingId === activity.id ? (
-                  <span className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      autoFocus
-                      placeholder="RON/h"
-                      value={addingExistingRate}
-                      onChange={(e) => setAddingExistingRate(e.target.value)}
-                      className="w-24 rounded-[var(--radius-sm)] border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-right font-[var(--font-mono)] text-[13px] outline-none focus:border-[var(--color-primary)]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => saveExisting(activity.id)}
-                      disabled={updateRate.isPending}
-                      className="text-[12px] font-semibold text-[var(--color-primary)] disabled:opacity-50"
-                    >
-                      Salvează
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAddingExistingId(null)
-                        setAddingExistingRate('')
-                      }}
-                      className="text-[12px] text-[var(--color-ink-muted)]"
-                    >
-                      Anulează
-                    </button>
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setAddingExistingId(activity.id)}
-                    className="rounded-full border border-[var(--color-primary)] px-3 py-1 text-[12px] font-semibold text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary-soft)]"
+            </table>
+            <div className="flex flex-col gap-2 sm:hidden">
+              {rates.map((rate) => {
+                const isEditing = !isEmployee && editingActivityId === rate.activity_id
+                const isConfirming = !isEmployee && confirmDeleteId === rate.activity_id
+                return (
+                  <div
+                    key={rate.activity_id}
+                    className="rounded-[var(--radius-md)] bg-[var(--color-surface-2)] px-3 py-3"
                   >
-                    Setează tarif
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
-        {showNewForm ? (
-          <div className="flex flex-col gap-3">
-            <div className="text-[14px] font-semibold text-[var(--color-ink)]">Activitate nouă</div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <label className="block">
-                <span className="mb-1.5 block text-[12px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
-                  Nume activitate
-                </span>
-                <input
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder="ex. Suport clienți"
-                  maxLength={30}
-                  className="input input-bordered w-full"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block text-[12px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
-                  Tarif (RON/h)
-                </span>
-                <input
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={newRate}
-                  onChange={(e) => setNewRate(e.target.value)}
-                  placeholder="ex. 45"
-                  className="input input-bordered w-full"
-                />
-              </label>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="min-w-0 truncate text-[13px] font-medium text-[var(--color-ink)]">
+                        {rate.activity_name}
+                      </span>
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          autoFocus
+                          value={draftValue}
+                          onChange={(e) => setDraftValue(e.target.value)}
+                          className="w-28 rounded-[var(--radius-sm)] border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-2 text-right font-[var(--font-mono)] text-[16px] outline-none focus:border-[var(--color-primary)]"
+                        />
+                      ) : (
+                        <span className="font-[var(--font-mono)] text-[15px] font-bold text-[var(--color-ink)]">
+                          {ron.format(parseFloat(rate.hourly_rate_gross))} RON
+                        </span>
+                      )}
+                    </div>
+                    {!isEmployee && (
+                      <div className="mt-2 flex gap-2">
+                        {isEditing ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => save(rate.activity_id)}
+                              disabled={updateRate.isPending}
+                              className="btn btn-primary min-h-11 flex-1 disabled:opacity-50"
+                            >
+                              Salvează
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingActivityId(null)}
+                              className="btn btn-ghost min-h-11 flex-1"
+                            >
+                              Anulează
+                            </button>
+                          </>
+                        ) : isConfirming ? (
+                          <>
+                            <span className="flex min-h-11 flex-1 items-center text-[12px] text-[var(--color-ink-muted)]">
+                              Sigur ștergi?
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                deleteActivity.mutate(rate.activity_id, {
+                                  onSuccess: () => setConfirmDeleteId(null),
+                                })
+                              }}
+                              disabled={deleteActivity.isPending}
+                              className="btn btn-error btn-sm min-h-11 flex-1 disabled:opacity-50"
+                            >
+                              Da, șterge
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmDeleteId(null)}
+                              className="btn btn-ghost btn-sm min-h-11 flex-1"
+                            >
+                              Anulează
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => startEditing(rate.activity_id, rate.hourly_rate_gross)}
+                              className="btn btn-outline btn-sm min-h-11 flex-1"
+                            >
+                              Editează
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmDeleteId(rate.activity_id)}
+                              className="btn btn-ghost btn-sm min-h-11 flex-1"
+                            >
+                              Șterge
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={saveNew}
-                disabled={createActivity.isPending}
-                className="btn btn-primary btn-sm disabled:opacity-50"
-              >
-                Adaugă activitate
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowNewForm(false)
-                  setNewName('')
-                  setNewRate('')
-                }}
-                className="btn btn-ghost btn-sm"
-              >
-                Anulează
-              </button>
-            </div>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setShowNewForm(true)}
-            className="btn btn-outline btn-sm"
-          >
-            + Activitate nouă
-          </button>
+          </>
         )}
       </div>
     </div>

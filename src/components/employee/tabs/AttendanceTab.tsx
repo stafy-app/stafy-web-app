@@ -3,17 +3,22 @@ import { PeriodBar } from '@stafy/components/dashboard/PeriodBar'
 import { BonusCard } from '@stafy/components/reports/BonusCard'
 import { useEmployeeTimeEntries } from '@stafy/hooks/useEmployeeTimeEntries'
 import { useEmployeeReport, useSetReportBonus, useClearReportBonus } from '@stafy/hooks/useReports'
+import { useProfile } from '@stafy/hooks/useProfile'
 import { getAdjacentPeriod, getCurrentPeriod } from '@stafy/utils/period'
-
-interface AttendanceTabProps {
-  employeeId: number
-}
 
 const dateFormatter = new Intl.DateTimeFormat('ro-RO', { weekday: 'short', day: 'numeric', month: 'short' })
 const timeFormatter = new Intl.DateTimeFormat('ro-RO', { hour: '2-digit', minute: '2-digit' })
 const ron = new Intl.NumberFormat('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-export function AttendanceTab({ employeeId }: AttendanceTabProps) {
+interface AttendanceTabProps {
+  employeeId: number
+  /** Company shell (EmployeeProfilePage, Reports flows) shows the bonus editor for
+   * managers; the /me personal shell passes false — bonus is granted there, never
+   * self-applied. Read (amount) renders either way. */
+  allowBonusEdit?: boolean
+}
+
+export function AttendanceTab({ employeeId, allowBonusEdit = true }: AttendanceTabProps) {
   const [period, setPeriod] = useState(getCurrentPeriod)
   const current = getCurrentPeriod()
   const isCurrentMonth = period.year === current.year && period.month === current.month
@@ -24,6 +29,12 @@ export function AttendanceTab({ employeeId }: AttendanceTabProps) {
   const bonus = report?.bonus && parseFloat(report.bonus.amount) > 0 ? report.bonus : null
   const setBonusMutation = useSetReportBonus(employeeId, period.year, period.month)
   const clearBonusMutation = useClearReportBonus(employeeId, period.year, period.month)
+  // Bonus editor: manager-only, and hidden in the /me personal shell
+  // (allowBonusEdit=false there — bonus is granted from the company context, never
+  // self-applied from personal). In the company shell the manager edits any row,
+  // including their own — same parity rule as rates.
+  const { data: profileData } = useProfile()
+  const canEditBonus = allowBonusEdit && profileData?.role === 'manager'
 
   const [activityFilter, setActivityFilter] = useState<'all' | number>('all')
 
@@ -70,6 +81,7 @@ export function AttendanceTab({ employeeId }: AttendanceTabProps) {
             bonus={report?.bonus}
             onSave={(amount, reason) => setBonusMutation.mutate({ amount, reason })}
             onClear={() => clearBonusMutation.mutate()}
+            editable={canEditBonus}
           />
         </div>
       </div>

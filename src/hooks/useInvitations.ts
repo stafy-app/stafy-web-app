@@ -4,6 +4,7 @@ import { getApiError } from '@stafy/services/apiErrors'
 import { showToast } from '@stafy/lib/toast'
 
 const INVITATIONS_KEY = ['invitations']
+const MY_INVITATIONS_KEY = ['my-invitations']
 
 const ERROR_MESSAGES: Record<string, string> = {
   invitation_already_pending: 'Există deja o invitație în așteptare pentru acest email.',
@@ -69,6 +70,50 @@ export function useCancelInvitation() {
     },
     onError: (error) => {
       showToast(invitationErrorMessage(error, 'Nu s-a putut anula invitația.'), {
+        tone: 'danger',
+      })
+    },
+  })
+}
+
+export function useMyInvitations() {
+  return useQuery({
+    queryKey: MY_INVITATIONS_KEY,
+    queryFn: () => getInvitations().listMyInvitations(),
+  })
+}
+
+export function useAcceptInvitation() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (invitationId: string) => getInvitations().acceptInvitation(invitationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: MY_INVITATIONS_KEY })
+      queryClient.invalidateQueries({ queryKey: ['profile'] })
+      queryClient.invalidateQueries({ queryKey: ['my-dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['my-hourly-rates'] })
+      showToast('Bun venit în echipă!')
+    },
+    onError: (error) => {
+      showToast(invitationErrorMessage(error, 'Nu am putut accepta invitația.'), {
+        tone: 'danger',
+      })
+    },
+  })
+}
+
+export function useRejectInvitation() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (invitationId: string) => getInvitations().rejectInvitation(invitationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: MY_INVITATIONS_KEY })
+      showToast('Invitație respinsă.')
+    },
+    onError: (error) => {
+      showToast(invitationErrorMessage(error, 'Nu am putut respinge invitația.'), {
         tone: 'danger',
       })
     },

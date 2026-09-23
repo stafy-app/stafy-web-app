@@ -175,7 +175,7 @@ export function HistoryTab({ employeeId }: HistoryTabProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
+      <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
         <div className="mb-4 flex items-center justify-between">
           <div className="text-[16px] font-semibold text-[var(--color-ink)]">Istoric lunar</div>
           <button
@@ -217,7 +217,7 @@ export function HistoryTab({ employeeId }: HistoryTabProps) {
             </tbody>
           </table>
         ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div>
               <div className="mb-1 text-[12px] font-medium text-[var(--color-ink-soft)]">Ore lucrate</div>
               <ResponsiveContainer width="100%" height={180}>

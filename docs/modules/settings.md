@@ -202,9 +202,10 @@ the PATCH endpoint, checked client-side first so no request is ever sent that wo
 
 **Activities here is the company-wide list, not the per-user hourly-rate settings the generated
 client already exposed before this page existed.** `settings_router`'s pre-existing hourly-rate/
-activity endpoints (`require_role("employee", "admin")`) exist for employees managing their own
-rate — a different actor and role than this manager-only page; this page's Activities section calls
-the newer `/api/v1/activities` endpoints instead.
+activity endpoints (`require_role("employee", "manager", "admin")`, plus a manager/admin-only
+`POST /me/settings/hourly-rates` for self-activating a first-time rate) exist for a caller managing
+their own rate — a different actor and role than this manager-only page; this page's Activities
+section calls the newer `/api/v1/activities` endpoints instead.
 
 **Audit section pagination grows `limit`, not `offset`.** "Load more" increases the requested
 `limit` by 50 and re-fetches from `offset=0` each time rather than tracking an accumulated array

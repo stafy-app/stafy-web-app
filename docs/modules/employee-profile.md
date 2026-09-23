@@ -12,7 +12,8 @@ reproduce the shipped Romanian strings verbatim.
 **In scope:** profile header (avatar, name, active/suspended status, email, join date,
 inline-editable job title, this-month hours + delta, this-month estimated pay); a three-tab body
 — Attendance (this employee's time entries, own month picker, activity filter, bonus editor for
-the picked month), Rates (every company activity with this employee's rate or an "activate"
+the picked month — editing the bonus requires the `manager` role; other viewers see the amount
+read-only), Rates (every company activity with this employee's rate or an "activate"
 affordance, inline edit), History (last 5 months of hours/pay, chart + table-view toggle + summary
 stats); a "⋯" actions menu (edit job title, export this employee's time entries to CSV,
 suspend/reactivate).
@@ -229,6 +230,31 @@ indicator) and `EmployeeActionsMenu` (DaisyUI dropdown) are both built page-scop
 how `EmployeeCard` and other feature-specific components in this codebase are already built —
 there is no generic UI-primitive layer in this project yet (see `docs/ui-guidelines.md`). Job-title
 and rate editing are both inline (input + Save/Cancel), not a dialog, so no `Modal` was needed.
+
+**The Rates tab renders identically for the caller's own id; the header's "⋯" actions menu doesn't
+render at all for self — two different, both-correct answers to the same roster-includes-the-
+manager fact.** `team.md`'s roster and the Dashboard's top-5 table both include the manager
+themself (backend scopes by `role in ("employee", "manager")`, not `"employee"` alone), so a
+card/row for the caller's own account is a normal, expected destination here, not an edge case to
+route around. `EmployeeHeaderCard`'s `isSelf` check (`profile?.id === employeeId`, pre-existing
+since the `/me/*` pages shipped) already hides `EmployeeActionsMenu` — job-title edit, CSV export,
+suspend/reactivate — entirely when viewing self, rather than rendering affordances that would 404:
+`update_employee_job_title`/`suspend_employee`/`reactivate_employee` all share the same
+`get_user_by_id_in_company` employee-only guard `set_employee_hourly_rate` does, and a manager's own
+job title has no edit path anywhere in the app (`settings.md`: read-only, set once at onboarding) —
+there's no self-service counterpart to swap in the way rates have one, so hiding is correct here,
+not a stopgap. The header stats, Attendance, and History tabs read fine for self regardless
+(`get_self_or_employee_in_company` explicitly accepts "the caller themself, any role, in their own
+company") — only the Rates tab's *write* (`set_employee_hourly_rate` → `get_user_by_id_in_company`,
+"must never accept self") broke for self, since rates are the one action here with a real
+self-service counterpart to reuse. `RatesTab` compares the route's `employeeId` against
+`useProfile().data.id` (`!= null` guarded — an unresolved profile query must never
+false-positive-match) and picks `useActivateOwnRateInEmployeeView` instead of `useSetEmployeeRate`
+when they match — same `{ activityId, hourlyRateGross }` mutation shape, same upsert semantics
+(activate + edit in one call), same query-key invalidation (`['employee-rates', employeeId]`),
+routed at the call site to `POST /me/settings/hourly-rates` instead of
+`PATCH /users/{employee_id}/hourly-rates/{activity_id}` — only the Rates tab's UI and the manager's
+own experience are identical to viewing any other employee's row.
 
 **CSV export always covers the current month, independent of the Attendance tab's own filter.**
 The "⋯" menu's export is driven by its own current-month query (same `useEmployeeTimeEntries` hook,

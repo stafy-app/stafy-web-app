@@ -113,8 +113,12 @@ export function Sidebar() {
   const { logout } = useAuth()
   const { data: profile } = useProfile()
   const showSwitcher = profile?.role === 'manager'
+  const isEmployee = profile?.role === 'employee'
+  // Employees have no company shell: always the personal nav, no switcher.
+  // (AppLayout already redirects them off any company route, so pathname here
+  // is always /me* for employees; the switcher stays manager-only.)
   const effectiveMode: WorkspaceMode =
-    showSwitcher && pathname !== '/settings' ? mode : 'company'
+    isEmployee ? 'personal' : showSwitcher && pathname !== '/settings' ? mode : 'company'
   const navItems = effectiveMode === 'personal' ? PERSONAL_NAV_ITEMS : COMPANY_NAV_ITEMS
 
   function changeMode(next: WorkspaceMode) {
@@ -150,7 +154,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`sticky top-0 z-20 flex h-screen flex-shrink-0 flex-col border-r border-[var(--color-line)] bg-[var(--color-surface)] py-5 transition-[width,padding] duration-[220ms] ease-[var(--ease-out)] ${
+      className={`sticky top-0 z-20 hidden h-screen flex-shrink-0 flex-col border-r border-[var(--color-line)] bg-[var(--color-surface)] py-5 transition-[width,padding] duration-[220ms] ease-[var(--ease-out)] md:flex ${
         collapsed ? 'w-[72px] px-[10px]' : 'w-[240px] px-[14px]'
       }`}
     >
@@ -262,7 +266,7 @@ export function Sidebar() {
               {fullName}
             </div>
             <div className="overflow-hidden text-ellipsis whitespace-nowrap text-[12px] text-[var(--color-ink-muted)]">
-              Manager
+              {profile?.role === 'employee' ? 'Angajat' : profile?.role === 'admin' ? 'Admin' : 'Manager'}
             </div>
           </div>
         </div>

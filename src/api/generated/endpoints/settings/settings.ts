@@ -69,6 +69,23 @@ const listMyHourlyRates = (
       );
     }
   /**
+ * Manager/admin self-service: unlike update_my_hourly_rate (update-only, 404 if
+ * missing), this creates a rate the first time too — the counterpart managers use to
+ * set employee rates (set_employee_hourly_rate) never accepts self, and a manager has
+ * no other manager above them to do it instead.
+ * @summary Create or update the manager's/admin's own rate for an existing company activity
+ */
+const activateMyHourlyRate = (
+    hourlyRateUpdate: HourlyRateUpdate,
+ ) => {
+      return api<HourlyRateOut>(
+      {url: `/api/v1/users/me/settings/hourly-rates`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: hourlyRateUpdate
+    },
+      );
+    }
+  /**
  * @summary Update the authenticated user's hourly rate for an activity
  */
 const updateMyHourlyRate = (
@@ -105,11 +122,12 @@ const deleteMyActivity = (
     },
       );
     }
-  return {updateMyAccount,getMyCompany,updateMyCompany,listMyHourlyRates,updateMyHourlyRate,createMyActivity,deleteMyActivity}};
+  return {updateMyAccount,getMyCompany,updateMyCompany,listMyHourlyRates,activateMyHourlyRate,updateMyHourlyRate,createMyActivity,deleteMyActivity}};
 export type UpdateMyAccountResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['updateMyAccount']>>>
 export type GetMyCompanyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['getMyCompany']>>>
 export type UpdateMyCompanyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['updateMyCompany']>>>
 export type ListMyHourlyRatesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['listMyHourlyRates']>>>
+export type ActivateMyHourlyRateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['activateMyHourlyRate']>>>
 export type UpdateMyHourlyRateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['updateMyHourlyRate']>>>
 export type CreateMyActivityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['createMyActivity']>>>
 export type DeleteMyActivityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSettings>['deleteMyActivity']>>>

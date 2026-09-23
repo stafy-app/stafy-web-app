@@ -10,6 +10,7 @@ import MyDashboardPage from '@stafy/pages/me/MyDashboardPage'
 import MyAttendancePage from '@stafy/pages/me/MyAttendancePage'
 import MyHistoryPage from '@stafy/pages/me/MyHistoryPage'
 import MyRatesPage from '@stafy/pages/me/MyRatesPage'
+import MyProfilePage from '@stafy/pages/me/MyProfilePage'
 import InvitationsPage from '@stafy/pages/invitations/InvitationsPage'
 import ReportsPage from '@stafy/pages/reports/ReportsPage'
 import SettingsPage from '@stafy/pages/settings/SettingsPage'
@@ -17,6 +18,7 @@ import LoginPage from '@stafy/pages/auth/LoginPage'
 import RegisterPage from '@stafy/pages/auth/RegisterPage'
 import CompleteRegistrationPage from '@stafy/pages/auth/CompleteRegistrationPage'
 import OnboardingPage from '@stafy/pages/onboarding/OnboardingPage'
+import EmployeeOnboardingPage from '@stafy/pages/onboarding/EmployeeOnboardingPage'
 import TestsPage from '@stafy/pages/tests/TestsPage'
 
 const rootRoute = createRootRoute({
@@ -89,6 +91,12 @@ const myRatesRoute = createRoute({
   component: MyRatesPage,
 })
 
+const myProfileRoute = createRoute({
+  path: '/me/profile',
+  getParentRoute: () => appLayoutRoute,
+  component: MyProfilePage,
+})
+
 const authLayoutRoute = createRoute({
   id: '_auth',
   getParentRoute: () => rootRoute,
@@ -117,6 +125,12 @@ const onboardingRoute = createRoute({
   path: '/onboarding',
   getParentRoute: () => onboardingLayoutRoute,
   component: OnboardingPage,
+})
+
+const employeeOnboardingRoute = createRoute({
+  path: '/employee-onboarding',
+  getParentRoute: () => appLayoutRoute,
+  component: EmployeeOnboardingPage,
 })
 
 const completeRegistrationLayoutRoute = createRoute({
@@ -148,6 +162,8 @@ const routeTree = rootRoute.addChildren([
     myAttendanceRoute,
     myHistoryRoute,
     myRatesRoute,
+    myProfileRoute,
+    employeeOnboardingRoute,
     invitationsRoute,
     reportsRoute,
     settingsRoute,

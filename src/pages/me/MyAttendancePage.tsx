@@ -110,8 +110,8 @@ export default function MyAttendancePage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-[1280px] flex-col gap-5">
-      <div className="animate-fade-slide-in rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
+    <div className="mx-auto flex max-w-[1280px] flex-col gap-4 sm:gap-5">
+      <div className="animate-fade-slide-in rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
         <div className="mb-4 text-[16px] font-semibold text-[var(--color-ink)]">Pontaj nou</div>
 
         <label className="mb-4 block">
@@ -121,7 +121,7 @@ export default function MyAttendancePage() {
           <select
             value={activityId ?? ''}
             onChange={(e) => setActivityId(e.target.value === '' ? null : Number(e.target.value))}
-            className="select select-bordered w-full"
+            className="select select-bordered min-h-12 w-full text-[16px]"
           >
             <option value="">Selectează activitatea…</option>
             {rates.map((rate) => (
@@ -141,7 +141,7 @@ export default function MyAttendancePage() {
               type="datetime-local"
               value={startValue}
               onChange={(e) => setStartValue(e.target.value)}
-              className="input input-bordered w-full"
+              className="input input-bordered min-h-12 w-full text-[16px]"
             />
           </label>
           <label className="block">
@@ -152,12 +152,12 @@ export default function MyAttendancePage() {
               type="datetime-local"
               value={stopValue}
               onChange={(e) => setStopValue(e.target.value)}
-              className="input input-bordered w-full"
+              className="input input-bordered min-h-12 w-full text-[16px]"
             />
           </label>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-md)] bg-[var(--color-surface-2)] px-4 py-3">
+        <div className="mt-4 flex flex-col gap-3 rounded-[var(--radius-md)] bg-[var(--color-surface-2)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-[13px] text-[var(--color-ink-soft)]">
             Durată: <span className="font-[var(--font-mono)] font-bold text-[var(--color-ink)]">{worked.formatted}</span>
             {selectedRate && (
@@ -173,7 +173,7 @@ export default function MyAttendancePage() {
             type="button"
             onClick={handleSave}
             disabled={createEntry.isPending}
-            className="btn btn-primary btn-sm disabled:opacity-50"
+            className="btn btn-primary min-h-12 w-full sm:btn-sm sm:w-auto disabled:opacity-50"
           >
             {createEntry.isPending ? 'Se salvează…' : 'Salvează pontaj'}
           </button>

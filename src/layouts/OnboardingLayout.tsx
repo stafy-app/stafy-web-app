@@ -20,7 +20,7 @@ export function OnboardingLayout() {
   }
 
   if (profile.onboarding_completed) {
-    return <Navigate to="/" />
+    return <Navigate to={profile.role === 'employee' ? '/me' : '/'} />
   }
 
   return (

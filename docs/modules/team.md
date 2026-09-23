@@ -47,7 +47,8 @@ N/A — no stateful entity behind this page. Client-side UI state is limited to 
 
 ## Derived / Aggregated Data
 
-One row per employee (`role == "employee"` only), for the current calendar month:
+One row per employee **and the manager themself** (`user.role in ("employee", "manager")` on the
+backend), for the current calendar month:
 
 - **Hours this month** — summed from time-entry rows.
 - **Delta vs. previous month** — current month's hours minus previous month's hours.
@@ -70,8 +71,9 @@ by the backend on each request.
    (unaffected by the active search filter), followed by a success toast.
 4. Manager triggers the invite action → navigates to the invitations page (see
    `docs/modules/invitations.md`).
-5. Manager clicks a card → navigates to the employee profile route (see
-   `docs/modules/employee-profile.md`).
+5. Manager clicks a card, including their own — navigates to the employee profile route (see
+   `docs/modules/employee-profile.md`) the same way for every row; the manager can view and edit
+   their own rates from there exactly as they would an employee's.
 
 ---
 
