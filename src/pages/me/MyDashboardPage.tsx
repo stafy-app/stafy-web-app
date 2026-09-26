@@ -6,6 +6,7 @@ import { useTopBar } from '@stafy/hooks/useTopBar'
 import { useMyDashboard } from '@stafy/hooks/useMyTime'
 import { useProfile } from '@stafy/hooks/useProfile'
 import { useMyInvitations, useAcceptInvitation, useRejectInvitation } from '@stafy/hooks/useInvitations'
+import { getInvitationRoleLabel } from '@stafy/utils/invitationRole'
 import { getCurrentPeriod } from '@stafy/utils/period'
 import { Link } from '@tanstack/react-router'
 
@@ -48,6 +49,14 @@ export default function MyDashboardPage() {
           <div className="mt-1 text-[13px] text-[var(--color-ink-soft)]">
             Acceptă pentru a intra în echipa {invitation.company_name}. Pontajele și tarifele tale se reîncarcă automat.
           </div>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[12px] text-[var(--color-ink-muted)]">
+            <span className="rounded-full bg-[var(--color-surface-2)] px-2 py-0.5">
+              Rol: {getInvitationRoleLabel(invitation.invited_role)}
+            </span>
+            <span className="rounded-full bg-[var(--color-surface-2)] px-2 py-0.5">
+              Funcție: {invitation.job_title_label ?? '—'}
+            </span>
+          </div>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             <button
               type="button"
@@ -84,14 +93,18 @@ export default function MyDashboardPage() {
             Nu ai niciun tarif configurat încă
           </div>
           <div className="mt-1 text-[13px] text-[var(--color-ink-soft)]">
-            Ca să poți înregistra ore, configurează-ți mai întâi tarifele orare pe activități.
+            {profile?.is_own_company ?? false
+              ? 'Ca să poți înregistra ore, configurează-ți mai întâi tarifele orare pe activități.'
+              : 'Managerul companiei tale nu ți-a setat încă niciun tarif — nu poți înregistra ore până atunci.'}
           </div>
-          <Link
-            to="/me/rates"
-            className="btn btn-primary btn-sm mt-3 min-h-11 sm:min-h-0"
-          >
-            Configurează tarife
-          </Link>
+          {(profile?.is_own_company ?? false) && (
+            <Link
+              to="/me/rates"
+              className="btn btn-primary btn-sm mt-3 min-h-11 sm:min-h-0"
+            >
+              Configurează tarife
+            </Link>
+          )}
         </div>
       )}
 

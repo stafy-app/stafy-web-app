@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { getInitials } from '@stafy/utils/initials'
 import { getCurrentPeriod } from '@stafy/utils/period'
 import { exportEmployeeTimeEntriesCsv } from '@stafy/utils/exportEmployeeTimeEntriesCsv'
@@ -9,6 +10,7 @@ import {
   useReactivateEmployee,
   useSuspendEmployee,
   useUpdateEmployeeJobTitle,
+  useRemoveFromCompany,
 } from '@stafy/hooks/useEmployeeActions'
 import { Delta } from '@stafy/components/shared/Delta'
 import { EmployeeActionsMenu } from './EmployeeActionsMenu'
@@ -21,6 +23,7 @@ const gross = new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 0 })
 const joinDateFormatter = new Intl.DateTimeFormat('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' })
 
 export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
+  const navigate = useNavigate()
   const { year, month } = getCurrentPeriod()
   const { data: summary } = useEmployeeSummary(employeeId, year, month)
   const { data: currentMonthEntries } = useEmployeeTimeEntries(employeeId, year, month)
@@ -28,6 +31,7 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
   const updateJobTitle = useUpdateEmployeeJobTitle(employeeId)
   const suspend = useSuspendEmployee(employeeId)
   const reactivate = useReactivateEmployee(employeeId)
+  const removeFromCompany = useRemoveFromCompany(employeeId)
 
   const [isEditingJobTitle, setIsEditingJobTitle] = useState(false)
   const [draftJobTitle, setDraftJobTitle] = useState('')
@@ -40,6 +44,12 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
   // on-behalf actions (job-title edit, suspend/reactivate) are meaningless on
   // yourself — self-service lives under /me/rates.
   const isSelf = profile?.id === employeeId
+  // Same badge/self-exclusion rule as EmployeeCard (see its comment) — a
+  // coordinator (a second manager per company) can now appear as an employee
+  // detail page target too. Labeled "Manager" (permission level), never
+  // "Coordonator" — that word is also a seeded default job title (funcție),
+  // shown separately below via user.job_title; the two are unrelated.
+  const isCoordinator = user.role === 'manager' && !isSelf
 
   function startEditingJobTitle() {
     setDraftJobTitle(user.job_title ?? '')
@@ -62,6 +72,11 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <div className="text-[22px] font-bold text-[var(--color-ink)]">{fullName}</div>
+            {isCoordinator && (
+              <span className="inline-flex items-center rounded-full bg-[var(--color-primary-soft)] px-2 py-0.5 text-[11px] font-medium text-[var(--color-primary-active)]">
+                Manager
+              </span>
+            )}
             <span
               className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
                 user.is_active
@@ -139,13 +154,19 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
         {!isSelf && (
           <EmployeeActionsMenu
             isActive={user.is_active ?? true}
+            isCoordinator={isCoordinator}
             onEditJobTitle={startEditingJobTitle}
             onExportCsv={() =>
               exportEmployeeTimeEntriesCsv(currentMonthEntries?.data ?? [], fullName, year, month)
             }
             onSuspend={() => suspend.mutate()}
             onReactivate={() => reactivate.mutate()}
-            disabled={suspend.isPending || reactivate.isPending}
+            onRemoveFromCompany={() =>
+              removeFromCompany.mutate(undefined, {
+                onSuccess: () => navigate({ to: '/team' }),
+              })
+            }
+            disabled={suspend.isPending || reactivate.isPending || removeFromCompany.isPending}
           />
         )}
       </div>

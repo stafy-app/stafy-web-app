@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import logoMark from '@stafy/assets/stafy_logo.svg'
 import { useCompleteOnboarding } from '@stafy/hooks/useCompleteOnboarding'
-import { useJobTitles } from '@stafy/hooks/useJobTitles'
+import { useCompanyJobTitles } from '@stafy/hooks/useCompanyJobTitles'
 
 const OTHER_VALUE = '__other__'
 
 export default function OnboardingPage() {
   const { mutateAsync, isPending } = useCompleteOnboarding()
-  const { data: jobTitlesData, isLoading: isJobTitlesLoading } = useJobTitles()
+  const { data: jobTitlesData, isLoading: isJobTitlesLoading } = useCompanyJobTitles()
   const jobTitles = jobTitlesData?.data ?? []
 
   const [organizationName, setOrganizationName] = useState('')

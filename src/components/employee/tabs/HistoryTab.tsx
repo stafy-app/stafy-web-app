@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Clock, Wallet, BarChart3 } from 'lucide-react'
 import {
   Area,
@@ -147,7 +147,6 @@ function CurrentMonthTick(props: MinimalMarkProps) {
 
 export function HistoryTab({ employeeId }: HistoryTabProps) {
   const { data, isLoading } = useEmployeeMonthlyHistory(employeeId, MONTHS)
-  const [showTable, setShowTable] = useState(false)
 
   const points: ChartPoint[] = useMemo(() => {
     const rows = data?.data ?? []
@@ -175,49 +174,22 @@ export function HistoryTab({ employeeId }: HistoryTabProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="text-[16px] font-semibold text-[var(--color-ink)]">Istoric lunar</div>
-          <button
-            type="button"
-            onClick={() => setShowTable((v) => !v)}
-            className="text-[12px] font-medium text-[var(--color-ink-soft)] underline decoration-[var(--color-line)] underline-offset-2 hover:text-[var(--color-primary)]"
-          >
-            {showTable ? 'Vezi ca grafic' : 'Vezi ca tabel'}
-          </button>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <KpiCard label="Total ore" icon={Clock} value={totalHours} durationMs={700} formatValue={formatHours} />
+        <KpiCard label="Total de plată" icon={Wallet} value={totalPay} durationMs={850} formatValue={formatRon} />
+        <KpiCard
+          label="Medie ore/lună"
+          icon={BarChart3}
+          value={avgHoursPerMonth}
+          durationMs={700}
+          formatValue={formatHours}
+        />
+      </div>
 
-        {showTable ? (
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr className="border-b border-[var(--color-line-soft)] text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
-                <th className="pb-2 pr-3 font-semibold">Lună</th>
-                <th className="pb-2 pr-3 text-right font-semibold">Ore</th>
-                <th className="pb-2 pr-3 text-right font-semibold">Bonus</th>
-                <th className="pb-2 text-right font-semibold">De plată</th>
-              </tr>
-            </thead>
-            <tbody>
-              {points.map((point) => (
-                <tr key={point.key} className="border-b border-[var(--color-line-soft)] last:border-0">
-                  <td className="py-2.5 pr-3 text-[var(--color-ink)]">
-                    {monthYearFormatter.format(new Date(point.year, point.month - 1, 1))}
-                  </td>
-                  <td className="py-2.5 pr-3 text-right font-[var(--font-mono)] text-[var(--color-ink)]">
-                    {formatHours(point.hours)}
-                  </td>
-                  <td className="py-2.5 pr-3 text-right font-[var(--font-mono)] text-[var(--color-ink-muted)]">
-                    {point.bonus > 0 ? formatRon(point.bonus) : '—'}
-                  </td>
-                  <td className="py-2.5 text-right font-[var(--font-mono)] font-semibold text-[var(--color-ink)]">
-                    {formatRon(point.pay)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
+        <div className="mb-4 text-[16px] font-semibold text-[var(--color-ink)]">Istoric lunar</div>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div>
               <div className="mb-1 text-[12px] font-medium text-[var(--color-ink-soft)]">Ore lucrate</div>
               <ResponsiveContainer width="100%" height={180}>
@@ -271,20 +243,7 @@ export function HistoryTab({ employeeId }: HistoryTabProps) {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <KpiCard label="Total ore" icon={Clock} value={totalHours} durationMs={700} formatValue={formatHours} />
-        <KpiCard label="Total de plată" icon={Wallet} value={totalPay} durationMs={850} formatValue={formatRon} />
-        <KpiCard
-          label="Medie ore/lună"
-          icon={BarChart3}
-          value={avgHoursPerMonth}
-          durationMs={700}
-          formatValue={formatHours}
-        />
+        </div>
       </div>
     </div>
   )

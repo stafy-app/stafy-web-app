@@ -1,5 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Clock, History, Home, Tags, Users, Mail, Download, Settings } from 'lucide-react'
+import { Clock, History, Home, Tags, User, Users, Mail, Download, Settings } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useProfile } from '@stafy/hooks/useProfile'
 
@@ -22,10 +22,12 @@ const PERSONAL_NAV_ITEMS: NavItem[] = [
   { to: '/me/attendance', label: 'Pontaj', icon: Clock },
   { to: '/me/history', label: 'Istoric', icon: History },
   { to: '/me/rates', label: 'Tarife', icon: Tags },
+  { to: '/me/profile', label: 'Profil', icon: User },
 ]
 
 function isActivePath(itemTo: string, pathname: string) {
-  return itemTo === '/' ? pathname === '/' : pathname.startsWith(itemTo)
+  if (itemTo === '/' || itemTo === '/me') return pathname === itemTo
+  return pathname === itemTo || pathname.startsWith(`${itemTo}/`)
 }
 
 // Bottom navigation bar for phones (<md): same items as the sidebar's current

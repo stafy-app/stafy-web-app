@@ -10,12 +10,10 @@ import type {
   EmployeeHourlyRateSetIn,
   EmployeeJobTitleUpdateIn,
   EmployeeMonthlyHistoryOut,
-  EmployeeOnboardingIn,
   EmployeeTimeEntriesListOut,
   GetEmployeeMonthlyHistoryParams,
   GetEmployeeSummaryParams,
   HourlyRateOut,
-  JobTitlesListOut,
   ListEmployeeHourlyRatesParams,
   ListEmployeeTimeEntriesParams,
   OnboardingIn,
@@ -49,19 +47,6 @@ const completeOnboarding = (
       {url: `/api/v1/users/me/onboarding`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: onboardingIn
-    },
-      );
-    }
-  /**
- * @summary Complete employee onboarding (profile fields + job title, no company write)
- */
-const completeEmployeeOnboarding = (
-    employeeOnboardingIn: EmployeeOnboardingIn,
- ) => {
-      return api<UserOut>(
-      {url: `/api/v1/users/me/employee-onboarding`, method: 'PATCH',
-      headers: {'Content-Type': 'application/json', },
-      data: employeeOnboardingIn
     },
       );
     }
@@ -169,6 +154,17 @@ const reactivateEmployee = (
       );
     }
   /**
+ * @summary Remove a coordinator from the company, reassigning them to their own personal company
+ */
+const removeCoordinator = (
+    employeeId: number,
+ ) => {
+      return api<UserOut>(
+      {url: `/api/v1/users/${employeeId}/remove-from-company`, method: 'POST'
+    },
+      );
+    }
+  /**
  * @summary Get the authenticated user's profile
  */
 const getProfile = (
@@ -179,21 +175,9 @@ const getProfile = (
     },
       );
     }
-  /**
- * @summary List active job-title suggestions for the onboarding picklist
- */
-const listJobTitles = (
-
- ) => {
-      return api<JobTitlesListOut>(
-      {url: `/api/v1/job-titles`, method: 'GET'
-    },
-      );
-    }
-  return {listUsers,completeOnboarding,completeEmployeeOnboarding,getEmployeeSummary,listEmployeeTimeEntries,listEmployeeHourlyRates,setEmployeeHourlyRate,getEmployeeMonthlyHistory,updateEmployeeJobTitle,suspendEmployee,reactivateEmployee,getProfile,listJobTitles}};
+  return {listUsers,completeOnboarding,getEmployeeSummary,listEmployeeTimeEntries,listEmployeeHourlyRates,setEmployeeHourlyRate,getEmployeeMonthlyHistory,updateEmployeeJobTitle,suspendEmployee,reactivateEmployee,removeCoordinator,getProfile}};
 export type ListUsersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listUsers']>>>
 export type CompleteOnboardingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['completeOnboarding']>>>
-export type CompleteEmployeeOnboardingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['completeEmployeeOnboarding']>>>
 export type GetEmployeeSummaryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getEmployeeSummary']>>>
 export type ListEmployeeTimeEntriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listEmployeeTimeEntries']>>>
 export type ListEmployeeHourlyRatesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listEmployeeHourlyRates']>>>
@@ -202,5 +186,5 @@ export type GetEmployeeMonthlyHistoryResult = NonNullable<Awaited<ReturnType<Ret
 export type UpdateEmployeeJobTitleResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['updateEmployeeJobTitle']>>>
 export type SuspendEmployeeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['suspendEmployee']>>>
 export type ReactivateEmployeeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['reactivateEmployee']>>>
+export type RemoveCoordinatorResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['removeCoordinator']>>>
 export type GetProfileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getProfile']>>>
-export type ListJobTitlesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listJobTitles']>>>

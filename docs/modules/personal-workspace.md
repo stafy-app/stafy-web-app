@@ -1,10 +1,10 @@
 # Personal Workspace
 
-Employee self time-tracking shell (`/me`, `/me/attendance`, `/me/history`, `/me/rates`), plus manager self-tracking under the same routes via the sidebar's company/personal switcher. Sources: `src/pages/me/*`, `src/layouts/AppLayout.tsx`, `src/components/layout/Sidebar.tsx`, `src/pages/onboarding/EmployeeOnboardingPage.tsx`.
+Employee self time-tracking shell (`/me`, `/me/attendance`, `/me/history`, `/me/rates`), plus manager self-tracking under the same routes via the sidebar's company/personal switcher. Sources: `src/pages/me/*`, `src/layouts/AppLayout.tsx`, `src/components/layout/Sidebar.tsx`.
 
 ## Scope
 
-**In scope:** the four personal pages (home dashboard, attendance entry, history with delete, own-rates view); employee access to those routes (same shell managers use for self-tracking); manager/employee role variations per page (rates read-only for employees, bonus editor hidden in the personal shell); employee profile onboarding (name + job title, no company write); incoming-invitation accept/reject cards; responsive layouts (desktop table + mobile card variants, touch-size targets).
+**In scope:** the four personal pages (home dashboard, attendance entry, history with delete, own-rates view — add/edit/delete); employee access to those routes (same shell managers use for self-tracking); rates self-service/read-only split per `is_own_company` (own-company employees and managers alike can add/edit/delete their own rates; employees who joined a manager's company via invitation see them read-only), bonus editor hidden in the personal shell; incoming-invitation accept/reject cards; responsive layouts (desktop table + mobile card variants, touch-size targets).
 
 **Out of scope (this release):** an employee view of company data (team roster, reports, settings stay manager-only — employees redirect to `/me`); offline support (all reads/writes are online-only, same standing debt as the rest of the app); push/email notifications for invitations; a distinct employee mobile-web experience beyond responsive breakpoints (the native app remains the phone-first surface).
 
@@ -14,8 +14,8 @@ Employee self time-tracking shell (`/me`, `/me/attendance`, `/me/history`, `/me/
 
 | Actor | Interface | Role |
 |---|---|---|
-| Employee | `stafy-web-app` (browser) | Tracks own hours, views own history/pay, views own rates read-only, accepts/rejects team invitations, completes profile onboarding once |
-| Manager | `stafy-web-app` (browser, personal workspace mode) | Same four pages for self-tracking (rates editable for own rows where a self-service counterpart exists); company administration lives in the separate company shell |
+| Employee | `stafy-web-app` (browser) | Tracks own hours, views own history/pay, self-services own rates (add/edit/delete) while in their own company, read-only once joined to a manager's company, accepts/rejects team invitations |
+| Manager | `stafy-web-app` (browser, personal workspace mode) | Same four pages for self-tracking, same self-service rates (a manager always owns their company, so always self-service); company administration lives in the separate company shell |
 | Backend | FastAPI (`stafy-backend`) | Serves self-scoped reads plus role-gated writes; rejects cross-employee reads with 404 |
 
 ---
@@ -30,13 +30,13 @@ Employee self time-tracking shell (`/me`, `/me/attendance`, `/me/history`, `/me/
 
 ### Owned
 
-None. Read/write aggregation views over backend-owned rows; no ORM/DB entity belongs to these pages. The employee onboarding write goes through a dedicated backend endpoint (`PATCH /users/me/employee-onboarding`, employee-only) rather than reusing the manager's company onboarding.
+None. Read/write aggregation views over backend-owned rows; no ORM/DB entity belongs to these pages.
 
 ---
 
 ## Lifecycle
 
-N/A — no stateful entity behind these pages. Client-side UI state: form drafts (attendance inputs, rate edit, bonus draft inside `BonusCard`), confirm-delete flags, invitation respond-in-flight flags, table/chart toggles — none persisted or synced to the URL. Invitation accept flips server-side membership (company assignment) and invalidates `profile`/`my-dashboard`/`my-hourly-rates` queries; reject only removes the card.
+N/A — no stateful entity behind these pages. Client-side UI state: form drafts (attendance inputs, rate edit), confirm-delete flags, invitation respond-in-flight flags, the history page's own month picker (`AttendanceTab`'s `period` state) — none persisted or synced to the URL. Invitation accept flips server-side membership (company assignment) and invalidates `profile`/`my-dashboard`/`my-hourly-rates` queries; reject only removes the card.
 
 ---
 
@@ -50,19 +50,18 @@ N/A — no stateful entity behind these pages. Client-side UI state: form drafts
 
 ## User Flows
 
-1. Employee logs in → `AppLayout` sees `role === 'employee'`: company routes redirect to `/me`; incomplete onboarding redirects to `/employee-onboarding`. Sidebar shows the personal nav only, no workspace switcher, role label reads as the employee term.
-2. Employee completes profile onboarding once (first name, last name, job title from the shared picklist + custom option) → `PATCH /users/me/employee-onboarding` → explicit navigate to `/me`.
-3. Employee opens home → sees monthly KPIs, activity distribution, and any pending team invitations as accept/reject cards (accept refreshes profile + dashboard + rates so the new company shows immediately).
-4. Employee records hours on the attendance page (activity from own configured rates, start/stop inputs, live duration + pay estimate) → save posts a time entry; validation/duplicate errors surface as localized toasts.
-5. Employee reviews history (charts + table toggle, month picker, per-entry delete with confirm) → bonus row shows the granted amount read-only; the bonus editor never renders in the personal shell.
-6. Employee opens rates → sees only already-configured own rates, read-only, with a note that rates are manager-set; no company-wide unconfigured list, no new-activity form (both removed — those belong to the manager's settings surface, and the backend 403s joined employees there anyway).
-7. Manager switches the sidebar to personal mode → same four pages with manager variations (rates editable on own rows via the self-service upsert; bonus editor visible in company-shell contexts only).
+1. Employee logs in → `AppLayout` sees `role === 'employee'`: company routes redirect to `/me`. No onboarding step — `onboarding_completed` is already `true` from register (see `docs/modules/auth.md`). Sidebar shows the personal nav only, no workspace switcher, role label reads as the employee term.
+2. Employee opens home → sees monthly KPIs, activity distribution, and any pending team invitations as accept/reject cards (accept refreshes profile + dashboard + rates so the new company shows immediately — this is also the moment `is_own_company` flips to `false` and rates self-service turns off).
+3. Employee records hours on the attendance page (activity from own configured rates, start/stop inputs, live duration + pay estimate) → save posts a time entry; validation/duplicate errors surface as localized toasts. If there are no rates yet, this page and the home dashboard show an empty state instead — its CTA ("Configurează tarife" → `/me/rates`) only renders when `is_own_company` is true; a joined employee sees a "your manager hasn't set a rate yet" message with no CTA, since there's nothing to configure.
+4. Employee opens history → the page leads with period selection (`AttendancePeriodHeader` — month picker only, no `BonusCard`: `showBonusCard={false}`, since the granted bonus, if any, already renders as its own row inside the Pontaje table below, so a second card here would just repeat it), then `HistoryTab`'s 5-month summary (3 KPI cards — total hours, total pay, average hours/month — above the two trend charts, no table-view toggle), then the Pontaje table (`AttendanceEntriesTable`, for the month `AttendancePeriodHeader` has selected) with its own "Acțiuni" column — per-entry delete + inline confirm, `allowDelete` prop. Both the period header and the table read/write the same `useAttendanceMonth(employeeId)` hook instance, so navigating the month picker updates the table without a second, independently-scrolled fetch.
+5. Employee opens rates: while `is_own_company` (no manager yet, or never joined one), sees an "Adaugă activitate" form (activity name + RON/h rate, get-or-create) above the list, plus Editează/Șterge on each row. Once joined to a manager's company, `is_own_company` flips `false` and the page becomes read-only — no add form, no actions column, just a note that the manager sets rates.
+6. Manager switches the sidebar to personal mode → same four pages, same rates self-service as an own-company employee (a manager's `company_id` always equals their `personal_company_id`, so `is_own_company` is always `true` for them here); bonus editor visible in company-shell contexts only.
 
 ---
 
 ## Information Architecture
 
-Routes: `/me`, `/me/attendance`, `/me/history`, `/me/rates` (`myDashboardRoute`, `myAttendanceRoute`, `myHistoryRoute`, `myRatesRoute` in `src/routes/index.tsx`, under the authenticated app layout); `/employee-onboarding` (same parent, guarded by the `AppLayout` employee branch rather than a dedicated layout). Sidebar: employees always see the personal item list; managers see the company/personal switcher and choose. No modals owned by these pages (deletes use inline confirm states, not dialogs).
+Routes: `/me`, `/me/attendance`, `/me/history`, `/me/rates` (`myDashboardRoute`, `myAttendanceRoute`, `myHistoryRoute`, `myRatesRoute` in `src/routes/index.tsx`, under the authenticated app layout). Sidebar: employees always see the personal item list; managers see the company/personal switcher and choose. No modals owned by these pages (deletes use inline confirm states, not dialogs).
 
 ---
 
@@ -81,7 +80,10 @@ All reads are caller-scoped or self-or-employee guarded; all writes are role-gat
 ```typescript
 GET  /api/v1/dashboard/me                                   → own monthly dashboard
 GET  /api/v1/profile                                        → role, onboarding_completed, is_own_company
-GET  /api/v1/users/me/settings/hourly-rates                 → own configured rates only
+GET  /api/v1/users/me/settings/hourly-rates                 → own configured rates
+POST /api/v1/users/me/settings/activities                   → employee/manager/admin, own company only (get-or-create activity + rate)
+PATCH /api/v1/users/me/settings/hourly-rates                → employee/manager/admin, own company only (update-only, 404 if missing)
+DELETE /api/v1/users/me/settings/activities/{id}            → employee/manager/admin, own company only
 GET  /api/v1/users/{id}/summary?year=&month=                → manager + employee(self-only*)
 GET  /api/v1/users/{id}/time-entries?year=&month=           → manager + employee(self-only*)
 GET  /api/v1/users/{id}/hourly-rates?year=&month=           → manager + employee(self-only*)
@@ -92,23 +94,24 @@ POST /api/v1/invitations/{id}/accept                        → employee only (b
 POST /api/v1/invitations/{id}/reject                        → any authenticated role
 POST /api/v1/time-entries/                                  → any authenticated role (own entries)
 DELETE /api/v1/time-entries/{id}                            → own entries (ownership-checked server-side)
-PATCH /api/v1/users/me/employee-onboarding                  → employee only (profile fields + job title, no company write)
 PATCH /api/v1/users/me/settings/account                     → manager, admin, employee (own names)
 ```
 
 (`*`) The five `/{employee_id}` read routes accept `require_role("manager", "employee")` with an explicit self-only check for employee callers (`employee_id != current_user.id` → 404 `not_found`): the shared service guard alone would let employee X read employee Y in the same company, so the route adds the check before the service call. Managers keep whole-company reads. All write routes under `/{employee_id}` stay manager-only with the strict employee-only guard (never self).
 
+The three self-service rates writes (`POST .../activities`, `PATCH .../hourly-rates`, `DELETE .../activities/{id}`) all 403 with `not_own_company` when `company_id != personal_company_id` — the same condition `is_own_company` on `UserOut` exposes to the client, so `MyRatesPage.tsx` hides the add/edit/delete affordances instead of letting the user hit a 403.
+
 ---
 
 ## Special Aspects
 
-**Employees share the manager's personal pages rather than getting a parallel set.** The `/me/*` routes, hooks, and tab components are role-agnostic reads; role variations are small conditionals at the call site (rates table hides its actions column for employees, `AttendanceTab` takes `allowBonusEdit={false}` in the personal shell, intro copy switches to the manager-set note). This keeps one implementation with no fork to drift — the price is that every new affordance on these pages needs an explicit role decision, not a default-allow.
+**Employees share the manager's personal pages rather than getting a parallel set.** The `/me/*` routes, hooks, and tab components are role-agnostic reads; role variations are small conditionals at the call site (rates table hides its actions column and add form once `is_own_company` is `false`; the personal shell passes `allowBonusEdit={false}`/`showBonusCard={false}` and `allowDelete` to the `AttendancePeriodHeader`/`AttendanceEntriesTable` pair, where the company shell's `AttendanceTab` wrapper leaves those at their defaults; intro copy switches to the manager-set note). This keeps one implementation with no fork to drift — the price is that every new affordance on these pages needs an explicit role decision, not a default-allow.
 
-**Bonus visibility vs. editability is deliberately split.** The bonus amount is real pay and always renders (personal shell, employee viewers, manager self-view alike); only the editor is gated (`canEditBonus = role === 'manager'` plus shell/self rules where they apply). Hiding the amount would hide money the viewer is owed or owes visibility into.
+**`AttendanceTab` is a thin composition, not the only consumer of its pieces.** `useAttendanceMonth` (period/entries/bonus/activity-filter state), `AttendancePeriodHeader` (`PeriodBar` + optional `BonusCard`), and `AttendanceEntriesTable` (the Pontaje table + optional delete column) live as three separate exports under `src/components/employee/tabs/`. `AttendanceTab` (`EmployeeProfilePage`'s Attendance tab) just renders the header then the table, adjacent, using one hook instance. `MyHistoryPage` calls `useAttendanceMonth` itself and renders the header and the table with `HistoryTab`'s chart sandwiched between them — the split exists specifically so that reorder doesn't require a second, desynced fetch of the same month's entries.
 
-**Manager self-service is the exception that proves the company-shell rule.** Rates and bonus writes reject everyone except through narrow self paths that exist only because a manager has no superior to act for them (`POST /me/settings/hourly-rates` upsert; company-shell bonus editor on the own row). Employees have no equivalent need — their manager acts for them — so the same endpoints stay closed to them, and the UI never offers what the backend would 403.
+**Bonus visibility vs. editability is deliberately split, but the visible surface differs by shell.** The bonus amount is real pay and always renders somewhere — in the company shell (`EmployeeProfilePage`, Reports) that's the standalone `BonusCard` next to the month picker; in the personal shell (`MyHistoryPage`) `BonusCard` is hidden entirely (`showBonusCard={false}`) because the same amount already renders as a row inside the Pontaje table (`AttendanceEntriesTable`'s `bonus &&` row), and showing it twice added nothing. Only the editor is gated (`canEditBonus = role === 'manager'` plus shell/self rules where they apply) — self-application is never allowed regardless of which surface shows the amount.
 
-**Employee onboarding is profile-only by construction.** The manager's onboarding writes the company row (name/city/address) plus job title; the employee's writes names + job title only. Reusing the manager endpoint would let an employee rename their manager's company, so the split endpoint exists regardless of how similar the two forms look.
+**Rates self-service is gated on `is_own_company`, not role.** `POST/PATCH/DELETE /users/me/settings/hourly-rates|activities` all accept `employee`/`manager`/`admin` alike and 403 only on `company_id != personal_company_id` — the backend's own condition for "nobody else (a real manager) is managing this account's rates for them." A manager's `company_id` always equals their `personal_company_id`, so this reads as "manager-only" in practice unless a manager somehow joined another company (no such path exists today), but an employee who hasn't been invited anywhere gets the exact same self-service capability. `MyRatesPage.tsx` mirrors this exactly (`isOwnCompany = profile.is_own_company`), not a `role === 'employee'` check — using role there would wrongly hide the add/edit/delete UI from a not-yet-invited employee even though the backend allows it.
 
 **No offline support on these pages.** Same standing debt as the rest of the app: reads don't cache, writes don't queue. Invitation accept/reject and attendance submit need connectivity; failures surface as toasts, not queued retries.
 

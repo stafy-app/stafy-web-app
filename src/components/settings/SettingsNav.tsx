@@ -1,7 +1,14 @@
 import { ICONS, type IconName } from '@stafy/lib/icons'
 import { useProfile } from '@stafy/hooks/useProfile'
 
-export type SettingsSectionKey = 'account' | 'company' | 'activities' | 'audit' | 'security' | 'admin'
+export type SettingsSectionKey =
+  | 'account'
+  | 'company'
+  | 'activities'
+  | 'jobTitles'
+  | 'audit'
+  | 'security'
+  | 'admin'
 
 interface SettingsNavProps {
   active: SettingsSectionKey
@@ -12,6 +19,7 @@ const SECTIONS: { key: SettingsSectionKey; label: string; icon: IconName }[] = [
   { key: 'account', label: 'Cont', icon: 'user' },
   { key: 'company', label: 'Companie', icon: 'building' },
   { key: 'activities', label: 'Activități', icon: 'tags' },
+  { key: 'jobTitles', label: 'Funcții', icon: 'briefcase' },
   { key: 'audit', label: 'Audit', icon: 'history' },
   { key: 'security', label: 'Securitate', icon: 'shield' },
   { key: 'admin', label: 'Admin', icon: 'dashboard' },

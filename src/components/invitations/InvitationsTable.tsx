@@ -1,6 +1,7 @@
 import type { InvitationOut } from '@stafy/api/generated/endpoints/index.schemas'
 import { useCancelInvitation, useResendInvitation } from '@stafy/hooks/useInvitations'
 import { InvitationStatusBadge } from './InvitationStatusBadge'
+import { getInvitationRoleLabel } from '@stafy/utils/invitationRole'
 import { ICONS } from '@stafy/lib/icons'
 
 const dateFormatter = new Intl.DateTimeFormat('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -29,6 +30,8 @@ export function InvitationsTable({ invitations }: InvitationsTableProps) {
         <thead>
           <tr className="text-[12px] uppercase tracking-[0.06em] text-[var(--color-ink-muted)]">
             <th>Email</th>
+            <th>Rol</th>
+            <th>Funcție</th>
             <th>Status</th>
             <th>Trimisă</th>
             <th>Expiră / Răspuns</th>
@@ -45,6 +48,12 @@ export function InvitationsTable({ invitations }: InvitationsTableProps) {
             return (
               <tr key={invitation.id}>
                 <td className="text-[13px] text-[var(--color-ink)]">{invitation.invited_email}</td>
+                <td className="text-[13px] text-[var(--color-ink-soft)]">
+                  {getInvitationRoleLabel(invitation.invited_role)}
+                </td>
+                <td className="text-[13px] text-[var(--color-ink-soft)]">
+                  {invitation.job_title_label ?? '—'}
+                </td>
                 <td>
                   <InvitationStatusBadge status={invitation.status} />
                 </td>

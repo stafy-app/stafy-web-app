@@ -23,6 +23,7 @@ import {
   ShieldCheck,
   History,
   LayoutDashboard,
+  Briefcase,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -51,6 +52,7 @@ export const ICONS = {
   shield: ShieldCheck,
   history: History,
   dashboard: LayoutDashboard,
+  briefcase: Briefcase,
 } satisfies Record<string, LucideIcon>
 
 export type IconName = keyof typeof ICONS

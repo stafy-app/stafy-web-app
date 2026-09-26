@@ -36,18 +36,10 @@ export function AppLayout() {
   // time-tracking). Company routes (/, /team, /invitations, /reports, /settings)
   // are require_role("manager") on the backend — redirect instead of letting them
   // land on pages that would just 403. Admin keeps its existing /settings rule.
-  // An employee's onboarding is the profile form at /employee-onboarding, not the
-  // manager's company form — /onboarding's PATCH requires manager/admin.
+  // No onboarding_completed check for employees — they have no onboarding step
+  // (onboarding_completed is set true at register time, see OnboardingLayout).
   if (profile.role === 'employee') {
-    if (pathname === '/employee-onboarding') {
-      if (profile.onboarding_completed) {
-        return <Navigate to="/me" />
-      }
-    } else if (pathname === '/me' || pathname.startsWith('/me/')) {
-      if (!profile.onboarding_completed) {
-        return <Navigate to="/employee-onboarding" />
-      }
-    } else {
+    if (pathname !== '/me' && !pathname.startsWith('/me/')) {
       setBlockedMessage('Zona aceasta este doar pentru manageri — ai fost redirecționat la pagina ta personală.')
       return <Navigate to="/me" />
     }

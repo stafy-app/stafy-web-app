@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useTopBar } from '@stafy/hooks/useTopBar'
+import { useProfile } from '@stafy/hooks/useProfile'
 import { useMyDashboard, useMyHourlyRates, useCreateTimeEntry } from '@stafy/hooks/useMyTime'
 import { calculateWorkedTime, getSubmissionTimeEnd } from '@stafy/utils/workedTime'
 import { showToast } from '@stafy/lib/toast'
@@ -46,6 +47,8 @@ export default function MyAttendancePage() {
 
   const { data: dashboard } = useMyDashboard()
   const { data: ratesData } = useMyHourlyRates()
+  const { data: profileData } = useProfile()
+  const isOwnCompany = profileData?.is_own_company ?? false
   const createEntry = useCreateTimeEntry()
 
   const rates = useMemo(() => ratesData?.data ?? [], [ratesData])
@@ -98,12 +101,16 @@ export default function MyAttendancePage() {
             Nu ai niciun tarif configurat
           </div>
           <div className="mx-auto mt-1 max-w-[420px] text-[13px] text-[var(--color-ink-muted)]">
-            Ca să poți înregistra ore, configurează-ți mai întâi tarifele orare pe activități.
+            {isOwnCompany
+              ? 'Ca să poți înregistra ore, configurează-ți mai întâi tarifele orare pe activități.'
+              : 'Managerul companiei tale nu ți-a setat încă niciun tarif — nu poți înregistra ore până atunci.'}
             {(dashboard?.total_hours ?? 0) === 0 && ' Momentan nu ai niciun pontaj luna aceasta.'}
           </div>
-          <Link to="/me/rates" className="btn btn-primary btn-sm mt-4">
-            Configurează tarife
-          </Link>
+          {isOwnCompany && (
+            <Link to="/me/rates" className="btn btn-primary btn-sm mt-4">
+              Configurează tarife
+            </Link>
+          )}
         </div>
       </div>
     )

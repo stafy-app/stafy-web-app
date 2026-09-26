@@ -47,3 +47,18 @@ export function useReactivateEmployee(employeeId: number) {
     },
   })
 }
+
+export function useRemoveFromCompany(employeeId: number) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: () => getUsers().removeCoordinator(employeeId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['team-members'] })
+      showToast('Coordonator eliminat din companie.')
+    },
+    onError: () => {
+      showToast('Nu am putut elimina coordonatorul din companie.', { tone: 'danger' })
+    },
+  })
+}

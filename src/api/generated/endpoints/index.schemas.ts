@@ -200,6 +200,36 @@ export interface CompanyDashboardOut {
   top_employees: CompanyTopEmployeeOut[];
 }
 
+export interface CompanyJobTitleCreateIn {
+  /**
+     * Name of the job title to create.
+     * @minLength 2
+     * @maxLength 150
+     */
+  label: string;
+}
+
+export interface CompanyJobTitleOut {
+  /** Job title ID. */
+  id: number;
+  /** Display label, e.g. 'Coordonator'. */
+  label: string;
+}
+
+export interface CompanyJobTitleUpdateIn {
+  /**
+     * New name for the job title.
+     * @minLength 2
+     * @maxLength 150
+     */
+  label: string;
+}
+
+export interface CompanyJobTitlesListOut {
+  /** Job titles defined for the caller's company. */
+  data: CompanyJobTitleOut[];
+}
+
 export interface CompanyOut {
   /** Company ID. */
   id: number;
@@ -327,27 +357,6 @@ export interface EmployeeMonthlyHistoryEntryOut {
 export interface EmployeeMonthlyHistoryOut {
   /** Monthly totals, oldest to newest, current month last. */
   data: EmployeeMonthlyHistoryEntryOut[];
-}
-
-export interface EmployeeOnboardingIn {
-  /**
-     * First name.
-     * @minLength 2
-     * @maxLength 30
-     */
-  first_name: string;
-  /**
-     * Last name.
-     * @minLength 2
-     * @maxLength 30
-     */
-  last_name: string;
-  /**
-     * Employee's job title — client offers a picklist + custom 'other' option.
-     * @minLength 2
-     * @maxLength 150
-     */
-  job_title: string;
 }
 
 export interface ReportCompanyOut {
@@ -499,9 +508,24 @@ export interface HourlyRatesListOut {
   data: HourlyRateOut[];
 }
 
+/**
+ * Role the invited person will have once they join: 'employee' or 'manager' (a second manager becomes a coordinator, not a duplicate owner — see docs/modules/invitations.md). Only the company's owner (company_id == personal_company_id) may set 'manager'; a coordinator sending an invitation must set 'employee'.
+ */
+export type InvitationInInvitedRole = typeof InvitationInInvitedRole[keyof typeof InvitationInInvitedRole];
+
+
+export const InvitationInInvitedRole = {
+  manager: 'manager',
+  employee: 'employee',
+} as const;
+
 export interface InvitationIn {
   /** Email address of the prospective employee. */
   invited_email: string;
+  /** Role the invited person will have once they join: 'employee' or 'manager' (a second manager becomes a coordinator, not a duplicate owner — see docs/modules/invitations.md). Only the company's owner (company_id == personal_company_id) may set 'manager'; a coordinator sending an invitation must set 'employee'. */
+  invited_role: InvitationInInvitedRole;
+  /** A CompanyJobTitle id belonging to the caller's own company. */
+  invited_job_title_id: number;
 }
 
 export interface InvitationIncomingOut {
@@ -509,6 +533,10 @@ export interface InvitationIncomingOut {
   id: string;
   /** Email address of the prospective employee. */
   invited_email: string;
+  /** One of manager, employee. */
+  invited_role: string;
+  /** Snapshot label of the invited job title, flattened. Null if the referenced job title has since been deleted. */
+  job_title_label?: string | null;
   /** One of pending, accepted, rejected, expired. Cancelled invitations are never serialized — they're excluded from every response. */
   status: string;
   /** Invitation creation timestamp, UTC. */
@@ -528,6 +556,10 @@ export interface InvitationOut {
   id: string;
   /** Email address of the prospective employee. */
   invited_email: string;
+  /** One of manager, employee. */
+  invited_role: string;
+  /** Snapshot label of the invited job title, flattened. Null if the referenced job title has since been deleted. */
+  job_title_label?: string | null;
   /** One of pending, accepted, rejected, expired. Cancelled invitations are never serialized — they're excluded from every response. */
   status: string;
   /** Invitation creation timestamp, UTC. */
@@ -546,18 +578,6 @@ export interface InvitationsIncomingListOut {
 export interface InvitationsListOut {
   /** Every non-cancelled invitation the caller (manager) has sent. */
   data: InvitationOut[];
-}
-
-export interface JobTitleOut {
-  /** Job title ID. */
-  id: number;
-  /** Display label, e.g. 'Director'. */
-  label: string;
-}
-
-export interface JobTitlesListOut {
-  /** Active job-title suggestions for the onboarding picklist. */
-  data: JobTitleOut[];
 }
 
 export interface OnboardingIn {

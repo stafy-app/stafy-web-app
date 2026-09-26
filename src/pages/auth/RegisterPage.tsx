@@ -17,7 +17,7 @@ export default function RegisterPage() {
     setError(null)
     setIsSubmitting(true)
     try {
-      await register({ firstName, lastName, email, password })
+      await register({ firstName, lastName, email, password, role: 'manager' })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'A apărut o eroare neașteptată')
     } finally {
@@ -28,12 +28,17 @@ export default function RegisterPage() {
   return (
     <div className="card w-full max-w-sm bg-base-100 shadow-xl">
       <div className="card-body">
-        <div className="mb-1 flex items-center gap-2">
+        <div className="animate-fade-slide-in mb-1 flex items-center gap-2" style={{ animationDelay: '0ms' }}>
           <img src={logoMark} alt="Stafy" className="h-8 w-8 rounded-[7px]" />
           <span className="text-[20px] font-bold text-[var(--color-ink)]">Stafy</span>
         </div>
-        <h1 className="text-xl font-semibold text-[var(--color-ink)]">Creează cont</h1>
-        <p className="mb-2 text-sm text-[var(--color-ink-muted)]">Cont de manager pentru compania ta</p>
+
+        <h1
+          className="animate-fade-slide-in text-xl font-semibold text-[var(--color-ink)]"
+          style={{ animationDelay: '30ms' }}
+        >
+          Creează cont
+        </h1>
 
         {error && (
           <div role="alert" className="alert alert-error mb-2 text-sm">
@@ -42,7 +47,7 @@ export default function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="animate-fade-slide-in grid grid-cols-2 gap-3" style={{ animationDelay: '100ms' }}>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Prenume</legend>
               <input
@@ -68,7 +73,7 @@ export default function RegisterPage() {
               />
             </fieldset>
           </div>
-          <fieldset className="fieldset">
+          <fieldset className="fieldset animate-fade-slide-in" style={{ animationDelay: '140ms' }}>
             <legend className="fieldset-legend">Email</legend>
             <input
               type="email"
@@ -80,7 +85,7 @@ export default function RegisterPage() {
               placeholder="nume@companie.ro"
             />
           </fieldset>
-          <fieldset className="fieldset">
+          <fieldset className="fieldset animate-fade-slide-in" style={{ animationDelay: '180ms' }}>
             <legend className="fieldset-legend">Parolă</legend>
             <input
               type="password"
@@ -93,7 +98,12 @@ export default function RegisterPage() {
               placeholder="Minim 6 caractere"
             />
           </fieldset>
-          <button type="submit" disabled={isSubmitting} className="btn btn-primary mt-2">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="animate-fade-slide-in btn btn-primary mt-2"
+            style={{ animationDelay: '220ms' }}
+          >
             {isSubmitting ? <span className="loading loading-spinner loading-sm" /> : 'Creează cont'}
           </button>
         </form>

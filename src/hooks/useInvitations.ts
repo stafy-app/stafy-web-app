@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getInvitations } from '@stafy/api/generated/endpoints/invitations/invitations'
+import type { InvitationIn } from '@stafy/api/generated/endpoints/index.schemas'
 import { getApiError } from '@stafy/services/apiErrors'
 import { showToast } from '@stafy/lib/toast'
 
@@ -10,6 +11,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   invitation_already_pending: 'Există deja o invitație în așteptare pentru acest email.',
   invitation_not_actionable: 'Această invitație nu mai poate fi modificată.',
   invitation_not_found: 'Invitația nu a fost găsită.',
+  invitation_role_not_allowed: 'Doar administratorul companiei poate invita alți manageri.',
+  owner_has_team: 'Ai deja propria echipă — nu poți accepta o altă invitație cât timp o conduci.',
 }
 
 function invitationErrorMessage(error: unknown, fallback: string): string {
@@ -28,8 +31,7 @@ export function useSendInvitation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (invitedEmail: string) =>
-      getInvitations().createInvitation({ invited_email: invitedEmail }),
+    mutationFn: (data: InvitationIn) => getInvitations().createInvitation(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INVITATIONS_KEY })
       showToast('Invitație trimisă.')

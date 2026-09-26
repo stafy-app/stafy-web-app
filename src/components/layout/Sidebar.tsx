@@ -1,6 +1,6 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
-import { Clock, History, Home, Users, Mail, Download, Settings, Tags, ChevronLeft, LogOut } from 'lucide-react'
+import { Clock, History, Home, Users, Mail, Download, Settings, Tags, User, ChevronLeft, LogOut } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import logoMark from '@stafy/assets/stafy_logo.svg'
 import { useAuth } from '@stafy/hooks/useAuth'
@@ -27,6 +27,7 @@ const PERSONAL_NAV_ITEMS: NavItem[] = [
   { to: '/me/attendance', label: 'Pontaj', icon: Clock },
   { to: '/me/history', label: 'Istoric', icon: History },
   { to: '/me/rates', label: 'Tarife', icon: Tags },
+  { to: '/me/profile', label: 'Profil', icon: User },
 ]
 
 const STORAGE_KEY = 'stafy.sidebar.collapsed'
@@ -101,7 +102,8 @@ function WorkspaceSwitcher({
 }
 
 function isActivePath(itemTo: string, pathname: string) {
-  return itemTo === '/' ? pathname === '/' : pathname.startsWith(itemTo)
+  if (itemTo === '/' || itemTo === '/me') return pathname === itemTo
+  return pathname === itemTo || pathname.startsWith(`${itemTo}/`)
 }
 
 export function Sidebar() {
@@ -127,27 +129,9 @@ export function Sidebar() {
     navigate({ to: next === 'personal' ? '/me' : '/' })
   }
 
-  const pillRef = useRef<HTMLDivElement>(null)
-  const itemRefs = useRef(new Map<string, HTMLAnchorElement>())
-
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0')
   }, [collapsed])
-
-  useLayoutEffect(() => {
-    const activeItem = navItems.find((item) => isActivePath(item.to, pathname))
-    const pill = pillRef.current
-    const el = activeItem ? itemRefs.current.get(activeItem.to) : undefined
-    if (!pill) return
-    if (!el) {
-      pill.style.opacity = '0'
-      return
-    }
-    pill.style.top = `${el.offsetTop}px`
-    pill.style.height = `${el.offsetHeight}px`
-    pill.style.opacity = '1'
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, collapsed, effectiveMode])
 
   const initials = getInitials(profile?.first_name, profile?.last_name)
   const fullName = profile ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') : 'Se încarcă...'
@@ -207,11 +191,7 @@ export function Sidebar() {
       {showSwitcher && (
         <WorkspaceSwitcher mode={effectiveMode} collapsed={collapsed} onChange={changeMode} />
       )}
-      <nav className="relative flex flex-col gap-0.5">
-        <div
-          ref={pillRef}
-          className="absolute left-0 right-0 z-0 rounded-[var(--radius-md)] bg-[var(--color-primary-soft)] opacity-0 transition-[top,height] duration-[220ms] ease-[var(--ease-out)]"
-        />
+      <nav className="flex flex-col gap-0.5">
         {navItems.map((item) => {
           const active = isActivePath(item.to, pathname)
           const Icon = item.icon
@@ -219,17 +199,13 @@ export function Sidebar() {
             <Link
               key={item.to}
               to={item.to}
-              ref={(el) => {
-                if (el) itemRefs.current.set(item.to, el)
-                else itemRefs.current.delete(item.to)
-              }}
               aria-label={item.label}
               title={item.label}
               className={`relative z-10 flex items-center rounded-[var(--radius-md)] text-[14px] font-medium no-underline transition-[color,background-color,padding,gap] duration-[220ms] ease-[var(--ease-out)] ${
                 collapsed ? 'justify-center gap-0 px-0 py-[11px]' : 'gap-2.5 px-3 py-2.5'
               } ${
                 active
-                  ? 'font-semibold text-[var(--color-primary-active)]'
+                  ? 'bg-[var(--color-primary-soft)] font-semibold text-[var(--color-primary-active)]'
                   : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-surface-2)]'
               }`}
             >

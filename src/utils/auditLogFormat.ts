@@ -17,6 +17,10 @@ export const ACTION_LABELS: Record<string, string> = {
   'company.settings_updated': 'Date companie actualizate',
   'activity.created': 'Activitate creată',
   'activity.renamed': 'Activitate redenumită',
+  'user.removed_from_company': 'Coordonator eliminat din companie',
+  'company_job_title.created': 'Funcție creată',
+  'company_job_title.renamed': 'Funcție redenumită',
+  'company_job_title.deleted': 'Funcție ștearsă',
 }
 
 function field(value: AuditLogOut['before'], key: string): string | undefined {
@@ -69,6 +73,14 @@ export function formatAuditDetail(entry: AuditLogOut): string {
       return field(after, 'activity_name') ?? '—'
     case 'activity.renamed':
       return `${field(before, 'activity_name') ?? '—'} → ${field(after, 'activity_name') ?? '—'}`
+    case 'user.removed_from_company':
+      return ''
+    case 'company_job_title.created':
+      return field(after, 'label') ?? '—'
+    case 'company_job_title.renamed':
+      return `${field(before, 'label') ?? '—'} → ${field(after, 'label') ?? '—'}`
+    case 'company_job_title.deleted':
+      return field(before, 'label') ?? '—'
     default:
       return ''
   }

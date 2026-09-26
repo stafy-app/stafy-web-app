@@ -16,7 +16,7 @@ export default function CompleteRegistrationPage() {
     setError(null)
     setIsSubmitting(true)
     try {
-      await completeRegistration({ firstName, lastName })
+      await completeRegistration({ firstName, lastName, role: 'manager' })
       // CompleteRegistrationLayout's gate only checks "signed in", not
       // "onboarded" — it can't, no profile exists until this call succeeds.
       // Navigate explicitly; AppLayout's own gate takes it from here
@@ -75,6 +75,7 @@ export default function CompleteRegistrationPage() {
               />
             </fieldset>
           </div>
+
           <button type="submit" disabled={isSubmitting} className="btn btn-primary mt-2">
             {isSubmitting ? <span className="loading loading-spinner loading-sm" /> : 'Continuă'}
           </button>

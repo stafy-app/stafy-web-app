@@ -19,6 +19,15 @@ export function EmployeeCard({ member, index }: EmployeeCardProps) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ')
   const visibleActivities = member.activities.slice(0, MAX_ACTIVITY_CHIPS)
   const extraCount = member.activities.length - visibleActivities.length
+  // A second manager per company ("coordinator") can appear in the roster
+  // alongside employees — badge it so it doesn't read as a data error. Labeled
+  // "Manager" (permission level), never "Coordonator" — that word is also a
+  // seeded default job title (funcție), and this badge has nothing to do with
+  // job_title, which renders separately below. is_own_company (now populated
+  // per-row by GET /teams/members) distinguishes the owner from a coordinator —
+  // a self check alone would badge the owner too when a coordinator is the one
+  // viewing the roster.
+  const isCoordinator = user.role === 'manager' && !user.is_own_company
 
   return (
     <div
@@ -31,8 +40,17 @@ export function EmployeeCard({ member, index }: EmployeeCardProps) {
           {getInitials(user.first_name, user.last_name)}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[15px] font-semibold text-[var(--color-ink)]">{fullName}</div>
-          <div className="truncate text-[12px] text-[var(--color-ink-muted)]">{user.email}</div>
+          <div className="flex items-center gap-1.5">
+            <div className="truncate text-[15px] font-semibold text-[var(--color-ink)]">{fullName}</div>
+            {isCoordinator && (
+              <span className="flex-shrink-0 rounded-full bg-[var(--color-primary-soft)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-primary-active)]">
+                Manager
+              </span>
+            )}
+          </div>
+          <div className="truncate text-[12px] text-[var(--color-ink-muted)]">
+            {user.job_title ? `${user.job_title} · ${user.email}` : user.email}
+          </div>
         </div>
         <span
           className={`inline-flex flex-shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${

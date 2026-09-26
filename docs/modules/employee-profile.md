@@ -93,8 +93,8 @@ synced to the URL.
 6. Manager opens the "⋯" menu → edits the job title inline in the header, exports the
    current month's time entries as a CSV download, or suspends/reactivates the employee (each with
    a toast confirming the result).
-7. Manager views the History tab → the last 5 months render as two small charts (hours, pay) with
-   a synced hover crosshair; a "view as table" toggle swaps to a plain data table of the same rows.
+7. Manager views the History tab → 3 KPI cards (total hours, total pay, average hours/month) above
+   the last 5 months rendered as two small charts (hours, pay) with a synced hover crosshair.
 
 ---
 
@@ -155,6 +155,8 @@ No modals — job-title edit and rate edit are both inline, not dialogs.
 
 ### History tab
 
+- 3 `KpiCard`s (total hours, total pay, average hours/month), same component the Dashboard KPI
+  strip uses, above the chart card — a summary-first layout, not a caption below the visual.
 - **Two single-axis charts, not one dual-axis chart** — see Special Aspects for why. Left: hours,
   `Area` (orange, ~10% fill opacity, 2px line). Right: estimated pay, `Line` (blue, 2px). Both
   share an `syncId` so hovering either shows a synced crosshair across both.
@@ -163,10 +165,7 @@ No modals — job-title edit and rate edit are both inline, not dialogs.
 - Current month's X-axis tick is bold ink; other months are muted.
 - The last (current-month) point on each chart is direct-labeled with its value — the only point
   labeled, per the dataviz skill's "never a number on every point" rule.
-- A "view as table" toggle swaps both charts for a plain 3-column table (month, hours, pay) — the
-  chart's accessible/lossless twin, not a separate data source.
-- Below: 3 `KpiCard`s (total hours, total pay, average hours/month), same component the Dashboard
-  KPI strip uses.
+- No table view — chart-only, no toggle.
 
 Design tokens (color/radius/shadow/font) come from `src/App.css`'s `"stafy"` theme; no new tokens
 introduced. See `docs/ui-guidelines.md`.

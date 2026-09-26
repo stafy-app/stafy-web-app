@@ -38,7 +38,7 @@ export default function LoginPage() {
           <span className="text-[20px] font-bold text-[var(--color-ink)]">Stafy</span>
         </div>
         <h1 className="text-xl font-semibold text-[var(--color-ink)]">Autentificare</h1>
-        <p className="mb-2 text-sm text-[var(--color-ink-muted)]">Intră în contul tău de manager</p>
+        <p className="mb-2 text-sm text-[var(--color-ink-muted)]">Intră în contul tău</p>
 
         {error && (
           <div role="alert" className="alert alert-error mb-2 text-sm">
