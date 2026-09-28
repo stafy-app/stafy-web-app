@@ -16,7 +16,7 @@ export default function CompleteRegistrationPage() {
     setError(null)
     setIsSubmitting(true)
     try {
-      await completeRegistration({ firstName, lastName, role: 'manager' })
+      await completeRegistration({ firstName, lastName, role: 'owner' })
       // CompleteRegistrationLayout's gate only checks "signed in", not
       // "onboarded" — it can't, no profile exists until this call succeeds.
       // Navigate explicitly; AppLayout's own gate takes it from here

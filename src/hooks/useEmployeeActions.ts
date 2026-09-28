@@ -52,7 +52,7 @@ export function useRemoveFromCompany(employeeId: number) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: () => getUsers().removeCoordinator(employeeId),
+    mutationFn: () => getUsers().removeManager(employeeId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team-members'] })
       showToast('Coordonator eliminat din companie.')

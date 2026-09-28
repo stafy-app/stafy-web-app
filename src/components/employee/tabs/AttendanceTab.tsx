@@ -16,6 +16,11 @@ interface AttendanceTabProps {
    * to the entry's own owner, so this only makes sense in the /me personal shell — a manager
    * viewing an employee's history (EmployeeProfilePage) can never delete on their behalf. */
   allowDelete?: boolean
+  /** Edit column — the inverse of allowDelete: PATCH /time-entries/{id} is manager/owner-only,
+   * so it defaults on here (this component's only caller is the company shell,
+   * EmployeeProfilePage) and would need to default off if a /me caller ever used this
+   * component directly instead of composing AttendanceEntriesTable itself. */
+  allowEdit?: boolean
 }
 
 /** Company-shell composition: period header + bonus card, then the Pontaje table, adjacent.
@@ -27,13 +32,14 @@ export function AttendanceTab({
   allowBonusEdit = true,
   showBonusCard = true,
   allowDelete = false,
+  allowEdit = true,
 }: AttendanceTabProps) {
   const data = useAttendanceMonth(employeeId, { allowBonusEdit })
 
   return (
     <div className="flex flex-col gap-4">
       <AttendancePeriodHeader employeeId={employeeId} data={data} showBonusCard={showBonusCard} />
-      <AttendanceEntriesTable data={data} allowDelete={allowDelete} />
+      <AttendanceEntriesTable data={data} allowDelete={allowDelete} allowEdit={allowEdit} />
     </div>
   )
 }

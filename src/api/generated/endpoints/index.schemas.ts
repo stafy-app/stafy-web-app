@@ -150,7 +150,7 @@ export interface UserOut {
   auth_provider: string;
   /** Whether Firebase has verified the user's email. */
   email_verified?: boolean | null;
-  /** One of employee, manager, admin. */
+  /** One of employee, manager, owner, admin. Computed per request from the caller's active TeamMembership row for their current company (owner/manager/employee), or 'admin' if is_platform_admin is set — never a stored column. */
   role?: string | null;
   /** Free-text job title/position (e.g. 'Director'), not the role enum. The client offers a fixed picklist + custom 'other' option; the backend stores whatever string is submitted. */
   job_title?: string | null;
@@ -296,7 +296,7 @@ export interface DashboardUserInfoOut {
   last_name: string;
   /** User's email. */
   email: string;
-  /** One of employee, manager, admin. */
+  /** One of employee, manager, owner, admin. */
   role: string;
 }
 
@@ -453,6 +453,12 @@ export interface TimeEntryOut {
   rate_applied: string;
   /** Shallow embed of the activity. */
   activity: TimeEntryActivityOut;
+  /** Set only when a manager/owner corrected this entry — null on a normal self-logged entry, never set by the entry's own user. */
+  edited_by_user_id?: number | null;
+  /** When edited_by_user_id last changed, ISO 8601 UTC. */
+  edited_at?: string | null;
+  /** Flattened display name of edited_by_user_id, resolved at read time (not stored) — null unless edited_by_user_id is set. */
+  edited_by_name?: string | null;
 }
 
 export interface EmployeeTimeEntriesListOut {
@@ -509,7 +515,7 @@ export interface HourlyRatesListOut {
 }
 
 /**
- * Role the invited person will have once they join: 'employee' or 'manager' (a second manager becomes a coordinator, not a duplicate owner — see docs/modules/invitations.md). Only the company's owner (company_id == personal_company_id) may set 'manager'; a coordinator sending an invitation must set 'employee'.
+ * Role the invited person will have once they join: 'employee' or 'manager' (a second manager, not a duplicate owner — see docs/modules/invitations.md). Only the company's owner may set 'manager'; a non-owner manager sending an invitation must set 'employee'.
  */
 export type InvitationInInvitedRole = typeof InvitationInInvitedRole[keyof typeof InvitationInInvitedRole];
 
@@ -522,7 +528,7 @@ export const InvitationInInvitedRole = {
 export interface InvitationIn {
   /** Email address of the prospective employee. */
   invited_email: string;
-  /** Role the invited person will have once they join: 'employee' or 'manager' (a second manager becomes a coordinator, not a duplicate owner — see docs/modules/invitations.md). Only the company's owner (company_id == personal_company_id) may set 'manager'; a coordinator sending an invitation must set 'employee'. */
+  /** Role the invited person will have once they join: 'employee' or 'manager' (a second manager, not a duplicate owner — see docs/modules/invitations.md). Only the company's owner may set 'manager'; a non-owner manager sending an invitation must set 'employee'. */
   invited_role: InvitationInInvitedRole;
   /** A CompanyJobTitle id belonging to the caller's own company. */
   invited_job_title_id: number;
@@ -637,6 +643,17 @@ export interface TimeEntryIn {
   activity_id: number;
 }
 
+/**
+ * Manager/owner correction of an employee's entry — start/stop only, never
+ * activity_id or rate_applied (see stafy/time_entries/repository.py:update_entry).
+ */
+export interface TimeEntryUpdateIn {
+  /** Corrected entry start, ISO 8601 with UTC offset. */
+  time_start: string;
+  /** Corrected entry end, ISO 8601 with UTC offset. */
+  time_end: string;
+}
+
 export interface UserActivityCreate {
   /**
      * Name of the activity to create.
@@ -697,8 +714,8 @@ export interface UserRegisterIn {
      */
   last_name: string;
   /**
-     * One of employee, manager. Admin accounts are seeded directly, never self-registered.
-     * @pattern ^(employee|manager)$
+     * One of employee, owner. 'owner' is the current, preferred value for a manager-tier registrant — they become the owner of a brand-new personal company either way (see create_firebase_user). 'manager' is kept only for stafy-mobile backward compatibility and is treated identically. Admin accounts are seeded directly, never self-registered.
+     * @pattern ^(employee|manager|owner)$
      */
   role: string;
 }

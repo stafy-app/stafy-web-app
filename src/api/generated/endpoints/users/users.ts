@@ -154,9 +154,9 @@ const reactivateEmployee = (
       );
     }
   /**
- * @summary Remove a coordinator from the company, reassigning them to their own personal company
+ * @summary Remove a manager from the company, reassigning them to their own personal company
  */
-const removeCoordinator = (
+const removeManager = (
     employeeId: number,
  ) => {
       return api<UserOut>(
@@ -175,7 +175,7 @@ const getProfile = (
     },
       );
     }
-  return {listUsers,completeOnboarding,getEmployeeSummary,listEmployeeTimeEntries,listEmployeeHourlyRates,setEmployeeHourlyRate,getEmployeeMonthlyHistory,updateEmployeeJobTitle,suspendEmployee,reactivateEmployee,removeCoordinator,getProfile}};
+  return {listUsers,completeOnboarding,getEmployeeSummary,listEmployeeTimeEntries,listEmployeeHourlyRates,setEmployeeHourlyRate,getEmployeeMonthlyHistory,updateEmployeeJobTitle,suspendEmployee,reactivateEmployee,removeManager,getProfile}};
 export type ListUsersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listUsers']>>>
 export type CompleteOnboardingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['completeOnboarding']>>>
 export type GetEmployeeSummaryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getEmployeeSummary']>>>
@@ -186,5 +186,5 @@ export type GetEmployeeMonthlyHistoryResult = NonNullable<Awaited<ReturnType<Ret
 export type UpdateEmployeeJobTitleResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['updateEmployeeJobTitle']>>>
 export type SuspendEmployeeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['suspendEmployee']>>>
 export type ReactivateEmployeeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['reactivateEmployee']>>>
-export type RemoveCoordinatorResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['removeCoordinator']>>>
+export type RemoveManagerResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['removeManager']>>>
 export type GetProfileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getProfile']>>>

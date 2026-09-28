@@ -12,16 +12,18 @@ reproduce the shipped Romanian strings verbatim.
 **In scope:** profile header (avatar, name, active/suspended status, email, join date,
 inline-editable job title, this-month hours + delta, this-month estimated pay); a three-tab body
 — Attendance (this employee's time entries, own month picker, activity filter, bonus editor for
-the picked month — editing the bonus requires the `manager` role; other viewers see the amount
-read-only), Rates (every company activity with this employee's rate or an "activate"
+the picked month — editing the bonus requires a company-manager role (`owner` or `manager`, via
+`isCompanyManager`); other viewers see the amount read-only), Rates (every company activity with this employee's rate or an "activate"
 affordance, inline edit), History (last 5 months of hours/pay, chart + table-view toggle + summary
-stats); a "⋯" actions menu (edit job title, export this employee's time entries to CSV,
-suspend/reactivate).
+stats); a "⋯" actions menu (edit job title, export this employee's time entries to CSV, and
+suspend/reactivate — or, on a non-owner manager's page (`role === 'manager'`), remove that manager
+from the company instead, via `POST /users/{employee_id}/remove-from-company` (`removeManager`,
+`useRemoveFromCompany`), which the backend accepts only from the owner).
 
 **Out of scope (this release):** editing name/email (Firebase-owned identity); any
-messaging/notification action (no messaging subsystem exists anywhere in the product); a "remove
-from team" action distinct from suspend (see `team.md`'s note on `TeamMembership` having no
-writers); URL-persisted tab state (tabs are local component state, not a route param or search
+messaging/notification action (no messaging subsystem exists anywhere in the product); removing
+an employee (as opposed to a non-owner manager) from the company — suspend is the only action for
+employee rows; URL-persisted tab state (tabs are local component state, not a route param or search
 param); a page-wide period selector (the header's stats are always the current month, Attendance
 has its own independent month picker, History is a fixed last-5-months window — there's no single
 period that would meaningfully apply to all three).
@@ -113,7 +115,9 @@ No modals — job-title edit and rate edit are both inline, not dialogs.
 
 - Single card, `flex`, `gap: 20px`, `align-items: center`, wraps on narrow widths.
 - Avatar: 64×64, initials badge (`getInitials`, same pattern as `EmployeeCard`/`Sidebar`).
-- Name (22px / 700) + active/suspended status pill, inline.
+- Name (22px / 700) + a "Manager" badge when the viewed user's `role === 'manager'` (a non-owner
+  manager — the owner's `role` is `owner` and never matches; same rule as `team.md`'s
+  `EmployeeCard` badge, see its Special Aspects) + active/suspended status pill, inline.
 - Secondary line: email + "member since" (join date, `UserOut.created_at`), 12px muted.
 - Job title: a small pill when set; replaced by an inline text input + Save/Cancel while editing
   (triggered from the "⋯" menu, not a pencil icon on the pill itself).
@@ -232,8 +236,8 @@ and rate editing are both inline (input + Save/Cancel), not a dialog, so no `Mod
 
 **The Rates tab renders identically for the caller's own id; the header's "⋯" actions menu doesn't
 render at all for self — two different, both-correct answers to the same roster-includes-the-
-manager fact.** `team.md`'s roster and the Dashboard's top-5 table both include the manager
-themself (backend scopes by `role in ("employee", "manager")`, not `"employee"` alone), so a
+manager fact.** `team.md`'s roster and the Dashboard's top-5 table both include the caller
+themself (backend scopes by `role in ("owner", "manager", "employee")`, not `"employee"` alone), so a
 card/row for the caller's own account is a normal, expected destination here, not an edge case to
 route around. `EmployeeHeaderCard`'s `isSelf` check (`profile?.id === employeeId`, pre-existing
 since the `/me/*` pages shipped) already hides `EmployeeActionsMenu` — job-title edit, CSV export,
@@ -271,6 +275,6 @@ rest of this API — no field here recomputes a past entry's amount from a rate 
 | Item | Trigger |
 |---|---|
 | Editing name/email from this page | Would require writing through to Firebase Auth |
-| A distinct "remove from team" action | A real team-membership concept starts being written |
+| Removing an employee (not only a non-owner manager) from the company | Product decides employees need a removal path distinct from suspend |
 | Messaging/notification action from the "⋯" menu | A messaging subsystem exists in the product |
 | URL-persisted tab/period state (deep-linkable tabs) | A concrete need to link directly into a specific tab |

@@ -17,7 +17,7 @@ export default function RegisterPage() {
     setError(null)
     setIsSubmitting(true)
     try {
-      await register({ firstName, lastName, email, password, role: 'manager' })
+      await register({ firstName, lastName, email, password, role: 'owner' })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'A apărut o eroare neașteptată')
     } finally {

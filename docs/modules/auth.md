@@ -9,7 +9,7 @@ onboarding gate all live together here because they're one continuous gate chain
 
 ## Scope
 
-**In scope:** Firebase email/password registration (always `role: 'manager'`, no role choice) and
+**In scope:** Firebase email/password registration (always `role: 'owner'`, no role choice) and
 sign-in from `stafy-web-app`, session state via `onAuthStateChanged`, route
 protection (layout gates), confining the `employee` role to `/me*` (with redirect back to `/me` for
 company routes), and the mandatory manager/admin onboarding form (organization name/city/address +
@@ -25,7 +25,8 @@ seeded, but nothing edits it yet — see Deferred).
 
 | Actor | Interface | Role |
 |---|---|---|
-| Manager | `stafy-web-app` | Registers/logs in, completes company onboarding once, then uses company + personal shells |
+| Owner | `stafy-web-app` | Registers/logs in, completes company onboarding once, then uses company + personal shells. An account registered through this app is the owner of its own new company unless register-time auto-join places it in an inviting company (see below) |
+| Manager (non-owner) | `stafy-web-app` | A second manager in an owner's company, joined via invitation. Logs in and uses company + personal shells; never onboards the owner's company |
 | Employee | `stafy-web-app` | Logs in only (registers via `stafy-mobile` — this app has no employee registration path), no onboarding step, straight to the `/me` personal shell |
 | Backend | FastAPI (`stafy-backend`) | Verifies Firebase ID tokens, provisions/syncs `users` rows, stores onboarding data |
 | Firebase Auth | Google-managed service | Owns credential storage, issues and verifies ID tokens |
@@ -34,6 +35,19 @@ This app confines the `employee` role to the personal shell rather than blocking
 inverse of `stafy-mobile`, which blocks `manager` entirely. `admin` is allowed through both
 onboarding and the app; this wasn't separately litigated, just defaulted to "allow" since nothing
 here has an admin-specific concern.
+
+`UserOut.role` on the wire is one of `employee`, `manager`, `owner`, `admin` — computed per request
+from the caller's active company membership (`admin` for a platform admin), not a stored column.
+The register-time input is separate and narrower: `UserRegisterIn.role` accepts only
+`employee`/`manager`, and this app always sends `manager`. Every registrant gets their own new
+company; a `manager` registrant holds an `owner` membership there, so the `UserOut` they get back
+reads `role: 'owner'`. The exception is register-time auto-join: if exactly one live invitation is
+pending for the registrant's email, the backend adds a membership in the inviting company with the
+invitation's `invited_role` and makes that company active, so the wire role reads that invited
+role (`manager` or `employee`) instead. Either way, a wire role of `manager` always means "active
+in another owner's company through a manager invitation" (auto-joined at register or accepted
+later). Company-manager checks in this app go through `isCompanyManager(role)`
+(`src/utils/companyRole.ts`), which accepts both.
 
 ---
 
@@ -65,7 +79,7 @@ Coordonator, Manager HR, Manager Operațional. No write endpoint exists yet — 
 ## Lifecycle
 
 ```
-                createUserWithEmailAndPassword        POST /api/v1/auth/register (role: 'manager')
+                createUserWithEmailAndPassword        POST /api/v1/auth/register (role: 'owner')
 (no account) ─────────────────────────────────► (Firebase only) ───────────────────────────► provisioned,
                                                                                              onboarding_completed = false
 
@@ -210,10 +224,10 @@ viewport edge with zero gutter on any screen narrower than the card's max width 
 
 ## Data Access
 
-- `POST /api/v1/auth/register` — `{first_name, last_name, role}`, Bearer Firebase ID token → `UserOut`. This app always sends `role: 'manager'`, hardcoded in both `RegisterPage` and `CompleteRegistrationPage` — see Flow 1/Flow 6. Also the endpoint Flow 6 (`completeRegistration()`) calls, reusing the token from the already-signed-in session instead of one just minted by `createUserWithEmailAndPassword` — same request shape either way, the backend can't tell the two calls apart.
+- `POST /api/v1/auth/register` — `{first_name, last_name, role}`, Bearer Firebase ID token → `UserOut`. This app always sends `role: 'owner'`, hardcoded in both `RegisterPage` and `CompleteRegistrationPage` — see Flow 1/Flow 6. Also the endpoint Flow 6 (`completeRegistration()`) calls, reusing the token from the already-signed-in session instead of one just minted by `createUserWithEmailAndPassword` — same request shape either way, the backend can't tell the two calls apart.
 - `POST /api/v1/auth/login` — Bearer token only → `UserOut`.
 - `GET /api/v1/profile` — `UserOut` (now includes `job_title`, `onboarding_completed`).
-- `PATCH /api/v1/users/me/onboarding` — `require_role("manager", "admin")`. Body: `OnboardingIn {organization_name, city, address, job_title}` (all required strings). → `UserOut`. Backed by `UserRepository.complete_onboarding()` — one atomic commit across `companies` + `users`, following the same exception as `create_firebase_user`/`create_activity_with_rate_for_user` (see `stafy-backend/CLAUDE.md`).
+- `PATCH /api/v1/users/me/onboarding` — `require_company_role(min="owner")` (a platform admin also passes; a non-owner manager gets a 403 — the company already belongs to its owner). Body: `OnboardingIn {organization_name, city, address, job_title}` (all required strings). → `UserOut`. Backed by `UserRepository.complete_onboarding()` — one atomic commit across `companies` + `users`, following the same exception as `create_firebase_user`/`create_activity_with_rate_for_user` (see `stafy-backend/CLAUDE.md`).
 - `GET /api/v1/job-titles` — any authenticated user. → `JobTitlesListOut {data: [{id, label}]}`, active rows only, ordered by `id`.
 
 All four routes' error responses carry `ErrorOut`/`ValidationErrorOut` per the standing convention.

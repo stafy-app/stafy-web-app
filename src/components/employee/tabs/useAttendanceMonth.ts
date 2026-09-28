@@ -3,6 +3,7 @@ import { useEmployeeTimeEntries } from '@stafy/hooks/useEmployeeTimeEntries'
 import { useEmployeeReport, useSetReportBonus, useClearReportBonus } from '@stafy/hooks/useReports'
 import { useProfile } from '@stafy/hooks/useProfile'
 import { getAdjacentPeriod, getCurrentPeriod } from '@stafy/utils/period'
+import { isCompanyManager } from '@stafy/utils/companyRole'
 
 /**
  * Shared period/entries/bonus/filter state behind AttendancePeriodHeader +
@@ -25,12 +26,13 @@ export function useAttendanceMonth(
   const bonus = report?.bonus && parseFloat(report.bonus.amount) > 0 ? report.bonus : null
   const setBonusMutation = useSetReportBonus(employeeId, period.year, period.month)
   const clearBonusMutation = useClearReportBonus(employeeId, period.year, period.month)
-  // Bonus editor: manager-only, and hidden in the /me personal shell
-  // (allowBonusEdit=false there — bonus is granted from the company context, never
-  // self-applied from personal). In the company shell the manager edits any row,
-  // including their own — same parity rule as rates.
+  // Bonus editor: company-manager-only (owner or manager, see isCompanyManager),
+  // and hidden in the /me personal shell (allowBonusEdit=false there — bonus is
+  // granted from the company context, never self-applied from personal). In the
+  // company shell a manager edits any row, including their own — same parity
+  // rule as rates.
   const { data: profileData } = useProfile()
-  const canEditBonus = allowBonusEdit && profileData?.role === 'manager'
+  const canEditBonus = allowBonusEdit && isCompanyManager(profileData?.role)
 
   const [activityFilter, setActivityFilter] = useState<'all' | number>('all')
 

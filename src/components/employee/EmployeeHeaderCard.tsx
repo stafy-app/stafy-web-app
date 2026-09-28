@@ -44,12 +44,14 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
   // on-behalf actions (job-title edit, suspend/reactivate) are meaningless on
   // yourself — self-service lives under /me/rates.
   const isSelf = profile?.id === employeeId
-  // Same badge/self-exclusion rule as EmployeeCard (see its comment) — a
-  // coordinator (a second manager per company) can now appear as an employee
-  // detail page target too. Labeled "Manager" (permission level), never
-  // "Coordonator" — that word is also a seeded default job title (funcție),
-  // shown separately below via user.job_title; the two are unrelated.
-  const isCoordinator = user.role === 'manager' && !isSelf
+  // Same badge rule as EmployeeCard (see its comment) — a coordinator (a
+  // second manager per company) can appear as an employee detail page target
+  // too. `role` alone now distinguishes the owner from a coordinator, so no
+  // extra guard is needed here either. Labeled "Manager" (permission level),
+  // never "Coordonator" — that word is also a seeded default job title
+  // (funcție), shown separately below via user.job_title; the two are
+  // unrelated.
+  const isCoordinator = user.role === 'manager'
 
   function startEditingJobTitle() {
     setDraftJobTitle(user.job_title ?? '')

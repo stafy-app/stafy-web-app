@@ -12,6 +12,7 @@ import { BonusCard } from '@stafy/components/reports/BonusCard'
 import { ReportDocument } from '@stafy/components/reports/ReportDocument'
 import { showToast } from '@stafy/lib/toast'
 import { ICONS } from '@stafy/lib/icons'
+import { isCompanyManager } from '@stafy/utils/companyRole'
 
 export default function ReportsPage() {
   useTopBar({ title: 'Rapoarte', subtitle: 'Export și rapoarte lunare' })
@@ -33,7 +34,7 @@ export default function ReportsPage() {
   // as rates and AttendanceTab. Self-bonus is only hidden in the /me personal
   // shell (allowBonusEdit=false there). Backend set/clear accept self.
   const { data: profileData } = useProfile()
-  const canEditBonus = profileData?.role === 'manager'
+  const canEditBonus = isCompanyManager(profileData?.role)
 
   const [includeTimeEntries, setIncludeTimeEntries] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)

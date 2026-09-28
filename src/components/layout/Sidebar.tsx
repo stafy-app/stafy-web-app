@@ -7,6 +7,7 @@ import { useAuth } from '@stafy/hooks/useAuth'
 import { useProfile } from '@stafy/hooks/useProfile'
 import { getInitials } from '@stafy/utils/initials'
 import { getWorkspaceMode, setWorkspaceMode, type WorkspaceMode } from '@stafy/utils/workspaceMode'
+import { isCompanyManager } from '@stafy/utils/companyRole'
 
 interface NavItem {
   to: string
@@ -114,7 +115,10 @@ export function Sidebar() {
 
   const { logout } = useAuth()
   const { data: profile } = useProfile()
-  const showSwitcher = profile?.role === 'manager'
+  // Any company-level manager (owner or a second/coordinator manager) gets the
+  // workspace switcher — both have their own personal time-tracking shell
+  // alongside the company one, per docs/modules/personal-workspace.md.
+  const showSwitcher = isCompanyManager(profile?.role)
   const isEmployee = profile?.role === 'employee'
   // Employees have no company shell: always the personal nav, no switcher.
   // (AppLayout already redirects them off any company route, so pathname here

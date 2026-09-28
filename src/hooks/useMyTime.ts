@@ -4,6 +4,7 @@ import { getTimeEntries } from '@stafy/api/generated/endpoints/time-entries/time
 import { getSettings } from '@stafy/api/generated/endpoints/settings/settings'
 import type {
   TimeEntryIn,
+  TimeEntryUpdateIn,
   UserActivityCreate,
 } from '@stafy/api/generated/endpoints/index.schemas'
 import { showToast } from '@stafy/lib/toast'
@@ -32,6 +33,28 @@ export function useCreateTimeEntry() {
     },
     onError: () => {
       showToast('Nu s-a putut salva pontajul.', { tone: 'danger' })
+    },
+  })
+}
+
+export function useUpdateTimeEntry() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ entryId, data }: { entryId: number; data: TimeEntryUpdateIn }) =>
+      getTimeEntries().updateTimeEntry(entryId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['employee-time-entries'] })
+      queryClient.invalidateQueries({ queryKey: ['employee-monthly-history'] })
+      queryClient.invalidateQueries({ queryKey: ['employee-summary'] })
+      queryClient.invalidateQueries({ queryKey: ['employee-report'] })
+      queryClient.invalidateQueries({ queryKey: ['team-members'] })
+      queryClient.invalidateQueries({ queryKey: ['company-dashboard'] })
+      showToast('Pontaj corectat.')
+    },
+    onError: () => {
+      showToast('Nu s-a putut corecta pontajul.', { tone: 'danger' })
     },
   })
 }
