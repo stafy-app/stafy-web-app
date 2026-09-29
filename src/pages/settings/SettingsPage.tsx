@@ -9,6 +9,8 @@ import { JobTitlesSection } from '@stafy/components/settings/JobTitlesSection'
 import { AuditSection } from '@stafy/components/settings/AuditSection'
 import { SecuritySection } from '@stafy/components/settings/SecuritySection'
 import { AdminSection } from '@stafy/components/settings/AdminSection'
+import { AdminCompaniesSection } from '@stafy/components/settings/AdminCompaniesSection'
+import { SubscriptionSection } from '@stafy/components/settings/SubscriptionSection'
 
 const SECTION_COMPONENTS: Record<SettingsSectionKey, React.ComponentType> = {
   account: AccountSection,
@@ -17,7 +19,9 @@ const SECTION_COMPONENTS: Record<SettingsSectionKey, React.ComponentType> = {
   jobTitles: JobTitlesSection,
   audit: AuditSection,
   security: SecuritySection,
+  subscription: SubscriptionSection,
   admin: AdminSection,
+  adminCompanies: AdminCompaniesSection,
 }
 
 export default function SettingsPage() {

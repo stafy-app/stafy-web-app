@@ -6,11 +6,15 @@
  */
 import type {
   AdminActivityOut,
+  AdminCompanySubscriptionsListOut,
   AdminGrowthOut,
   AdminInvitationFunnelOut,
   AdminOverviewOut,
+  AdminSubscriptionChangeIn,
   GetAdminActivityParams,
-  GetAdminGrowthParams
+  GetAdminGrowthParams,
+  SubscriptionEventsListOut,
+  SubscriptionOut
 } from '../index.schemas';
 
 import { api } from '../../../../services/api';
@@ -64,8 +68,59 @@ const getAdminActivity = (
     },
       );
     }
-  return {getAdminOverview,getAdminGrowth,getAdminInvitationsFunnel,getAdminActivity}};
+  /**
+ * @summary Every owned company with its plan and seat usage
+ */
+const listAdminCompanies = (
+
+ ) => {
+      return api<AdminCompanySubscriptionsListOut>(
+      {url: `/api/v1/admin/companies`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Any company's plan status and seat usage
+ */
+const getAdminCompanySubscription = (
+    companyId: number,
+ ) => {
+      return api<SubscriptionOut>(
+      {url: `/api/v1/admin/companies/${companyId}/subscription`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Admin sets any company's plan, including pilot; always reactivates
+ */
+const changeAdminCompanySubscription = (
+    companyId: number,
+    adminSubscriptionChangeIn: AdminSubscriptionChangeIn,
+ ) => {
+      return api<SubscriptionOut>(
+      {url: `/api/v1/admin/companies/${companyId}/subscription`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: adminSubscriptionChangeIn
+    },
+      );
+    }
+  /**
+ * @summary A company's full plan history, newest first
+ */
+const listAdminCompanySubscriptionEvents = (
+    companyId: number,
+ ) => {
+      return api<SubscriptionEventsListOut>(
+      {url: `/api/v1/admin/companies/${companyId}/subscription/events`, method: 'GET'
+    },
+      );
+    }
+  return {getAdminOverview,getAdminGrowth,getAdminInvitationsFunnel,getAdminActivity,listAdminCompanies,getAdminCompanySubscription,changeAdminCompanySubscription,listAdminCompanySubscriptionEvents}};
 export type GetAdminOverviewResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminOverview']>>>
 export type GetAdminGrowthResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminGrowth']>>>
 export type GetAdminInvitationsFunnelResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminInvitationsFunnel']>>>
 export type GetAdminActivityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminActivity']>>>
+export type ListAdminCompaniesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['listAdminCompanies']>>>
+export type GetAdminCompanySubscriptionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminCompanySubscription']>>>
+export type ChangeAdminCompanySubscriptionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['changeAdminCompanySubscription']>>>
+export type ListAdminCompanySubscriptionEventsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['listAdminCompanySubscriptionEvents']>>>

@@ -100,7 +100,7 @@ a given activity's color stays stable across the app rather than shifting with i
 ## Information Architecture
 
 Sidebar nav item "Settings" → `/settings` route → `SettingsPage`, which renders a fixed vertical
-left nav (`SettingsNav`, six items: Account/Company/Activities/Audit/Security/Admin) and the active
+left nav (`SettingsNav`, nine keys: Account/Company/Activities/Job titles/Audit/Security/Subscription/Admin/Companies) and the active
 section's component inside a single card. Section switching is local component state
 (`useState<SettingsSectionKey>`), not nested router routes — no section has its own URL, same
 non-routed approach the Employee Profile page's tabs already use. No modals. The Audit section has
@@ -108,7 +108,7 @@ no route or sidebar item of its own — manager/admin read-only config-adjacent 
 distinct workflow. The Admin section is documented separately —
 [`docs/modules/admin-dashboard.md`](admin-dashboard.md) — since it's a distinct actor (admin only,
 cross-company) rather than manager-facing settings; `SettingsNav` filters it out of the list
-entirely for non-admin callers.
+entirely for non-admin callers. Subscription is shown to owner and manager only, and Companies to the admin only — both documented in [`docs/modules/subscription.md`](subscription.md).
 
 ---
 

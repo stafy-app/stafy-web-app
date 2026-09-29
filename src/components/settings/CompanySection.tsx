@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useProfile } from '@stafy/hooks/useProfile'
 import { useCompany, useUpdateCompany } from '@stafy/hooks/useCompanySettings'
 import { showToast } from '@stafy/lib/toast'
+import { getCodedErrorMessage } from '@stafy/services/apiErrors'
 import type { CompanyOut } from '@stafy/api/generated/endpoints/index.schemas'
 
 export function CompanySection() {
@@ -23,8 +24,8 @@ function CompanyForm({ isOwnCompany, company }: { isOwnCompany: boolean; company
     try {
       await mutateAsync({ name, city, address })
       showToast('Modificările au fost salvate.')
-    } catch {
-      showToast('Nu am putut salva modificările.', { tone: 'danger' })
+    } catch (error) {
+      showToast(getCodedErrorMessage(error, 'Nu am putut salva modificările.'), { tone: 'danger' })
     }
   }
 

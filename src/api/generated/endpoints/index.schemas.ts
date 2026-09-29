@@ -65,6 +65,42 @@ export interface AdminActivityOut {
   data: AdminActivityPointOut[];
 }
 
+export type AdminCompanySubscriptionOutPlanType = typeof AdminCompanySubscriptionOutPlanType[keyof typeof AdminCompanySubscriptionOutPlanType];
+
+
+export const AdminCompanySubscriptionOutPlanType = {
+  trial: 'trial',
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export type AdminCompanySubscriptionOutPlanStatus = typeof AdminCompanySubscriptionOutPlanStatus[keyof typeof AdminCompanySubscriptionOutPlanStatus];
+
+
+export const AdminCompanySubscriptionOutPlanStatus = {
+  active: 'active',
+  read_only: 'read_only',
+} as const;
+
+export interface AdminCompanySubscriptionOut {
+  company_id: number;
+  company_name: string;
+  owner_name: string;
+  owner_email: string;
+  plan_type: AdminCompanySubscriptionOutPlanType;
+  plan_status: AdminCompanySubscriptionOutPlanStatus;
+  seats_limit: number | null;
+  seats_used: number;
+  plan_expires_at: string | null;
+}
+
+export interface AdminCompanySubscriptionsListOut {
+  data: AdminCompanySubscriptionOut[];
+}
+
 export interface AdminGrowthPointOut {
   period_start: string;
   new_managers: number;
@@ -89,6 +125,24 @@ export interface AdminOverviewOut {
   total_users: number;
   /** Employees whose company_id still equals their personal_company_id — never joined a real manager's company via invitation. */
   employees_without_manager: number;
+}
+
+export type AdminSubscriptionChangeInPlanType = typeof AdminSubscriptionChangeInPlanType[keyof typeof AdminSubscriptionChangeInPlanType];
+
+
+export const AdminSubscriptionChangeInPlanType = {
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export interface AdminSubscriptionChangeIn {
+  plan_type: AdminSubscriptionChangeInPlanType;
+  /** Required (and in the future) for `pilot`; must be omitted otherwise. */
+  expires_at?: string | null;
+  note?: string | null;
 }
 
 /**
@@ -627,6 +681,91 @@ export interface RootOut {
   api_version: string;
   /** Human-readable health-check status. */
   status: string;
+}
+
+export type SubscriptionChangeInPlanType = typeof SubscriptionChangeInPlanType[keyof typeof SubscriptionChangeInPlanType];
+
+
+export const SubscriptionChangeInPlanType = {
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export interface SubscriptionChangeIn {
+  plan_type: SubscriptionChangeInPlanType;
+}
+
+export type SubscriptionEventOutPlanType = typeof SubscriptionEventOutPlanType[keyof typeof SubscriptionEventOutPlanType];
+
+
+export const SubscriptionEventOutPlanType = {
+  trial: 'trial',
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export type SubscriptionEventOutActorType = typeof SubscriptionEventOutActorType[keyof typeof SubscriptionEventOutActorType];
+
+
+export const SubscriptionEventOutActorType = {
+  system: 'system',
+  admin: 'admin',
+  owner: 'owner',
+} as const;
+
+export interface SubscriptionEventOut {
+  id: number;
+  event_type: string;
+  plan_type: SubscriptionEventOutPlanType;
+  seats_limit: number | null;
+  expires_at: string | null;
+  /** 'System' or the acting user's display name. */
+  actor: string;
+  actor_type: SubscriptionEventOutActorType;
+  note: string | null;
+  created_at: string;
+}
+
+export interface SubscriptionEventsListOut {
+  data: SubscriptionEventOut[];
+}
+
+export type SubscriptionOutPlanType = typeof SubscriptionOutPlanType[keyof typeof SubscriptionOutPlanType];
+
+
+export const SubscriptionOutPlanType = {
+  trial: 'trial',
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export type SubscriptionOutPlanStatus = typeof SubscriptionOutPlanStatus[keyof typeof SubscriptionOutPlanStatus];
+
+
+export const SubscriptionOutPlanStatus = {
+  active: 'active',
+  read_only: 'read_only',
+} as const;
+
+export interface SubscriptionOut {
+  plan_type: SubscriptionOutPlanType;
+  plan_status: SubscriptionOutPlanStatus;
+  /** Null = unlimited. */
+  seats_limit: number | null;
+  /** Derived: live, active manager/employee memberships; the owner is never a seat. */
+  seats_used: number;
+  plan_expires_at: string | null;
+  /** Derived: active and expiring within 7 days. */
+  expiring_soon: boolean;
+  trial_started_at: string;
 }
 
 export interface TeamMembersOut {

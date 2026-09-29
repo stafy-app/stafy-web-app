@@ -7,6 +7,7 @@ import {
 } from '@stafy/hooks/useCompanyJobTitles'
 import { ICONS } from '@stafy/lib/icons'
 import { showToast } from '@stafy/lib/toast'
+import { getCodedErrorMessage } from '@stafy/services/apiErrors'
 
 const PencilIcon = ICONS.pencil
 const CheckIcon = ICONS.check
@@ -44,7 +45,7 @@ export function JobTitlesSection() {
       showToast('Funcție actualizată.')
     } catch (error) {
       showToast(
-        isConflict(error) ? 'Există deja o funcție cu acest nume.' : 'Nu am putut salva funcția.',
+        isConflict(error) ? 'Există deja o funcție cu acest nume.' : getCodedErrorMessage(error, 'Nu am putut salva funcția.'),
         { tone: 'danger' },
       )
     }
@@ -60,7 +61,7 @@ export function JobTitlesSection() {
       showToast('Funcție adăugată.')
     } catch (error) {
       showToast(
-        isConflict(error) ? 'Există deja o funcție cu acest nume.' : 'Nu am putut adăuga funcția.',
+        isConflict(error) ? 'Există deja o funcție cu acest nume.' : getCodedErrorMessage(error, 'Nu am putut adăuga funcția.'),
         { tone: 'danger' },
       )
     }
@@ -71,8 +72,8 @@ export function JobTitlesSection() {
       await deleteJobTitle.mutateAsync(jobTitleId)
       setConfirmDeleteId(null)
       showToast('Funcție ștearsă.')
-    } catch {
-      showToast('Nu am putut șterge funcția.', { tone: 'danger' })
+    } catch (error) {
+      showToast(getCodedErrorMessage(error, 'Nu am putut șterge funcția.'), { tone: 'danger' })
     }
   }
 

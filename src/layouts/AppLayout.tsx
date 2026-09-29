@@ -3,6 +3,8 @@ import { FullscreenSpinner } from '@stafy/components/layout/FullscreenSpinner'
 import { Sidebar } from '@stafy/components/layout/Sidebar'
 import { BottomNav } from '@stafy/components/layout/BottomNav'
 import { Topbar } from '@stafy/components/layout/Topbar'
+import { PlanStatusBanner } from '@stafy/components/layout/PlanStatusBanner'
+import { IncomingInvitations } from '@stafy/components/invitations/IncomingInvitations'
 import { TopBarProvider } from '@stafy/context/TopBarProvider'
 import { useAuth } from '@stafy/hooks/useAuth'
 import { useProfile } from '@stafy/hooks/useProfile'
@@ -62,7 +64,9 @@ export function AppLayout() {
         <Sidebar />
         <div className="flex min-w-0 flex-1 flex-col">
           <Topbar />
+          <PlanStatusBanner />
           <main className="flex-1 overflow-y-auto p-4 pb-24 sm:p-6 md:pb-6">
+            <IncomingInvitations />
             <Outlet />
           </main>
           <BottomNav />

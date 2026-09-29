@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getInvitations } from '@stafy/api/generated/endpoints/invitations/invitations'
 import type { InvitationIn } from '@stafy/api/generated/endpoints/index.schemas'
-import { getApiError } from '@stafy/services/apiErrors'
+import { getApiError, getCodedErrorMessage } from '@stafy/services/apiErrors'
 import { showToast } from '@stafy/lib/toast'
 
 const INVITATIONS_KEY = ['invitations']
@@ -17,7 +17,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 
 function invitationErrorMessage(error: unknown, fallback: string): string {
   const code = getApiError(error)?.code
-  return (code && ERROR_MESSAGES[code]) || fallback
+  return (code && ERROR_MESSAGES[code]) || getCodedErrorMessage(error, fallback)
 }
 
 export function useInvitations() {

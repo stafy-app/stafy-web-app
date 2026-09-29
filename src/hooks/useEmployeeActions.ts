@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { getUsers } from '@stafy/api/generated/endpoints/users/users'
 import { showToast } from '@stafy/lib/toast'
+import { getCodedErrorMessage } from '@stafy/services/apiErrors'
 
 export function useUpdateEmployeeJobTitle(employeeId: number) {
   const queryClient = useQueryClient()
@@ -12,8 +13,8 @@ export function useUpdateEmployeeJobTitle(employeeId: number) {
       queryClient.invalidateQueries({ queryKey: ['employee-summary', employeeId] })
       showToast('Job title actualizat.')
     },
-    onError: () => {
-      showToast('Nu s-a putut actualiza job title-ul.', { tone: 'danger' })
+    onError: (error) => {
+      showToast(getCodedErrorMessage(error, 'Nu s-a putut actualiza job title-ul.'), { tone: 'danger' })
     },
   })
 }
@@ -27,8 +28,8 @@ export function useSuspendEmployee(employeeId: number) {
       queryClient.invalidateQueries({ queryKey: ['employee-summary', employeeId] })
       showToast('Angajat suspendat.')
     },
-    onError: () => {
-      showToast('Nu s-a putut suspenda angajatul.', { tone: 'danger' })
+    onError: (error) => {
+      showToast(getCodedErrorMessage(error, 'Nu s-a putut suspenda angajatul.'), { tone: 'danger' })
     },
   })
 }
@@ -42,8 +43,8 @@ export function useReactivateEmployee(employeeId: number) {
       queryClient.invalidateQueries({ queryKey: ['employee-summary', employeeId] })
       showToast('Angajat reactivat.')
     },
-    onError: () => {
-      showToast('Nu s-a putut reactiva angajatul.', { tone: 'danger' })
+    onError: (error) => {
+      showToast(getCodedErrorMessage(error, 'Nu s-a putut reactiva angajatul.'), { tone: 'danger' })
     },
   })
 }
@@ -57,8 +58,8 @@ export function useRemoveFromCompany(employeeId: number) {
       queryClient.invalidateQueries({ queryKey: ['team-members'] })
       showToast('Coordonator eliminat din companie.')
     },
-    onError: () => {
-      showToast('Nu am putut elimina coordonatorul din companie.', { tone: 'danger' })
+    onError: (error) => {
+      showToast(getCodedErrorMessage(error, 'Nu am putut elimina coordonatorul din companie.'), { tone: 'danger' })
     },
   })
 }

@@ -1,12 +1,9 @@
-import { useState } from 'react'
 import { Clock, Wallet } from 'lucide-react'
 import { ActivityDonut } from '@stafy/components/dashboard/ActivityDonut'
 import { KpiCard } from '@stafy/components/dashboard/KpiCard'
 import { useTopBar } from '@stafy/hooks/useTopBar'
 import { useMyDashboard } from '@stafy/hooks/useMyTime'
 import { useProfile } from '@stafy/hooks/useProfile'
-import { useMyInvitations, useAcceptInvitation, useRejectInvitation } from '@stafy/hooks/useInvitations'
-import { getInvitationRoleLabel } from '@stafy/utils/invitationRole'
 import { getCurrentPeriod } from '@stafy/utils/period'
 import { Link } from '@tanstack/react-router'
 
@@ -22,11 +19,6 @@ export default function MyDashboardPage() {
   const { year, month } = getCurrentPeriod()
   const { data: dashboard } = useMyDashboard()
   const { data: profile } = useProfile()
-  const { data: invitationsData } = useMyInvitations()
-  const acceptInvitation = useAcceptInvitation()
-  const rejectInvitation = useRejectInvitation()
-  const [respondingId, setRespondingId] = useState<string | null>(null)
-  const invitations = invitationsData?.data ?? []
 
   const donutSegments = Object.entries(dashboard?.activity_gross ?? {}).map(([name]) => ({
     activity_name: name,
@@ -38,55 +30,6 @@ export default function MyDashboardPage() {
 
   return (
     <div className="mx-auto flex max-w-[1280px] flex-col gap-4 sm:gap-5">
-      {invitations.map((invitation) => (
-        <div
-          key={invitation.id}
-          className="animate-fade-slide-in rounded-[var(--radius-lg)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 p-4 shadow-[var(--shadow-sm)] sm:p-5"
-        >
-          <div className="text-[14px] font-semibold text-[var(--color-ink)]">
-            Invitație de la {invitation.manager_name} · {invitation.company_name}
-          </div>
-          <div className="mt-1 text-[13px] text-[var(--color-ink-soft)]">
-            Acceptă pentru a intra în echipa {invitation.company_name}. Pontajele și tarifele tale se reîncarcă automat.
-          </div>
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[12px] text-[var(--color-ink-muted)]">
-            <span className="rounded-full bg-[var(--color-surface-2)] px-2 py-0.5">
-              Rol: {getInvitationRoleLabel(invitation.invited_role)}
-            </span>
-            <span className="rounded-full bg-[var(--color-surface-2)] px-2 py-0.5">
-              Funcție: {invitation.job_title_label ?? '—'}
-            </span>
-          </div>
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-            <button
-              type="button"
-              disabled={respondingId === invitation.id}
-              onClick={() => {
-                setRespondingId(invitation.id)
-                acceptInvitation.mutate(invitation.id, {
-                  onSettled: () => setRespondingId(null),
-                })
-              }}
-              className="btn btn-primary min-h-12 flex-1 sm:btn-sm disabled:opacity-50"
-            >
-              {respondingId === invitation.id ? 'Se procesează…' : 'Acceptă invitația'}
-            </button>
-            <button
-              type="button"
-              disabled={respondingId === invitation.id}
-              onClick={() => {
-                setRespondingId(invitation.id)
-                rejectInvitation.mutate(invitation.id, {
-                  onSettled: () => setRespondingId(null),
-                })
-              }}
-              className="btn btn-ghost min-h-12 flex-1 sm:btn-sm disabled:opacity-50"
-            >
-              Respinge
-            </button>
-          </div>
-        </div>
-      ))}
       {!hasRates && (
         <div className="animate-fade-slide-in rounded-[var(--radius-lg)] border border-[var(--color-warning)]/30 bg-[var(--color-warning)]/10 p-4 shadow-[var(--shadow-sm)] sm:p-5">
           <div className="text-[14px] font-semibold text-[var(--color-ink)]">

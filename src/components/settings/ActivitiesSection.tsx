@@ -3,6 +3,7 @@ import { useActivities, useCreateActivity, useUpdateActivity } from '@stafy/hook
 import { getActivityColor } from '@stafy/utils/activityColor'
 import { ICONS } from '@stafy/lib/icons'
 import { showToast } from '@stafy/lib/toast'
+import { getCodedErrorMessage } from '@stafy/services/apiErrors'
 
 const PencilIcon = ICONS.pencil
 const CheckIcon = ICONS.check
@@ -37,7 +38,7 @@ export function ActivitiesSection() {
       showToast('Activitate actualizată.')
     } catch (error) {
       showToast(
-        isConflict(error) ? 'Există deja o activitate cu acest nume.' : 'Nu am putut salva activitatea.',
+        isConflict(error) ? 'Există deja o activitate cu acest nume.' : getCodedErrorMessage(error, 'Nu am putut salva activitatea.'),
         { tone: 'danger' },
       )
     }
@@ -53,7 +54,7 @@ export function ActivitiesSection() {
       showToast('Activitate adăugată.')
     } catch (error) {
       showToast(
-        isConflict(error) ? 'Există deja o activitate cu acest nume.' : 'Nu am putut adăuga activitatea.',
+        isConflict(error) ? 'Există deja o activitate cu acest nume.' : getCodedErrorMessage(error, 'Nu am putut adăuga activitatea.'),
         { tone: 'danger' },
       )
     }
