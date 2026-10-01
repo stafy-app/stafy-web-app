@@ -195,30 +195,36 @@ to succeed, but an orphaned account has no profile at all yet — that's the who
 
 ## UI / Layout
 
-`LoginPage`, `RegisterPage`, `OnboardingPage`, `CompleteRegistrationPage` share one visual pattern: a
-`card` (DaisyUI, `w-full max-w-sm`/`max-w-md`, `shadow-xl`) centered on `bg-base-200`, logo
-(`stafy_logo.svg`) + "Stafy" wordmark, DaisyUI `fieldset`/`fieldset-legend`/`input`/`select` form
-controls (not `form-control`/`label-text`/`input-bordered` — those are DaisyUI v4 classes and don't
-exist in the v5 installed here), errors in an `alert alert-error`. No new design tokens — same
-`--color-*` variables as the rest of the app (`src/App.css`).
+`LoginPage`, `RegisterPage`, `OnboardingPage`, `CompleteRegistrationPage` share one visual pattern,
+built from `src/components/auth/`:
 
-`OnboardingPage` and `RegisterPage` stagger their entrance with the shared `animate-fade-slide-in`
-keyframe (`src/App.css`, same one `DashboardPage`/`EmployeeCard`/`EmployeeHeaderCard` use) — header
-block, each fieldset/row, and the submit button each carry the class with an increasing inline
-`animationDelay`, so the form cascades in top-to-bottom instead of popping in as one block
-(`OnboardingPage`'s error alert also carries the class; `RegisterPage`'s does not). Conditional
-fields (`OnboardingPage`'s "Altceva" custom-job-title fieldset) get the class
-with no explicit delay, since they mount fresh on user interaction rather than on page load.
-`CompleteRegistrationPage` has no stagger — a rare recovery-path form doesn't need the entrance
-polish. `LoginPage` doesn't have it yet — nothing rules
-it out, just not asked for.
+- **`AuthShell`** — the page frame used by `AuthLayout`, `OnboardingLayout` and
+  `CompleteRegistrationLayout`: a warm canvas (`--color-warm`) with two soft brand-orange glows,
+  content centered, `px-4` gutter. `AuthLayout` also passes `aside={<AuthAside />}`, which adds a
+  full-bleed dark brand panel (`--color-night`/`--color-night-deep` gradient, headline, three benefit
+  lines, the trial note) as a left column flush with the viewport edges (flush with the left edge, a `py-4` gap above and
+  below so it floats, right corners rounded, `--shadow-aside` for depth) from the `lg` breakpoint up; below that only the form shows.
+- **`AuthCard`** — wordmark above a white `rounded-[24px]` card (`--shadow-lg`, hairline ring) with
+  the page title and optional subtitle; `widthClass` widens it for onboarding.
+- **`AuthField`** — a DaisyUI v5 `fieldset`/`fieldset-legend` + `input` pair restyled as a soft
+  filled field (`--color-surface-2`, brand focus ring via `--shadow-focus`). An optional `delay` (ms)
+  staggers its entrance with the shared `animate-fade-slide-in` keyframe; omitted for fields that
+  mount on interaction (onboarding's "Altceva" fieldset passes `0`).
+- **`AuthError`** — soft error banner (`--color-error-soft`), `role="alert"`.
+- **`authStyles.ts`** — the shared class strings (`AUTH_INPUT`, `AUTH_SELECT`, `AUTH_LEGEND`,
+  `AUTH_SUBMIT` = full-width pill `btn-primary`, `AUTH_LINK`). Forms use DaisyUI v5 classes
+  (`fieldset`/`fieldset-legend`/`input`/`select`), never the v4 `form-control`/`label-text`/
+  `input-bordered`.
+
+Login, Register and Onboarding stagger their entrance (the card header and each field/button carry
+`animate-fade-slide-in` with an increasing `animationDelay`); `CompleteRegistrationPage` has no
+stagger — a rare recovery-path form doesn't need it. The new tokens `--color-warm`, `--color-night`
+and `--color-night-deep` live in the theme block of `src/App.css`.
 
 `FullscreenSpinner` (`src/components/layout/FullscreenSpinner.tsx`) is the one shared loading
 state across all three gates — `bg-[var(--color-page)]` + a DaisyUI `loading loading-spinner`.
 
-**Mobile gutter.** `AuthLayout`, `OnboardingLayout`, and `CompleteRegistrationLayout` all carry `px-4`
-on their centering `flex` container — without it, the `w-full max-w-sm`/`max-w-md` card touches the
-viewport edge with zero gutter on any screen narrower than the card's max width (every phone).
+**Mobile gutter.** `AuthShell` carries `px-4` on its centering container — without it, the card touches the viewport edge on any screen narrower than its max width (every phone).
 
 ---
 

@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from '@tanstack/react-router'
 import { FullscreenSpinner } from '@stafy/components/layout/FullscreenSpinner'
+import { AuthShell } from '@stafy/components/auth/AuthShell'
 import { useAuth } from '@stafy/hooks/useAuth'
 import { useProfile } from '@stafy/hooks/useProfile'
 
@@ -27,8 +28,8 @@ export function OnboardingLayout() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-base-200 px-4">
+    <AuthShell>
       <Outlet />
-    </div>
+    </AuthShell>
   )
 }

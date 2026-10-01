@@ -1,6 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from '@tanstack/react-router'
-import logoMark from '@stafy/assets/stafy_logo.svg'
+import { AuthCard } from '@stafy/components/auth/AuthCard'
+import { AuthError } from '@stafy/components/auth/AuthError'
+import { AuthField } from '@stafy/components/auth/AuthField'
+import { AUTH_LINK, AUTH_SUBMIT } from '@stafy/components/auth/authStyles'
 import { useAuth } from '@stafy/hooks/useAuth'
 
 export default function RegisterPage() {
@@ -26,95 +29,69 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="card w-full max-w-sm bg-base-100 shadow-xl">
-      <div className="card-body">
-        <div className="animate-fade-slide-in mb-1 flex items-center gap-2" style={{ animationDelay: '0ms' }}>
-          <img src={logoMark} alt="Stafy" className="h-8 w-8 rounded-[7px]" />
-          <span className="text-[20px] font-bold text-[var(--color-ink)]">Stafy</span>
+    <AuthCard title="Creează un cont" subtitle="45 de zile gratuit, cu toate funcțiile. Fără card.">
+      {error && <AuthError message={error} />}
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+        <div className="grid grid-cols-2 gap-3">
+          <AuthField
+            label="Prenume"
+            type="text"
+            required
+            autoComplete="given-name"
+            value={firstName}
+            onChange={(event) => setFirstName(event.target.value)}
+            placeholder="Ion"
+            delay={60}
+          />
+          <AuthField
+            label="Nume"
+            type="text"
+            required
+            autoComplete="family-name"
+            value={lastName}
+            onChange={(event) => setLastName(event.target.value)}
+            placeholder="Popescu"
+            delay={90}
+          />
         </div>
-
-        <h1
-          className="animate-fade-slide-in text-xl font-semibold text-[var(--color-ink)]"
-          style={{ animationDelay: '30ms' }}
+        <AuthField
+          label="Email"
+          type="email"
+          required
+          autoComplete="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="nume@companie.ro"
+          delay={130}
+        />
+        <AuthField
+          label="Parolă"
+          type="password"
+          required
+          minLength={6}
+          autoComplete="new-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          placeholder="Minim 6 caractere"
+          delay={170}
+        />
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className={`${AUTH_SUBMIT} animate-fade-slide-in`}
+          style={{ animationDelay: '210ms' }}
         >
-          Creează cont
-        </h1>
+          {isSubmitting ? <span className="loading loading-spinner loading-sm" /> : 'Creează un cont'}
+        </button>
+      </form>
 
-        {error && (
-          <div role="alert" className="alert alert-error mb-2 text-sm">
-            <span>{error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <div className="animate-fade-slide-in grid grid-cols-2 gap-3" style={{ animationDelay: '100ms' }}>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">Prenume</legend>
-              <input
-                type="text"
-                required
-                autoComplete="given-name"
-                value={firstName}
-                onChange={(event) => setFirstName(event.target.value)}
-                className="input w-full"
-                placeholder="Ion"
-              />
-            </fieldset>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">Nume</legend>
-              <input
-                type="text"
-                required
-                autoComplete="family-name"
-                value={lastName}
-                onChange={(event) => setLastName(event.target.value)}
-                className="input w-full"
-                placeholder="Popescu"
-              />
-            </fieldset>
-          </div>
-          <fieldset className="fieldset animate-fade-slide-in" style={{ animationDelay: '140ms' }}>
-            <legend className="fieldset-legend">Email</legend>
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="input w-full"
-              placeholder="nume@companie.ro"
-            />
-          </fieldset>
-          <fieldset className="fieldset animate-fade-slide-in" style={{ animationDelay: '180ms' }}>
-            <legend className="fieldset-legend">Parolă</legend>
-            <input
-              type="password"
-              required
-              minLength={6}
-              autoComplete="new-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="input w-full"
-              placeholder="Minim 6 caractere"
-            />
-          </fieldset>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="animate-fade-slide-in btn btn-primary mt-2"
-            style={{ animationDelay: '220ms' }}
-          >
-            {isSubmitting ? <span className="loading loading-spinner loading-sm" /> : 'Creează cont'}
-          </button>
-        </form>
-
-        <p className="mt-3 text-center text-sm text-[var(--color-ink-muted)]">
-          Ai deja cont?{' '}
-          <Link to="/login" className="font-medium text-[var(--color-primary)] no-underline hover:underline">
-            Autentificare
-          </Link>
-        </p>
-      </div>
-    </div>
+      <p className="text-center text-sm text-[var(--color-ink-muted)]">
+        Ai deja cont?{' '}
+        <Link to="/login" className={AUTH_LINK}>
+          Autentificare
+        </Link>
+      </p>
+    </AuthCard>
   )
 }

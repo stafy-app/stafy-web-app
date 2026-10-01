@@ -10,6 +10,10 @@ Until a section exists here, the source of truth for design tokens is `src/App.c
 - **Typography**: Inter, scale from `--text-eyebrow` (11px) to `--text-display` (44px)
 - **Shadows**: `--shadow-xs` through `--shadow-pop`, plus `--shadow-focus` tied to `--color-primary-ring`
 
+## Signed-out screens
+
+Login, register, complete-registration and onboarding share the `src/components/auth/` kit: warm canvas with two soft brand glows, a white `rounded-[24px]` card, soft filled inputs with the brand focus ring, and a full-width pill primary button. Login and register add a dark brand panel on wide screens. Details in `docs/modules/auth.md` UI / Layout.
+
 ## Sections to fill in as they're decided
 
 - Component conventions (buttons, cards, tables, modals, empty states)

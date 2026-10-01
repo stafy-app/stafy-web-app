@@ -1,6 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
-import logoMark from '@stafy/assets/stafy_logo.svg'
+import { AuthCard } from '@stafy/components/auth/AuthCard'
+import { AuthError } from '@stafy/components/auth/AuthError'
+import { AuthField } from '@stafy/components/auth/AuthField'
+import { AUTH_LINK, AUTH_SUBMIT } from '@stafy/components/auth/authStyles'
 import { useAuth } from '@stafy/hooks/useAuth'
 import { OrphanRegistrationError } from '@stafy/utils/authError'
 import { consumeBlockedMessage } from '@stafy/utils/authBlockedMessage'
@@ -31,58 +34,46 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="card w-full max-w-sm bg-base-100 shadow-xl">
-      <div className="card-body">
-        <div className="mb-1 flex items-center gap-2">
-          <img src={logoMark} alt="Stafy" className="h-8 w-8 rounded-[7px]" />
-          <span className="text-[20px] font-bold text-[var(--color-ink)]">Stafy</span>
-        </div>
-        <h1 className="text-xl font-semibold text-[var(--color-ink)]">Autentificare</h1>
-        <p className="mb-2 text-sm text-[var(--color-ink-muted)]">Intră în contul tău</p>
+    <AuthCard title="Bine ai revenit" subtitle="Intră în contul tău Stafy.">
+      {error && <AuthError message={error} />}
 
-        {error && (
-          <div role="alert" className="alert alert-error mb-2 text-sm">
-            <span>{error}</span>
-          </div>
-        )}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+        <AuthField
+          label="Email"
+          type="email"
+          required
+          autoComplete="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="nume@companie.ro"
+          delay={60}
+        />
+        <AuthField
+          label="Parolă"
+          type="password"
+          required
+          autoComplete="current-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          placeholder="••••••••"
+          delay={110}
+        />
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className={`${AUTH_SUBMIT} animate-fade-slide-in`}
+          style={{ animationDelay: '160ms' }}
+        >
+          {isSubmitting ? <span className="loading loading-spinner loading-sm" /> : 'Autentificare'}
+        </button>
+      </form>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Email</legend>
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="input w-full"
-              placeholder="nume@companie.ro"
-            />
-          </fieldset>
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Parolă</legend>
-            <input
-              type="password"
-              required
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="input w-full"
-              placeholder="••••••••"
-            />
-          </fieldset>
-          <button type="submit" disabled={isSubmitting} className="btn btn-primary mt-2">
-            {isSubmitting ? <span className="loading loading-spinner loading-sm" /> : 'Autentificare'}
-          </button>
-        </form>
-
-        <p className="mt-3 text-center text-sm text-[var(--color-ink-muted)]">
-          Nu ai cont?{' '}
-          <Link to="/register" className="font-medium text-[var(--color-primary)] no-underline hover:underline">
-            Creează cont
-          </Link>
-        </p>
-      </div>
-    </div>
+      <p className="text-center text-sm text-[var(--color-ink-muted)]">
+        Nu ai cont?{' '}
+        <Link to="/register" className={AUTH_LINK}>
+          Creează un cont
+        </Link>
+      </p>
+    </AuthCard>
   )
 }
