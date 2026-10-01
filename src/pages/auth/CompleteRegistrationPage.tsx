@@ -39,8 +39,8 @@ export default function CompleteRegistrationPage() {
     >
       {error && <AuthError message={error} />}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
-        <div className="grid grid-cols-2 gap-3">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5">
           <AuthField
             label="Prenume"
             type="text"
@@ -48,7 +48,7 @@ export default function CompleteRegistrationPage() {
             autoComplete="given-name"
             value={firstName}
             onChange={(event) => setFirstName(event.target.value)}
-            placeholder="Andrei"
+            placeholder="Prenumele tău"
           />
           <AuthField
             label="Nume"
@@ -57,7 +57,7 @@ export default function CompleteRegistrationPage() {
             autoComplete="family-name"
             value={lastName}
             onChange={(event) => setLastName(event.target.value)}
-            placeholder="Ticăra"
+            placeholder="Numele tău"
           />
         </div>
 

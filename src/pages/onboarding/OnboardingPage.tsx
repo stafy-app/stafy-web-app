@@ -55,25 +55,25 @@ export default function OnboardingPage() {
     >
       {error && <AuthError message={error} />}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <AuthField
           label="Numele organizației"
           type="text"
           required
           value={organizationName}
           onChange={(event) => setOrganizationName(event.target.value)}
-          placeholder="Ex: Acme SRL"
+          placeholder="Numele organizației"
           delay={60}
         />
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid gap-5 sm:grid-cols-2 sm:gap-3">
           <AuthField
             label="Oraș"
             type="text"
             required
             value={city}
             onChange={(event) => setCity(event.target.value)}
-            placeholder="Cluj-Napoca"
+            placeholder="Orașul"
             delay={100}
           />
           <AuthField
@@ -82,7 +82,7 @@ export default function OnboardingPage() {
             required
             value={address}
             onChange={(event) => setAddress(event.target.value)}
-            placeholder="Str. Exemplu nr. 1"
+            placeholder="Strada și numărul"
             delay={130}
           />
         </div>
@@ -111,7 +111,7 @@ export default function OnboardingPage() {
             required
             value={customJobTitle}
             onChange={(event) => setCustomJobTitle(event.target.value)}
-            placeholder="Ex: Manager Vânzări"
+            placeholder="Funcția ta"
             delay={0}
           />
         )}

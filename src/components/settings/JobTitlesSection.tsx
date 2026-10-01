@@ -176,7 +176,7 @@ export function JobTitlesSection() {
             type="text"
             value={newJobTitleName}
             onChange={(e) => setNewJobTitleName(e.target.value)}
-            placeholder="Ex: Coordonator"
+            placeholder="Numele funcției"
             className="input w-full"
           />
         </fieldset>

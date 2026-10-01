@@ -37,7 +37,7 @@ export default function LoginPage() {
     <AuthCard title="Bine ai revenit" subtitle="Intră în contul tău Stafy.">
       {error && <AuthError message={error} />}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <AuthField
           label="Email"
           type="email"

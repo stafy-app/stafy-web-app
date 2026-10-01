@@ -32,8 +32,8 @@ export default function RegisterPage() {
     <AuthCard title="Creează un cont" subtitle="45 de zile gratuit, cu toate funcțiile. Fără card.">
       {error && <AuthError message={error} />}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
-        <div className="grid grid-cols-2 gap-3">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <div className="grid gap-5 sm:grid-cols-2 sm:gap-3">
           <AuthField
             label="Prenume"
             type="text"
@@ -41,7 +41,7 @@ export default function RegisterPage() {
             autoComplete="given-name"
             value={firstName}
             onChange={(event) => setFirstName(event.target.value)}
-            placeholder="Ion"
+            placeholder="Prenumele tău"
             delay={60}
           />
           <AuthField
@@ -51,7 +51,7 @@ export default function RegisterPage() {
             autoComplete="family-name"
             value={lastName}
             onChange={(event) => setLastName(event.target.value)}
-            placeholder="Popescu"
+            placeholder="Numele tău"
             delay={90}
           />
         </div>

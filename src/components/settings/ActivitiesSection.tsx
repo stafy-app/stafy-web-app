@@ -133,7 +133,7 @@ export function ActivitiesSection() {
             type="text"
             value={newActivityName}
             onChange={(e) => setNewActivityName(e.target.value)}
-            placeholder="Ex: Curățenie"
+            placeholder="Numele activității"
             className="input w-full"
           />
         </fieldset>

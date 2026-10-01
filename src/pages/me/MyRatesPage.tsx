@@ -88,7 +88,7 @@ export default function MyRatesPage() {
                   value={newActivityName}
                   onChange={(e) => setNewActivityName(e.target.value)}
                   className="input w-full"
-                  placeholder="Ex: Vânzări"
+                  placeholder="Numele activității"
                 />
               </fieldset>
               <fieldset className="fieldset sm:w-40">
@@ -101,7 +101,7 @@ export default function MyRatesPage() {
                   value={newActivityRate}
                   onChange={(e) => setNewActivityRate(e.target.value)}
                   className="input w-full"
-                  placeholder="25.00"
+                  placeholder="0.00"
                 />
               </fieldset>
               <div className="flex gap-2">

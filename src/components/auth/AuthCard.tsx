@@ -19,7 +19,7 @@ export function AuthCard({ title, subtitle, widthClass = 'max-w-[420px]', childr
       <div className="animate-fade-slide-in rounded-[24px] bg-white p-[clamp(22px,5vw,36px)] shadow-[var(--shadow-lg)] ring-1 ring-[var(--color-line-soft)]">
         <h1 className="text-[26px] font-bold leading-[1.1] tracking-[-0.03em] text-[var(--color-ink)]">{title}</h1>
         {subtitle && <p className="mt-2 text-[14.5px] leading-[1.55] text-[var(--color-ink-soft)]">{subtitle}</p>}
-        <div className="mt-6 flex flex-col gap-4">{children}</div>
+        <div className="mt-7 flex flex-col gap-5">{children}</div>
       </div>
     </div>
   )
