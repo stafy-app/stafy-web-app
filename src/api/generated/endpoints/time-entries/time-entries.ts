@@ -6,7 +6,8 @@
  */
 import type {
   TimeEntryIn,
-  TimeEntryOut
+  TimeEntryOut,
+  TimeEntryUpdateIn
 } from '../index.schemas';
 
 import { api } from '../../../../services/api';
@@ -28,6 +29,20 @@ const createTimeEntry = (
       );
     }
   /**
+ * @summary Correct a company member's time entry (start/stop only, manager/owner only)
+ */
+const updateTimeEntry = (
+    entryId: number,
+    timeEntryUpdateIn: TimeEntryUpdateIn,
+ ) => {
+      return api<TimeEntryOut>(
+      {url: `/api/v1/time-entries/${entryId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: timeEntryUpdateIn
+    },
+      );
+    }
+  /**
  * @summary Delete a time entry
  */
 const deleteTimeEntry = (
@@ -38,6 +53,7 @@ const deleteTimeEntry = (
     },
       );
     }
-  return {createTimeEntry,deleteTimeEntry}};
+  return {createTimeEntry,updateTimeEntry,deleteTimeEntry}};
 export type CreateTimeEntryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getTimeEntries>['createTimeEntry']>>>
+export type UpdateTimeEntryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getTimeEntries>['updateTimeEntry']>>>
 export type DeleteTimeEntryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getTimeEntries>['deleteTimeEntry']>>>

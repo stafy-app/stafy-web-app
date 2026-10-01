@@ -1,17 +1,19 @@
 import { Navigate, Outlet, useRouterState } from '@tanstack/react-router'
 import { FullscreenSpinner } from '@stafy/components/layout/FullscreenSpinner'
 import { Sidebar } from '@stafy/components/layout/Sidebar'
+import { BottomNav } from '@stafy/components/layout/BottomNav'
 import { Topbar } from '@stafy/components/layout/Topbar'
+import { PlanStatusBanner } from '@stafy/components/layout/PlanStatusBanner'
+import { IncomingInvitations } from '@stafy/components/invitations/IncomingInvitations'
 import { TopBarProvider } from '@stafy/context/TopBarProvider'
 import { useAuth } from '@stafy/hooks/useAuth'
 import { useProfile } from '@stafy/hooks/useProfile'
 import { setBlockedMessage } from '@stafy/utils/authBlockedMessage'
 
 export function AppLayout() {
-  const { authResolved, firebaseUser, logout } = useAuth()
+  const { authResolved, firebaseUser } = useAuth()
   const { data: profile, isLoading: isProfileLoading, error: profileError } = useProfile()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
-
   if (!authResolved) {
     return <FullscreenSpinner />
   }
@@ -32,13 +34,18 @@ export function AppLayout() {
     return <FullscreenSpinner />
   }
 
+  // Employees use the /me personal shell (same pages managers use for self
+  // time-tracking). Company routes (/, /team, /invitations, /reports, /settings)
+  // are require_role("manager") on the backend — redirect instead of letting them
+  // land on pages that would just 403. Admin keeps its existing /settings rule.
+  // No onboarding_completed check for employees — they have no onboarding step
+  // (onboarding_completed is set true at register time, see OnboardingLayout).
   if (profile.role === 'employee') {
-    setBlockedMessage('Acest cont este de angajat — aplicația web este doar pentru manageri.')
-    logout()
-    return <Navigate to="/login" />
-  }
-
-  if (!profile.onboarding_completed) {
+    if (pathname !== '/me' && !pathname.startsWith('/me/')) {
+      setBlockedMessage('Zona aceasta este doar pentru manageri — ai fost redirecționat la pagina ta personală.')
+      return <Navigate to="/me" />
+    }
+  } else if (!profile.onboarding_completed) {
     return <Navigate to="/onboarding" />
   }
 
@@ -55,11 +62,14 @@ export function AppLayout() {
     <TopBarProvider>
       <div className="flex min-h-screen">
         <Sidebar />
-        <div className="flex flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col">
           <Topbar />
-          <main className="flex-1 overflow-y-auto p-6">
+          <PlanStatusBanner />
+          <main className="flex-1 overflow-y-auto p-4 pb-24 sm:p-6 md:pb-6">
+            <IncomingInvitations />
             <Outlet />
           </main>
+          <BottomNav />
         </div>
       </div>
     </TopBarProvider>

@@ -5,13 +5,40 @@ interface BonusCardProps {
   bonus: PayrollBonusOut | null | undefined
   onSave: (amount: number, reason?: string) => void
   onClear: () => void
+  /** When false, renders the amount/reason as plain text with no inputs or save —
+   * the bonus display (real pay) stays visible while the write affordance goes away.
+   * Defaults to true for existing manager-facing callers. */
+  editable?: boolean
 }
 
 const QUICK_BONUS_AMOUNTS = [100, 250, 500]
 
-export function BonusCard({ bonus, onSave, onClear }: BonusCardProps) {
+export function BonusCard({ bonus, onSave, onClear, editable = true }: BonusCardProps) {
   const [amount, setAmount] = useState(bonus ? bonus.amount : '')
   const [reason, setReason] = useState(bonus?.reason ?? '')
+
+  if (!editable) {
+    return (
+      <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">
+        <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--color-ink-muted)]">
+          Bonus
+        </div>
+        {bonus ? (
+          <>
+            <div className="text-right font-[var(--font-mono)] text-[15px] font-bold text-[var(--color-ink)]">
+              {bonus.amount} RON
+            </div>
+            {bonus.reason && (
+              <div className="mt-1 text-right text-[12px] text-[var(--color-ink-muted)]">{bonus.reason}</div>
+            )}
+          </>
+        ) : (
+          <div className="text-right text-[12px] text-[var(--color-ink-muted)]">—</div>
+        )}
+      </div>
+    )
+  }
+
 
   return (
     <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">

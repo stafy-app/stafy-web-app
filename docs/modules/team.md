@@ -47,7 +47,9 @@ N/A — no stateful entity behind this page. Client-side UI state is limited to 
 
 ## Derived / Aggregated Data
 
-One row per employee (`role == "employee"` only), for the current calendar month:
+One row per company member — employees, the owner, and any non-owner manager, the caller included
+(`user.role in ("owner", "manager", "employee")` on the backend, which excludes only a platform
+`admin`) — for the current calendar month:
 
 - **Hours this month** — summed from time-entry rows.
 - **Delta vs. previous month** — current month's hours minus previous month's hours.
@@ -70,8 +72,9 @@ by the backend on each request.
    (unaffected by the active search filter), followed by a success toast.
 4. Manager triggers the invite action → navigates to the invitations page (see
    `docs/modules/invitations.md`).
-5. Manager clicks a card → navigates to the employee profile route (see
-   `docs/modules/employee-profile.md`).
+5. Manager clicks a card, including their own — navigates to the employee profile route (see
+   `docs/modules/employee-profile.md`) the same way for every row; the manager can view and edit
+   their own rates from there exactly as they would an employee's.
 
 ---
 
@@ -104,8 +107,9 @@ breadcrumb — top-level nav item. No modals owned by this page.
 
 - Bordered surface card, hover state raises elevation, shifts up slightly, and switches the border
   to the primary accent color; the whole card is clickable.
-- Header: avatar (initials-based, no photo field on `UserOut`), truncated name and email, and a
-  status pill (active/inactive) in the corner.
+- Header: avatar (initials-based, no photo field on `UserOut`), truncated name and email, a
+  "Manager" badge on non-owner manager rows (see Special Aspects), and a status pill
+  (active/inactive) in the corner.
 - Stats row: two-column layout with a top/bottom divider — hours this month (with the delta
   indicator) and estimated pay.
 - Footer: capped list of activity chips with an overflow count, and a "view details" affordance
@@ -148,10 +152,17 @@ aggregation, defaulting an employee to zero stats if they have no entries that m
 omitting them. This is the defining difference from any hours-ranked "top N" view elsewhere in the
 product.
 
-**Employee scoping is by company assignment, not a separate membership table.** A `TeamMembership`
-row is written on invitation acceptance (both register-time auto-join and explicit accept), but
-nothing reads it yet — this page's roster query, like the rest of the backend, scopes employees by
-`User.company_id` instead.
+**The roster is scoped by active `TeamMembership`, not `User.company_id`.** The backend returns
+every member with a live (`left_at IS NULL`) membership row in the caller's company, and each row's
+`role` is that membership's role (`owner`/`manager`/`employee`). `User.company_id` is only a user's
+currently active company pointer, not "belongs to this company."
+
+**The "Manager" badge marks a non-owner manager, keyed on `role === 'manager'` alone.** A company
+can have one owner (`role === 'owner'`) plus any number of managers who joined via invitation; a
+manager row in a list of employees is badged so it doesn't read as a data error. The owner never
+matches `role === 'manager'`, so the owner's card is unbadged with no extra guard. The badge names
+the permission level, not a job title — `job_title` renders separately and is unrelated, even when
+it holds a manager-sounding seeded title.
 
 **No shared `Card`/`Badge`/`Button` primitives were introduced for this page.** `EmployeeCard` is
 built with page-scoped styling, consistent with how other feature-specific cards in this codebase
@@ -171,5 +182,4 @@ convention used elsewhere in this API — never a JS `number`.
 
 | Item | Trigger |
 |---|---|
-| Membership-based employee scoping | This page's roster query migrates from `User.company_id` to `TeamMembership` |
 | Pagination / virtualized grid | Company rosters grow large enough to need it |

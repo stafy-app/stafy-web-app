@@ -65,6 +65,42 @@ export interface AdminActivityOut {
   data: AdminActivityPointOut[];
 }
 
+export type AdminCompanySubscriptionOutPlanType = typeof AdminCompanySubscriptionOutPlanType[keyof typeof AdminCompanySubscriptionOutPlanType];
+
+
+export const AdminCompanySubscriptionOutPlanType = {
+  trial: 'trial',
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export type AdminCompanySubscriptionOutPlanStatus = typeof AdminCompanySubscriptionOutPlanStatus[keyof typeof AdminCompanySubscriptionOutPlanStatus];
+
+
+export const AdminCompanySubscriptionOutPlanStatus = {
+  active: 'active',
+  read_only: 'read_only',
+} as const;
+
+export interface AdminCompanySubscriptionOut {
+  company_id: number;
+  company_name: string;
+  owner_name: string;
+  owner_email: string;
+  plan_type: AdminCompanySubscriptionOutPlanType;
+  plan_status: AdminCompanySubscriptionOutPlanStatus;
+  seats_limit: number | null;
+  seats_used: number;
+  plan_expires_at: string | null;
+}
+
+export interface AdminCompanySubscriptionsListOut {
+  data: AdminCompanySubscriptionOut[];
+}
+
 export interface AdminGrowthPointOut {
   period_start: string;
   new_managers: number;
@@ -89,6 +125,24 @@ export interface AdminOverviewOut {
   total_users: number;
   /** Employees whose company_id still equals their personal_company_id — never joined a real manager's company via invitation. */
   employees_without_manager: number;
+}
+
+export type AdminSubscriptionChangeInPlanType = typeof AdminSubscriptionChangeInPlanType[keyof typeof AdminSubscriptionChangeInPlanType];
+
+
+export const AdminSubscriptionChangeInPlanType = {
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export interface AdminSubscriptionChangeIn {
+  plan_type: AdminSubscriptionChangeInPlanType;
+  /** Required (and in the future) for `pilot`; must be omitted otherwise. */
+  expires_at?: string | null;
+  note?: string | null;
 }
 
 /**
@@ -150,7 +204,7 @@ export interface UserOut {
   auth_provider: string;
   /** Whether Firebase has verified the user's email. */
   email_verified?: boolean | null;
-  /** One of employee, manager, admin. */
+  /** One of employee, manager, owner, admin. Computed per request from the caller's active TeamMembership row for their current company (owner/manager/employee), or 'admin' if is_platform_admin is set — never a stored column. */
   role?: string | null;
   /** Free-text job title/position (e.g. 'Director'), not the role enum. The client offers a fixed picklist + custom 'other' option; the backend stores whatever string is submitted. */
   job_title?: string | null;
@@ -198,6 +252,36 @@ export interface CompanyDashboardOut {
   activity_distribution: ActivityDistributionOut[];
   /** Top 5 employees by total hours this month, descending. */
   top_employees: CompanyTopEmployeeOut[];
+}
+
+export interface CompanyJobTitleCreateIn {
+  /**
+     * Name of the job title to create.
+     * @minLength 2
+     * @maxLength 150
+     */
+  label: string;
+}
+
+export interface CompanyJobTitleOut {
+  /** Job title ID. */
+  id: number;
+  /** Display label, e.g. 'Coordonator'. */
+  label: string;
+}
+
+export interface CompanyJobTitleUpdateIn {
+  /**
+     * New name for the job title.
+     * @minLength 2
+     * @maxLength 150
+     */
+  label: string;
+}
+
+export interface CompanyJobTitlesListOut {
+  /** Job titles defined for the caller's company. */
+  data: CompanyJobTitleOut[];
 }
 
 export interface CompanyOut {
@@ -266,7 +350,7 @@ export interface DashboardUserInfoOut {
   last_name: string;
   /** User's email. */
   email: string;
-  /** One of employee, manager, admin. */
+  /** One of employee, manager, owner, admin. */
   role: string;
 }
 
@@ -423,6 +507,12 @@ export interface TimeEntryOut {
   rate_applied: string;
   /** Shallow embed of the activity. */
   activity: TimeEntryActivityOut;
+  /** Set only when a manager/owner corrected this entry — null on a normal self-logged entry, never set by the entry's own user. */
+  edited_by_user_id?: number | null;
+  /** When edited_by_user_id last changed, ISO 8601 UTC. */
+  edited_at?: string | null;
+  /** Flattened display name of edited_by_user_id, resolved at read time (not stored) — null unless edited_by_user_id is set. */
+  edited_by_name?: string | null;
 }
 
 export interface EmployeeTimeEntriesListOut {
@@ -478,9 +568,24 @@ export interface HourlyRatesListOut {
   data: HourlyRateOut[];
 }
 
+/**
+ * Role the invited person will have once they join: 'employee' or 'manager' (a second manager, not a duplicate owner — see docs/modules/invitations.md). Only the company's owner may set 'manager'; a non-owner manager sending an invitation must set 'employee'.
+ */
+export type InvitationInInvitedRole = typeof InvitationInInvitedRole[keyof typeof InvitationInInvitedRole];
+
+
+export const InvitationInInvitedRole = {
+  manager: 'manager',
+  employee: 'employee',
+} as const;
+
 export interface InvitationIn {
   /** Email address of the prospective employee. */
   invited_email: string;
+  /** Role the invited person will have once they join: 'employee' or 'manager' (a second manager, not a duplicate owner — see docs/modules/invitations.md). Only the company's owner may set 'manager'; a non-owner manager sending an invitation must set 'employee'. */
+  invited_role: InvitationInInvitedRole;
+  /** A CompanyJobTitle id belonging to the caller's own company. */
+  invited_job_title_id: number;
 }
 
 export interface InvitationIncomingOut {
@@ -488,6 +593,10 @@ export interface InvitationIncomingOut {
   id: string;
   /** Email address of the prospective employee. */
   invited_email: string;
+  /** One of manager, employee. */
+  invited_role: string;
+  /** Snapshot label of the invited job title, flattened. Null if the referenced job title has since been deleted. */
+  job_title_label?: string | null;
   /** One of pending, accepted, rejected, expired. Cancelled invitations are never serialized — they're excluded from every response. */
   status: string;
   /** Invitation creation timestamp, UTC. */
@@ -507,6 +616,10 @@ export interface InvitationOut {
   id: string;
   /** Email address of the prospective employee. */
   invited_email: string;
+  /** One of manager, employee. */
+  invited_role: string;
+  /** Snapshot label of the invited job title, flattened. Null if the referenced job title has since been deleted. */
+  job_title_label?: string | null;
   /** One of pending, accepted, rejected, expired. Cancelled invitations are never serialized — they're excluded from every response. */
   status: string;
   /** Invitation creation timestamp, UTC. */
@@ -525,18 +638,6 @@ export interface InvitationsIncomingListOut {
 export interface InvitationsListOut {
   /** Every non-cancelled invitation the caller (manager) has sent. */
   data: InvitationOut[];
-}
-
-export interface JobTitleOut {
-  /** Job title ID. */
-  id: number;
-  /** Display label, e.g. 'Director'. */
-  label: string;
-}
-
-export interface JobTitlesListOut {
-  /** Active job-title suggestions for the onboarding picklist. */
-  data: JobTitleOut[];
 }
 
 export interface OnboardingIn {
@@ -582,6 +683,91 @@ export interface RootOut {
   status: string;
 }
 
+export type SubscriptionChangeInPlanType = typeof SubscriptionChangeInPlanType[keyof typeof SubscriptionChangeInPlanType];
+
+
+export const SubscriptionChangeInPlanType = {
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export interface SubscriptionChangeIn {
+  plan_type: SubscriptionChangeInPlanType;
+}
+
+export type SubscriptionEventOutPlanType = typeof SubscriptionEventOutPlanType[keyof typeof SubscriptionEventOutPlanType];
+
+
+export const SubscriptionEventOutPlanType = {
+  trial: 'trial',
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export type SubscriptionEventOutActorType = typeof SubscriptionEventOutActorType[keyof typeof SubscriptionEventOutActorType];
+
+
+export const SubscriptionEventOutActorType = {
+  system: 'system',
+  admin: 'admin',
+  owner: 'owner',
+} as const;
+
+export interface SubscriptionEventOut {
+  id: number;
+  event_type: string;
+  plan_type: SubscriptionEventOutPlanType;
+  seats_limit: number | null;
+  expires_at: string | null;
+  /** 'System' or the acting user's display name. */
+  actor: string;
+  actor_type: SubscriptionEventOutActorType;
+  note: string | null;
+  created_at: string;
+}
+
+export interface SubscriptionEventsListOut {
+  data: SubscriptionEventOut[];
+}
+
+export type SubscriptionOutPlanType = typeof SubscriptionOutPlanType[keyof typeof SubscriptionOutPlanType];
+
+
+export const SubscriptionOutPlanType = {
+  trial: 'trial',
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export type SubscriptionOutPlanStatus = typeof SubscriptionOutPlanStatus[keyof typeof SubscriptionOutPlanStatus];
+
+
+export const SubscriptionOutPlanStatus = {
+  active: 'active',
+  read_only: 'read_only',
+} as const;
+
+export interface SubscriptionOut {
+  plan_type: SubscriptionOutPlanType;
+  plan_status: SubscriptionOutPlanStatus;
+  /** Null = unlimited. */
+  seats_limit: number | null;
+  /** Derived: live, active manager/employee memberships; the owner is never a seat. */
+  seats_used: number;
+  plan_expires_at: string | null;
+  /** Derived: active and expiring within 7 days. */
+  expiring_soon: boolean;
+  trial_started_at: string;
+}
+
 export interface TeamMembersOut {
   /** One row per employee in the caller's company, including employees with zero hours this month. */
   data: CompanyTopEmployeeOut[];
@@ -594,6 +780,17 @@ export interface TimeEntryIn {
   time_end: string;
   /** Activity this entry is logged against. */
   activity_id: number;
+}
+
+/**
+ * Manager/owner correction of an employee's entry — start/stop only, never
+ * activity_id or rate_applied (see stafy/time_entries/repository.py:update_entry).
+ */
+export interface TimeEntryUpdateIn {
+  /** Corrected entry start, ISO 8601 with UTC offset. */
+  time_start: string;
+  /** Corrected entry end, ISO 8601 with UTC offset. */
+  time_end: string;
 }
 
 export interface UserActivityCreate {
@@ -656,8 +853,8 @@ export interface UserRegisterIn {
      */
   last_name: string;
   /**
-     * One of employee, manager. Admin accounts are seeded directly, never self-registered.
-     * @pattern ^(employee|manager)$
+     * One of employee, owner. 'owner' is the current, preferred value for a manager-tier registrant — they become the owner of a brand-new personal company either way (see create_firebase_user). 'manager' is kept only for stafy-mobile backward compatibility and is treated identically. Admin accounts are seeded directly, never self-registered.
+     * @pattern ^(employee|manager|owner)$
      */
   role: string;
 }

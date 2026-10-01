@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useEmployeeRates, useSetEmployeeRate } from '@stafy/hooks/useEmployeeRates'
+import { useEmployeeRates, useSetEmployeeRate, useActivateOwnRateInEmployeeView } from '@stafy/hooks/useEmployeeRates'
+import { useProfile } from '@stafy/hooks/useProfile'
 import { getCurrentPeriod } from '@stafy/utils/period'
 
 interface RatesTabProps {
@@ -11,7 +12,14 @@ const ron = new Intl.NumberFormat('ro-RO', { minimumFractionDigits: 2, maximumFr
 export function RatesTab({ employeeId }: RatesTabProps) {
   const { year, month } = getCurrentPeriod()
   const { data, isLoading } = useEmployeeRates(employeeId, year, month)
-  const setRate = useSetEmployeeRate(employeeId)
+  const { data: profileData } = useProfile()
+  const isSelf = profileData?.id != null && profileData.id === employeeId
+  const setEmployeeRate = useSetEmployeeRate(employeeId)
+  const activateOwnRate = useActivateOwnRateInEmployeeView(employeeId)
+  // Manager/admin viewing their own row: setEmployeeHourlyRate rejects self
+  // (get_user_by_id_in_company only matches role=="employee") — route through the
+  // self-service upsert instead. Same UI, same upsert semantics either way.
+  const setRate = isSelf ? activateOwnRate : setEmployeeRate
 
   const [editingActivityId, setEditingActivityId] = useState<number | null>(null)
   const [draftValue, setDraftValue] = useState('')

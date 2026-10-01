@@ -1,5 +1,7 @@
 import { Navigate, Outlet } from '@tanstack/react-router'
 import { FullscreenSpinner } from '@stafy/components/layout/FullscreenSpinner'
+import { AuthAside } from '@stafy/components/auth/AuthAside'
+import { AuthShell } from '@stafy/components/auth/AuthShell'
 import { useAuth } from '@stafy/hooks/useAuth'
 
 export function AuthLayout() {
@@ -14,8 +16,8 @@ export function AuthLayout() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-base-200">
+    <AuthShell aside={<AuthAside />}>
       <Outlet />
-    </div>
+    </AuthShell>
   )
 }

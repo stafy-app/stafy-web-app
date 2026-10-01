@@ -63,6 +63,9 @@
   --color-surface: #ffffff;
   --color-surface-2: #f1f5f9;
   --color-page: #f8fafc;
+  --color-warm: #fffdfb;
+  --color-night: #1b2434;
+  --color-night-deep: #141b28;
 
   --radius-selector: 0.5rem;
   --radius-field: 0.5rem;
@@ -91,6 +94,7 @@
     --shadow-lg: 0 16px 40px rgba(30, 41, 59, 0.1);
     --shadow-pop: 0 24px 60px rgba(30, 41, 59, 0.14);
     --shadow-focus: 0 0 0 4px var(--color-primary-ring);
+    --shadow-aside: 18px 0 50px rgba(30, 41, 59, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
     --text-display: 2.75rem;
     --text-h1: 2rem;

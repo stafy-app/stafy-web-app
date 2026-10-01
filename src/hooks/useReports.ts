@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getReports } from '@stafy/api/generated/endpoints/reports/reports'
 import { showToast } from '@stafy/lib/toast'
+import { getCodedErrorMessage } from '@stafy/services/apiErrors'
 import type { PayrollBonusSetIn } from '@stafy/api/generated/endpoints/index.schemas'
 
 export function useEmployeeReport(employeeId: number, year: number, month: number, enabled = true) {
@@ -21,8 +22,8 @@ export function useSetReportBonus(employeeId: number, year: number, month: numbe
       queryClient.invalidateQueries({ queryKey: ['employee-report', employeeId, year, month] })
       showToast('Bonus salvat.')
     },
-    onError: () => {
-      showToast('Nu s-a putut salva bonusul.', { tone: 'danger' })
+    onError: (error) => {
+      showToast(getCodedErrorMessage(error, 'Nu s-a putut salva bonusul.'), { tone: 'danger' })
     },
   })
 }
@@ -36,8 +37,8 @@ export function useClearReportBonus(employeeId: number, year: number, month: num
       queryClient.invalidateQueries({ queryKey: ['employee-report', employeeId, year, month] })
       showToast('Bonus șters.')
     },
-    onError: () => {
-      showToast('Nu s-a putut șterge bonusul.', { tone: 'danger' })
+    onError: (error) => {
+      showToast(getCodedErrorMessage(error, 'Nu s-a putut șterge bonusul.'), { tone: 'danger' })
     },
   })
 }

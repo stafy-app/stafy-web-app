@@ -12,15 +12,18 @@ reproduce the shipped Romanian strings verbatim.
 **In scope:** profile header (avatar, name, active/suspended status, email, join date,
 inline-editable job title, this-month hours + delta, this-month estimated pay); a three-tab body
 — Attendance (this employee's time entries, own month picker, activity filter, bonus editor for
-the picked month), Rates (every company activity with this employee's rate or an "activate"
+the picked month — editing the bonus requires a company-manager role (`owner` or `manager`, via
+`isCompanyManager`); other viewers see the amount read-only), Rates (every company activity with this employee's rate or an "activate"
 affordance, inline edit), History (last 5 months of hours/pay, chart + table-view toggle + summary
-stats); a "⋯" actions menu (edit job title, export this employee's time entries to CSV,
-suspend/reactivate).
+stats); a "⋯" actions menu (edit job title, export this employee's time entries to CSV, and
+suspend/reactivate — or, on a non-owner manager's page (`role === 'manager'`), remove that manager
+from the company instead, via `POST /users/{employee_id}/remove-from-company` (`removeManager`,
+`useRemoveFromCompany`), which the backend accepts only from the owner).
 
 **Out of scope (this release):** editing name/email (Firebase-owned identity); any
-messaging/notification action (no messaging subsystem exists anywhere in the product); a "remove
-from team" action distinct from suspend (see `team.md`'s note on `TeamMembership` having no
-writers); URL-persisted tab state (tabs are local component state, not a route param or search
+messaging/notification action (no messaging subsystem exists anywhere in the product); removing
+an employee (as opposed to a non-owner manager) from the company — suspend is the only action for
+employee rows; URL-persisted tab state (tabs are local component state, not a route param or search
 param); a page-wide period selector (the header's stats are always the current month, Attendance
 has its own independent month picker, History is a fixed last-5-months window — there's no single
 period that would meaningfully apply to all three).
@@ -92,8 +95,8 @@ synced to the URL.
 6. Manager opens the "⋯" menu → edits the job title inline in the header, exports the
    current month's time entries as a CSV download, or suspends/reactivates the employee (each with
    a toast confirming the result).
-7. Manager views the History tab → the last 5 months render as two small charts (hours, pay) with
-   a synced hover crosshair; a "view as table" toggle swaps to a plain data table of the same rows.
+7. Manager views the History tab → 3 KPI cards (total hours, total pay, average hours/month) above
+   the last 5 months rendered as two small charts (hours, pay) with a synced hover crosshair.
 
 ---
 
@@ -112,7 +115,9 @@ No modals — job-title edit and rate edit are both inline, not dialogs.
 
 - Single card, `flex`, `gap: 20px`, `align-items: center`, wraps on narrow widths.
 - Avatar: 64×64, initials badge (`getInitials`, same pattern as `EmployeeCard`/`Sidebar`).
-- Name (22px / 700) + active/suspended status pill, inline.
+- Name (22px / 700) + a "Manager" badge when the viewed user's `role === 'manager'` (a non-owner
+  manager — the owner's `role` is `owner` and never matches; same rule as `team.md`'s
+  `EmployeeCard` badge, see its Special Aspects) + active/suspended status pill, inline.
 - Secondary line: email + "member since" (join date, `UserOut.created_at`), 12px muted.
 - Job title: a small pill when set; replaced by an inline text input + Save/Cancel while editing
   (triggered from the "⋯" menu, not a pencil icon on the pill itself).
@@ -154,6 +159,8 @@ No modals — job-title edit and rate edit are both inline, not dialogs.
 
 ### History tab
 
+- 3 `KpiCard`s (total hours, total pay, average hours/month), same component the Dashboard KPI
+  strip uses, above the chart card — a summary-first layout, not a caption below the visual.
 - **Two single-axis charts, not one dual-axis chart** — see Special Aspects for why. Left: hours,
   `Area` (orange, ~10% fill opacity, 2px line). Right: estimated pay, `Line` (blue, 2px). Both
   share an `syncId` so hovering either shows a synced crosshair across both.
@@ -162,10 +169,7 @@ No modals — job-title edit and rate edit are both inline, not dialogs.
 - Current month's X-axis tick is bold ink; other months are muted.
 - The last (current-month) point on each chart is direct-labeled with its value — the only point
   labeled, per the dataviz skill's "never a number on every point" rule.
-- A "view as table" toggle swaps both charts for a plain 3-column table (month, hours, pay) — the
-  chart's accessible/lossless twin, not a separate data source.
-- Below: 3 `KpiCard`s (total hours, total pay, average hours/month), same component the Dashboard
-  KPI strip uses.
+- No table view — chart-only, no toggle.
 
 Design tokens (color/radius/shadow/font) come from `src/App.css`'s `"stafy"` theme; no new tokens
 introduced. See `docs/ui-guidelines.md`.
@@ -230,6 +234,31 @@ how `EmployeeCard` and other feature-specific components in this codebase are al
 there is no generic UI-primitive layer in this project yet (see `docs/ui-guidelines.md`). Job-title
 and rate editing are both inline (input + Save/Cancel), not a dialog, so no `Modal` was needed.
 
+**The Rates tab renders identically for the caller's own id; the header's "⋯" actions menu doesn't
+render at all for self — two different, both-correct answers to the same roster-includes-the-
+manager fact.** `team.md`'s roster and the Dashboard's top-5 table both include the caller
+themself (backend scopes by `role in ("owner", "manager", "employee")`, not `"employee"` alone), so a
+card/row for the caller's own account is a normal, expected destination here, not an edge case to
+route around. `EmployeeHeaderCard`'s `isSelf` check (`profile?.id === employeeId`, pre-existing
+since the `/me/*` pages shipped) already hides `EmployeeActionsMenu` — job-title edit, CSV export,
+suspend/reactivate — entirely when viewing self, rather than rendering affordances that would 404:
+`update_employee_job_title`/`suspend_employee`/`reactivate_employee` all share the same
+`get_user_by_id_in_company` employee-only guard `set_employee_hourly_rate` does, and a manager's own
+job title has no edit path anywhere in the app (`settings.md`: read-only, set once at onboarding) —
+there's no self-service counterpart to swap in the way rates have one, so hiding is correct here,
+not a stopgap. The header stats, Attendance, and History tabs read fine for self regardless
+(`get_self_or_employee_in_company` explicitly accepts "the caller themself, any role, in their own
+company") — only the Rates tab's *write* (`set_employee_hourly_rate` → `get_user_by_id_in_company`,
+"must never accept self") broke for self, since rates are the one action here with a real
+self-service counterpart to reuse. `RatesTab` compares the route's `employeeId` against
+`useProfile().data.id` (`!= null` guarded — an unresolved profile query must never
+false-positive-match) and picks `useActivateOwnRateInEmployeeView` instead of `useSetEmployeeRate`
+when they match — same `{ activityId, hourlyRateGross }` mutation shape, same upsert semantics
+(activate + edit in one call), same query-key invalidation (`['employee-rates', employeeId]`),
+routed at the call site to `POST /me/settings/hourly-rates` instead of
+`PATCH /users/{employee_id}/hourly-rates/{activity_id}` — only the Rates tab's UI and the manager's
+own experience are identical to viewing any other employee's row.
+
 **CSV export always covers the current month, independent of the Attendance tab's own filter.**
 The "⋯" menu's export is driven by its own current-month query (same `useEmployeeTimeEntries` hook,
 same cache key when it matches what Attendance is already showing), not whatever month/activity
@@ -246,6 +275,6 @@ rest of this API — no field here recomputes a past entry's amount from a rate 
 | Item | Trigger |
 |---|---|
 | Editing name/email from this page | Would require writing through to Firebase Auth |
-| A distinct "remove from team" action | A real team-membership concept starts being written |
+| Removing an employee (not only a non-owner manager) from the company | Product decides employees need a removal path distinct from suspend |
 | Messaging/notification action from the "⋯" menu | A messaging subsystem exists in the product |
 | URL-persisted tab/period state (deep-linkable tabs) | A concrete need to link directly into a specific tab |

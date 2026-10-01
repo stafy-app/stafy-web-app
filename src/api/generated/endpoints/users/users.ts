@@ -14,7 +14,6 @@ import type {
   GetEmployeeMonthlyHistoryParams,
   GetEmployeeSummaryParams,
   HourlyRateOut,
-  JobTitlesListOut,
   ListEmployeeHourlyRatesParams,
   ListEmployeeTimeEntriesParams,
   OnboardingIn,
@@ -155,6 +154,17 @@ const reactivateEmployee = (
       );
     }
   /**
+ * @summary Remove a manager from the company, reassigning them to their own personal company
+ */
+const removeManager = (
+    employeeId: number,
+ ) => {
+      return api<UserOut>(
+      {url: `/api/v1/users/${employeeId}/remove-from-company`, method: 'POST'
+    },
+      );
+    }
+  /**
  * @summary Get the authenticated user's profile
  */
 const getProfile = (
@@ -165,18 +175,7 @@ const getProfile = (
     },
       );
     }
-  /**
- * @summary List active job-title suggestions for the onboarding picklist
- */
-const listJobTitles = (
-
- ) => {
-      return api<JobTitlesListOut>(
-      {url: `/api/v1/job-titles`, method: 'GET'
-    },
-      );
-    }
-  return {listUsers,completeOnboarding,getEmployeeSummary,listEmployeeTimeEntries,listEmployeeHourlyRates,setEmployeeHourlyRate,getEmployeeMonthlyHistory,updateEmployeeJobTitle,suspendEmployee,reactivateEmployee,getProfile,listJobTitles}};
+  return {listUsers,completeOnboarding,getEmployeeSummary,listEmployeeTimeEntries,listEmployeeHourlyRates,setEmployeeHourlyRate,getEmployeeMonthlyHistory,updateEmployeeJobTitle,suspendEmployee,reactivateEmployee,removeManager,getProfile}};
 export type ListUsersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listUsers']>>>
 export type CompleteOnboardingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['completeOnboarding']>>>
 export type GetEmployeeSummaryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getEmployeeSummary']>>>
@@ -187,5 +186,5 @@ export type GetEmployeeMonthlyHistoryResult = NonNullable<Awaited<ReturnType<Ret
 export type UpdateEmployeeJobTitleResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['updateEmployeeJobTitle']>>>
 export type SuspendEmployeeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['suspendEmployee']>>>
 export type ReactivateEmployeeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['reactivateEmployee']>>>
+export type RemoveManagerResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['removeManager']>>>
 export type GetProfileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getProfile']>>>
-export type ListJobTitlesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listJobTitles']>>>

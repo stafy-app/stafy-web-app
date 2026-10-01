@@ -1,11 +1,13 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Link, useRouterState } from '@tanstack/react-router'
-import { Home, Users, Mail, Download, Settings, ChevronLeft, LogOut } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
+import { Clock, History, Home, Users, Mail, Download, Settings, Tags, User, ChevronLeft, LogOut } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import logoMark from '@stafy/assets/stafy_logo.svg'
 import { useAuth } from '@stafy/hooks/useAuth'
 import { useProfile } from '@stafy/hooks/useProfile'
 import { getInitials } from '@stafy/utils/initials'
+import { getWorkspaceMode, setWorkspaceMode, type WorkspaceMode } from '@stafy/utils/workspaceMode'
+import { isCompanyManager } from '@stafy/utils/companyRole'
 
 interface NavItem {
   to: string
@@ -13,7 +15,7 @@ interface NavItem {
   icon: LucideIcon
 }
 
-const NAV_ITEMS: NavItem[] = [
+const COMPANY_NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Acasă', icon: Home },
   { to: '/team', label: 'Echipă', icon: Users },
   { to: '/invitations', label: 'Invitații', icon: Mail },
@@ -21,46 +23,126 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/settings', label: 'Setări', icon: Settings },
 ]
 
+const PERSONAL_NAV_ITEMS: NavItem[] = [
+  { to: '/me', label: 'Acasă', icon: Home },
+  { to: '/me/attendance', label: 'Pontaj', icon: Clock },
+  { to: '/me/history', label: 'Istoric', icon: History },
+  { to: '/me/rates', label: 'Tarife', icon: Tags },
+  { to: '/me/profile', label: 'Profil', icon: User },
+]
+
 const STORAGE_KEY = 'stafy.sidebar.collapsed'
 
+// Segmented workspace switcher — manager-only. Toggles the whole shell between
+// company administration and the manager's own personal time-tracking (/me/*).
+function WorkspaceSwitcher({
+  mode,
+  collapsed,
+  onChange,
+}: {
+  mode: WorkspaceMode
+  collapsed: boolean
+  onChange: (mode: WorkspaceMode) => void
+}) {
+  if (collapsed) {
+    return (
+      <div className="mb-3 flex flex-col gap-1 rounded-[var(--radius-md)] bg-[var(--color-surface-2)] p-1">
+        <button
+          type="button"
+          aria-label="Spațiu companie"
+          title="Companie"
+          onClick={() => onChange('company')}
+          className={`flex cursor-pointer items-center justify-center rounded-[var(--radius-sm)] py-1.5 ${
+            mode === 'company'
+              ? 'bg-[var(--color-surface)] text-[var(--color-primary-active)] shadow-[var(--shadow-xs)]'
+              : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-soft)]'
+          }`}
+        >
+          <Home className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          aria-label="Spațiu personal"
+          title="Personal"
+          onClick={() => onChange('personal')}
+          className={`flex cursor-pointer items-center justify-center rounded-[var(--radius-sm)] py-1.5 ${
+            mode === 'personal'
+              ? 'bg-[var(--color-surface)] text-[var(--color-primary-active)] shadow-[var(--shadow-xs)]'
+              : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-soft)]'
+          }`}
+        >
+          <Clock className="h-4 w-4" />
+        </button>
+      </div>
+    )
+  }
+  return (
+    <div
+      role="tablist"
+      aria-label="Spațiu de lucru"
+      className="mb-3 grid grid-cols-2 gap-1 rounded-[var(--radius-md)] bg-[var(--color-surface-2)] p-1"
+    >
+      {(['company', 'personal'] as const).map((value) => (
+        <button
+          key={value}
+          type="button"
+          role="tab"
+          aria-selected={mode === value}
+          onClick={() => onChange(value)}
+          className={`cursor-pointer rounded-[var(--radius-sm)] px-2 py-1.5 text-[12px] font-semibold transition-colors ${
+            mode === value
+              ? 'bg-[var(--color-surface)] text-[var(--color-primary-active)] shadow-[var(--shadow-xs)]'
+              : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-soft)]'
+          }`}
+        >
+          {value === 'company' ? 'Companie' : 'Personal'}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 function isActivePath(itemTo: string, pathname: string) {
-  return itemTo === '/' ? pathname === '/' : pathname.startsWith(itemTo)
+  if (itemTo === '/' || itemTo === '/me') return pathname === itemTo
+  return pathname === itemTo || pathname.startsWith(`${itemTo}/`)
 }
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(STORAGE_KEY) === '1')
+  const [mode, setMode] = useState<WorkspaceMode>(getWorkspaceMode)
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const navigate = useNavigate()
 
   const { logout } = useAuth()
   const { data: profile } = useProfile()
+  // Any company-level manager (owner or a second/coordinator manager) gets the
+  // workspace switcher — both have their own personal time-tracking shell
+  // alongside the company one, per docs/modules/personal-workspace.md.
+  const showSwitcher = isCompanyManager(profile?.role)
+  const isEmployee = profile?.role === 'employee'
+  // Employees have no company shell: always the personal nav, no switcher.
+  // (AppLayout already redirects them off any company route, so pathname here
+  // is always /me* for employees; the switcher stays manager-only.)
+  const effectiveMode: WorkspaceMode =
+    isEmployee ? 'personal' : showSwitcher && pathname !== '/settings' ? mode : 'company'
+  const navItems = effectiveMode === 'personal' ? PERSONAL_NAV_ITEMS : COMPANY_NAV_ITEMS
 
-  const pillRef = useRef<HTMLDivElement>(null)
-  const itemRefs = useRef(new Map<string, HTMLAnchorElement>())
+  function changeMode(next: WorkspaceMode) {
+    setWorkspaceMode(next)
+    setMode(next)
+    navigate({ to: next === 'personal' ? '/me' : '/' })
+  }
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0')
   }, [collapsed])
-
-  useLayoutEffect(() => {
-    const activeItem = NAV_ITEMS.find((item) => isActivePath(item.to, pathname))
-    const pill = pillRef.current
-    const el = activeItem ? itemRefs.current.get(activeItem.to) : undefined
-    if (!pill) return
-    if (!el) {
-      pill.style.opacity = '0'
-      return
-    }
-    pill.style.top = `${el.offsetTop}px`
-    pill.style.height = `${el.offsetHeight}px`
-    pill.style.opacity = '1'
-  }, [pathname, collapsed])
 
   const initials = getInitials(profile?.first_name, profile?.last_name)
   const fullName = profile ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') : 'Se încarcă...'
 
   return (
     <aside
-      className={`sticky top-0 z-20 flex h-screen flex-shrink-0 flex-col border-r border-[var(--color-line)] bg-[var(--color-surface)] py-5 transition-[width,padding] duration-[220ms] ease-[var(--ease-out)] ${
+      className={`sticky top-0 z-20 hidden h-screen flex-shrink-0 flex-col border-r border-[var(--color-line)] bg-[var(--color-surface)] py-5 transition-[width,padding] duration-[220ms] ease-[var(--ease-out)] md:flex ${
         collapsed ? 'w-[72px] px-[10px]' : 'w-[240px] px-[14px]'
       }`}
     >
@@ -110,29 +192,24 @@ export function Sidebar() {
         <ChevronLeft className="h-3.5 w-3.5 rotate-180" />
       </button>
 
-      <nav className="relative flex flex-col gap-0.5">
-        <div
-          ref={pillRef}
-          className="absolute left-0 right-0 z-0 rounded-[var(--radius-md)] bg-[var(--color-primary-soft)] opacity-0 transition-[top,height] duration-[220ms] ease-[var(--ease-out)]"
-        />
-        {NAV_ITEMS.map((item) => {
+      {showSwitcher && (
+        <WorkspaceSwitcher mode={effectiveMode} collapsed={collapsed} onChange={changeMode} />
+      )}
+      <nav className="flex flex-col gap-0.5">
+        {navItems.map((item) => {
           const active = isActivePath(item.to, pathname)
           const Icon = item.icon
           return (
             <Link
               key={item.to}
               to={item.to}
-              ref={(el) => {
-                if (el) itemRefs.current.set(item.to, el)
-                else itemRefs.current.delete(item.to)
-              }}
               aria-label={item.label}
               title={item.label}
               className={`relative z-10 flex items-center rounded-[var(--radius-md)] text-[14px] font-medium no-underline transition-[color,background-color,padding,gap] duration-[220ms] ease-[var(--ease-out)] ${
                 collapsed ? 'justify-center gap-0 px-0 py-[11px]' : 'gap-2.5 px-3 py-2.5'
               } ${
                 active
-                  ? 'font-semibold text-[var(--color-primary-active)]'
+                  ? 'bg-[var(--color-primary-soft)] font-semibold text-[var(--color-primary-active)]'
                   : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-surface-2)]'
               }`}
             >
@@ -169,7 +246,7 @@ export function Sidebar() {
               {fullName}
             </div>
             <div className="overflow-hidden text-ellipsis whitespace-nowrap text-[12px] text-[var(--color-ink-muted)]">
-              Manager
+              {profile?.role === 'employee' ? 'Angajat' : profile?.role === 'admin' ? 'Admin' : 'Manager'}
             </div>
           </div>
         </div>

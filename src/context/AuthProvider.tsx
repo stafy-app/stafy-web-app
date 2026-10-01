@@ -64,13 +64,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function register({ firstName, lastName, email, password }: RegisterData) {
+  async function register({ firstName, lastName, email, password, role }: RegisterData) {
     isAuthenticating.current = true
     try {
       await createUserWithEmailAndPassword(auth, email, password)
 
       try {
-        await getAuthApi().registerUser({ first_name: firstName, last_name: lastName, role: 'manager' })
+        await getAuthApi().registerUser({ first_name: firstName, last_name: lastName, role })
       } catch (backendError) {
         // Firebase account now exists but the backend row doesn't (network blip,
         // backend down). Deliberately not rolled back — deletion can itself fail
@@ -94,16 +94,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // already exists — the orphan-registration recovery path. auth.currentUser
   // is guaranteed to be set here: this is only reachable via login()'s
   // OrphanRegistrationError, which fires after signInWithEmailAndPassword
-  // already succeeded. Role is hardcoded 'manager', same as register() — this
-  // app never collects a role, it's manager-only.
-  async function completeRegistration({ firstName, lastName }: CompleteRegistrationData) {
+  // already succeeded. The original register() attempt never persisted a
+  // role (it failed before the backend call completed), so this form asks
+  // for it again.
+  async function completeRegistration({ firstName, lastName, role }: CompleteRegistrationData) {
     try {
       if (!auth.currentUser) {
         throw new Error('Sesiunea a expirat. Te rugăm să te autentifici din nou.')
       }
 
       try {
-        await getAuthApi().registerUser({ first_name: firstName, last_name: lastName, role: 'manager' })
+        await getAuthApi().registerUser({ first_name: firstName, last_name: lastName, role })
       } catch (backendError) {
         throw new Error('Înregistrarea nu a putut fi finalizată. Încearcă din nou mai târziu.', {
           cause: backendError,

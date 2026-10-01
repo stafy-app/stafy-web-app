@@ -9,16 +9,20 @@ interface EmployeeCardProps {
   index: number
 }
 
-const MAX_ACTIVITY_CHIPS = 4
-
 const gross = new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 0 })
 
 export function EmployeeCard({ member, index }: EmployeeCardProps) {
   const navigate = useNavigate()
   const { user } = member
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ')
-  const visibleActivities = member.activities.slice(0, MAX_ACTIVITY_CHIPS)
-  const extraCount = member.activities.length - visibleActivities.length
+  // A second manager per company ("coordinator") can appear in the roster
+  // alongside employees — badge it so it doesn't read as a data error. Labeled
+  // "Manager" (permission level), never "Coordonator" — that word is also a
+  // seeded default job title (funcție), and this badge has nothing to do with
+  // job_title, which renders separately below. `role` alone now distinguishes
+  // the owner ("owner") from a coordinator ("manager") — no `is_own_company`
+  // guard needed, unlike before the backend split owner into its own role.
+  const isCoordinator = user.role === 'manager'
 
   return (
     <div
@@ -31,8 +35,17 @@ export function EmployeeCard({ member, index }: EmployeeCardProps) {
           {getInitials(user.first_name, user.last_name)}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[15px] font-semibold text-[var(--color-ink)]">{fullName}</div>
-          <div className="truncate text-[12px] text-[var(--color-ink-muted)]">{user.email}</div>
+          <div className="flex items-center gap-1.5">
+            <div className="truncate text-[15px] font-semibold text-[var(--color-ink)]">{fullName}</div>
+            {isCoordinator && (
+              <span className="flex-shrink-0 rounded-full bg-[var(--color-primary-soft)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-primary-active)]">
+                Manager
+              </span>
+            )}
+          </div>
+          <div className="truncate text-[12px] text-[var(--color-ink-muted)]">
+            {user.job_title ? `${user.job_title} · ${user.email}` : user.email}
+          </div>
         </div>
         <span
           className={`inline-flex flex-shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
@@ -72,26 +85,9 @@ export function EmployeeCard({ member, index }: EmployeeCardProps) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 flex-wrap gap-1">
-          {visibleActivities.map((activity) => (
-            <span
-              key={activity}
-              className="rounded-full bg-[var(--color-surface-2)] px-2 py-0.5 text-[11px] text-[var(--color-ink-soft)]"
-            >
-              {activity}
-            </span>
-          ))}
-          {extraCount > 0 && (
-            <span className="rounded-full bg-[var(--color-surface-2)] px-2 py-0.5 text-[11px] text-[var(--color-ink-muted)]">
-              +{extraCount}
-            </span>
-          )}
-        </div>
-        <div className="flex flex-shrink-0 items-center gap-1 text-[13px] font-medium text-[var(--color-ink-soft)] transition-colors group-hover:text-[var(--color-primary)]">
-          Detalii
-          <ICONS.chevronRight className="h-3.5 w-3.5" />
-        </div>
+      <div className="flex items-center justify-end gap-1 text-[13px] font-medium text-[var(--color-ink-soft)] transition-colors group-hover:text-[var(--color-primary)]">
+        Detalii
+        <ICONS.chevronRight className="h-3.5 w-3.5" />
       </div>
     </div>
   )

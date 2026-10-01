@@ -7,6 +7,7 @@ export const ACTION_LABELS: Record<string, string> = {
   'bonus.set': 'Bonus setat',
   'bonus.cleared': 'Bonus șters',
   'time_entry.deleted': 'Pontaj șters',
+  'time_entry.updated': 'Pontaj corectat',
   'invitation.created': 'Invitație trimisă',
   'invitation.resent': 'Invitație retrimisă',
   'invitation.revoked': 'Invitație anulată',
@@ -17,6 +18,10 @@ export const ACTION_LABELS: Record<string, string> = {
   'company.settings_updated': 'Date companie actualizate',
   'activity.created': 'Activitate creată',
   'activity.renamed': 'Activitate redenumită',
+  'user.removed_from_company': 'Manager eliminat din companie',
+  'company_job_title.created': 'Funcție creată',
+  'company_job_title.renamed': 'Funcție redenumită',
+  'company_job_title.deleted': 'Funcție ștearsă',
 }
 
 function field(value: AuditLogOut['before'], key: string): string | undefined {
@@ -47,6 +52,13 @@ export function formatAuditDetail(entry: AuditLogOut): string {
         ? `${new Date(start).toLocaleString('ro-RO')} – ${new Date(end).toLocaleTimeString('ro-RO')}`
         : '—'
     }
+    case 'time_entry.updated': {
+      const oldStart = field(before, 'time_start')
+      const newStart = field(after, 'time_start')
+      return oldStart && newStart
+        ? `${new Date(oldStart).toLocaleString('ro-RO')} → ${new Date(newStart).toLocaleString('ro-RO')}`
+        : '—'
+    }
     case 'invitation.created':
       return field(after, 'invited_email') ?? '—'
     case 'invitation.accepted':
@@ -69,6 +81,14 @@ export function formatAuditDetail(entry: AuditLogOut): string {
       return field(after, 'activity_name') ?? '—'
     case 'activity.renamed':
       return `${field(before, 'activity_name') ?? '—'} → ${field(after, 'activity_name') ?? '—'}`
+    case 'user.removed_from_company':
+      return ''
+    case 'company_job_title.created':
+      return field(after, 'label') ?? '—'
+    case 'company_job_title.renamed':
+      return `${field(before, 'label') ?? '—'} → ${field(after, 'label') ?? '—'}`
+    case 'company_job_title.deleted':
+      return field(before, 'label') ?? '—'
     default:
       return ''
   }

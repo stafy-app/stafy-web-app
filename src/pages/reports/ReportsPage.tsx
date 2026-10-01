@@ -3,6 +3,7 @@ import { PDFViewer, pdf } from '@react-pdf/renderer'
 import { useTopBar } from '@stafy/hooks/useTopBar'
 import { useTeamMembers } from '@stafy/hooks/useTeamMembers'
 import { useEmployeeReport, useSetReportBonus, useClearReportBonus } from '@stafy/hooks/useReports'
+import { useProfile } from '@stafy/hooks/useProfile'
 import { useEmployeeTimeEntries } from '@stafy/hooks/useEmployeeTimeEntries'
 import { getAdjacentPeriod, getCurrentPeriod } from '@stafy/utils/period'
 import { PeriodBar } from '@stafy/components/dashboard/PeriodBar'
@@ -11,6 +12,7 @@ import { BonusCard } from '@stafy/components/reports/BonusCard'
 import { ReportDocument } from '@stafy/components/reports/ReportDocument'
 import { showToast } from '@stafy/lib/toast'
 import { ICONS } from '@stafy/lib/icons'
+import { isCompanyManager } from '@stafy/utils/companyRole'
 
 export default function ReportsPage() {
   useTopBar({ title: 'Rapoarte', subtitle: 'Export și rapoarte lunare' })
@@ -28,6 +30,11 @@ export default function ReportsPage() {
   const [pickedEmployeeId, setPickedEmployeeId] = useState<number | null>(null)
   const selectedEmployeeId = pickedEmployeeId ?? members[0]?.user.id ?? null
   const hasEmployee = selectedEmployeeId !== null
+  // Company shell: manager edits any row, including their own — same parity rule
+  // as rates and AttendanceTab. Self-bonus is only hidden in the /me personal
+  // shell (allowBonusEdit=false there). Backend set/clear accept self.
+  const { data: profileData } = useProfile()
+  const canEditBonus = isCompanyManager(profileData?.role)
 
   const [includeTimeEntries, setIncludeTimeEntries] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
@@ -122,6 +129,7 @@ export default function ReportsPage() {
           bonus={report?.bonus}
           onSave={(amount, reason) => setBonusMutation.mutate({ amount, reason })}
           onClear={() => clearBonusMutation.mutate()}
+          editable={canEditBonus}
         />
 
         <button

@@ -5,17 +5,23 @@ import { SettingsNav, type SettingsSectionKey } from '@stafy/components/settings
 import { AccountSection } from '@stafy/components/settings/AccountSection'
 import { CompanySection } from '@stafy/components/settings/CompanySection'
 import { ActivitiesSection } from '@stafy/components/settings/ActivitiesSection'
+import { JobTitlesSection } from '@stafy/components/settings/JobTitlesSection'
 import { AuditSection } from '@stafy/components/settings/AuditSection'
 import { SecuritySection } from '@stafy/components/settings/SecuritySection'
 import { AdminSection } from '@stafy/components/settings/AdminSection'
+import { AdminCompaniesSection } from '@stafy/components/settings/AdminCompaniesSection'
+import { SubscriptionSection } from '@stafy/components/settings/SubscriptionSection'
 
 const SECTION_COMPONENTS: Record<SettingsSectionKey, React.ComponentType> = {
   account: AccountSection,
   company: CompanySection,
   activities: ActivitiesSection,
+  jobTitles: JobTitlesSection,
   audit: AuditSection,
   security: SecuritySection,
+  subscription: SubscriptionSection,
   admin: AdminSection,
+  adminCompanies: AdminCompaniesSection,
 }
 
 export default function SettingsPage() {

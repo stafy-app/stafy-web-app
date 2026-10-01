@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from '@tanstack/react-router'
 import { FullscreenSpinner } from '@stafy/components/layout/FullscreenSpinner'
+import { AuthShell } from '@stafy/components/auth/AuthShell'
 import { useAuth } from '@stafy/hooks/useAuth'
 
 // Deliberately shallow gate — signed-in only, no useProfile() check. This
@@ -18,8 +19,8 @@ export function CompleteRegistrationLayout() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-base-200">
+    <AuthShell>
       <Outlet />
-    </div>
+    </AuthShell>
   )
 }

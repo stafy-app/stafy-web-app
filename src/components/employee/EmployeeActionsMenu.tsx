@@ -1,22 +1,31 @@
+import { useState } from 'react'
 import { ICONS } from '@stafy/lib/icons'
 
 interface EmployeeActionsMenuProps {
   isActive: boolean
+  /** Target is a coordinator (role="manager") — suspend/reactivate don't apply
+   * to them; the only lifecycle action is removing them from the company. */
+  isCoordinator?: boolean
   onEditJobTitle: () => void
   onExportCsv: () => void
   onSuspend: () => void
   onReactivate: () => void
+  onRemoveFromCompany?: () => void
   disabled?: boolean
 }
 
 export function EmployeeActionsMenu({
   isActive,
+  isCoordinator = false,
   onEditJobTitle,
   onExportCsv,
   onSuspend,
   onReactivate,
+  onRemoveFromCompany,
   disabled,
 }: EmployeeActionsMenuProps) {
+  const [confirmingRemove, setConfirmingRemove] = useState(false)
+
   return (
     <div className="dropdown dropdown-end">
       <div
@@ -58,7 +67,49 @@ export function EmployeeActionsMenu({
           </button>
         </li>
         <div className="my-1 h-px bg-[var(--color-line-soft)]" />
-        {isActive ? (
+        {isCoordinator ? (
+          <li>
+            {confirmingRemove ? (
+              <div className="flex items-center justify-between gap-2 px-1 py-1 text-[13px]">
+                <span className="text-[var(--color-ink-muted)]">Sigur?</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    onClick={(e) => {
+                      e.currentTarget.blur()
+                      setConfirmingRemove(false)
+                      onRemoveFromCompany?.()
+                    }}
+                    className="font-semibold text-[var(--color-error)] disabled:opacity-50"
+                  >
+                    Da, elimină
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.currentTarget.blur()
+                      setConfirmingRemove(false)
+                    }}
+                    className="text-[var(--color-ink-muted)]"
+                  >
+                    Anulează
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                disabled={disabled}
+                onClick={() => setConfirmingRemove(true)}
+                className="flex items-center gap-2 text-[13px] text-[var(--color-error)] disabled:opacity-50"
+              >
+                <ICONS.userX className="h-3.5 w-3.5" />
+                Elimină din companie
+              </button>
+            )}
+          </li>
+        ) : isActive ? (
           <li>
             <button
               type="button"
