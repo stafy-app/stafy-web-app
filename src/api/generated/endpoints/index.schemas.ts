@@ -316,6 +316,55 @@ export interface CompanyUpdateIn {
   address: string;
 }
 
+/**
+ * How many instructors the organization has.
+ */
+export type ContactInTeamSize = typeof ContactInTeamSize[keyof typeof ContactInTeamSize];
+
+
+export const ContactInTeamSize = {
+  '1-5': '1-5',
+  '6-15': '6-15',
+  '16-30': '16-30',
+  '30+': '30+',
+} as const;
+
+export interface ContactIn {
+  /**
+     * Sender's full name.
+     * @minLength 2
+     * @maxLength 120
+     */
+  name: string;
+  /** Where the reply goes (used as Reply-To). */
+  email: string;
+  /**
+     * School or organization name.
+     * @minLength 2
+     * @maxLength 150
+     */
+  organization: string;
+  /** How many instructors the organization has. */
+  team_size: ContactInTeamSize;
+  /** Optional phone number. */
+  phone?: string | null;
+  /**
+     * Free-text message.
+     * @minLength 5
+     * @maxLength 2000
+     */
+  message: string;
+  /** Must be true: the sender agrees to be contacted about this request. */
+  consent: true;
+  /** Honeypot. Real users never fill it (the form hides it); a non-empty value is treated as a bot and silently dropped. */
+  website?: string | null;
+}
+
+export interface ContactOut {
+  /** Always true on success. */
+  ok?: boolean;
+}
+
 export interface DashboardTimeEntryOut {
   /** Time entry ID. */
   id: number;
@@ -853,7 +902,7 @@ export interface UserRegisterIn {
      */
   last_name: string;
   /**
-     * One of employee, owner. 'owner' is the current, preferred value for a manager-tier registrant — they become the owner of a brand-new personal company either way (see create_firebase_user). 'manager' is kept only for stafy-mobile backward compatibility and is treated identically. Admin accounts are seeded directly, never self-registered.
+     * One of employee, owner. 'owner' is the current, preferred value for a manager-tier registrant — they become the owner of a brand-new personal company either way (see create_firebase_user). 'manager' is kept only for stafy-mobile backward compatibility and is treated identically. An email with a live invitation starts its personal company on the solo plan instead of the owner trial, regardless of this value. Admin accounts are seeded directly, never self-registered.
      * @pattern ^(employee|manager|owner)$
      */
   role: string;

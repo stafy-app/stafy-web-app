@@ -16,14 +16,14 @@ the picked month — editing the bonus requires a company-manager role (`owner` 
 `isCompanyManager`); other viewers see the amount read-only), Rates (every company activity with this employee's rate or an "activate"
 affordance, inline edit), History (last 5 months of hours/pay, chart + table-view toggle + summary
 stats); a "⋯" actions menu (edit job title, export this employee's time entries to CSV, and
-suspend/reactivate — or, on a non-owner manager's page (`role === 'manager'`), remove that manager
-from the company instead, via `POST /users/{employee_id}/remove-from-company` (`removeManager`,
-`useRemoveFromCompany`), which the backend accepts only from the owner).
+suspend/reactivate (employee pages only — a manager target has neither) and remove from company,
+via `POST /users/{employee_id}/remove-from-company` (`removeMember`, `useRemoveFromCompany`). Any
+manager may remove an employee; only the owner may remove a manager. Removing, unlike suspending,
+moves the person back to their own personal company instead of locking them out).
 
 **Out of scope (this release):** editing name/email (Firebase-owned identity); any
-messaging/notification action (no messaging subsystem exists anywhere in the product); removing
-an employee (as opposed to a non-owner manager) from the company — suspend is the only action for
-employee rows; URL-persisted tab state (tabs are local component state, not a route param or search
+messaging/notification action (no messaging subsystem exists anywhere in the product);
+URL-persisted tab state (tabs are local component state, not a route param or search
 param); a page-wide period selector (the header's stats are always the current month, Attendance
 has its own independent month picker, History is a fixed last-5-months window — there's no single
 period that would meaningfully apply to all three).
@@ -93,8 +93,9 @@ synced to the URL.
 5. Manager clicks "activate" or an existing rate in the Rates tab → the cell becomes an inline
    input with Save/Cancel; Save calls the upsert endpoint and refetches the row.
 6. Manager opens the "⋯" menu → edits the job title inline in the header, exports the
-   current month's time entries as a CSV download, or suspends/reactivates the employee (each with
-   a toast confirming the result).
+   current month's time entries as a CSV download, suspends/reactivates the employee, or removes
+   them from the company after an inline confirmation (each with a toast confirming the result;
+   a removal returns the manager to the Team page).
 7. Manager views the History tab → 3 KPI cards (total hours, total pay, average hours/month) above
    the last 5 months rendered as two small charts (hours, pay) with a synced hover crosshair.
 
@@ -190,6 +191,7 @@ GET  /api/v1/users/{id}/monthly-history?months=             → { data: Employee
 PATCH /api/v1/users/{id}/job-title                           → UserOut
 POST /api/v1/users/{id}/suspend                              → UserOut
 POST /api/v1/users/{id}/reactivate                           → UserOut
+POST /api/v1/users/{id}/remove-from-company                  → UserOut
 ```
 
 ```typescript
@@ -275,6 +277,5 @@ rest of this API — no field here recomputes a past entry's amount from a rate 
 | Item | Trigger |
 |---|---|
 | Editing name/email from this page | Would require writing through to Firebase Auth |
-| Removing an employee (not only a non-owner manager) from the company | Product decides employees need a removal path distinct from suspend |
 | Messaging/notification action from the "⋯" menu | A messaging subsystem exists in the product |
 | URL-persisted tab/period state (deep-linkable tabs) | A concrete need to link directly into a specific tab |

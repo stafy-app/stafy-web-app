@@ -7,7 +7,7 @@ import { AUTH_LINK, AUTH_SUBMIT } from '@stafy/components/auth/authStyles'
 import { useAuth } from '@stafy/hooks/useAuth'
 
 export default function CompleteRegistrationPage() {
-  const { completeRegistration, logout } = useAuth()
+  const { completeRegistration, logout, firebaseUser } = useAuth()
   const navigate = useNavigate()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -38,6 +38,11 @@ export default function CompleteRegistrationPage() {
       subtitle="Contul tău a fost creat, dar înregistrarea nu s-a finalizat ultima dată. Completează datele de mai jos ca să continui."
     >
       {error && <AuthError message={error} />}
+
+      <p className="text-center text-sm text-[var(--color-ink-muted)]">
+        Ești conectat ca <strong className="text-[var(--color-ink)]">{firebaseUser?.email}</strong>. Nu e contul tău?
+        Deconectează-te mai jos.
+      </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div className="flex flex-col gap-5">

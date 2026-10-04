@@ -10,8 +10,6 @@ export type SettingsSectionKey =
   | 'audit'
   | 'security'
   | 'subscription'
-  | 'admin'
-  | 'adminCompanies'
 
 interface SettingsNavProps {
   active: SettingsSectionKey
@@ -26,14 +24,11 @@ const SECTIONS: { key: SettingsSectionKey; label: string; icon: IconName }[] = [
   { key: 'audit', label: 'Audit', icon: 'history' },
   { key: 'security', label: 'Securitate', icon: 'shield' },
   { key: 'subscription', label: 'Abonament', icon: 'creditCard' },
-  { key: 'admin', label: 'Admin', icon: 'dashboard' },
-  { key: 'adminCompanies', label: 'Companii', icon: 'building' },
 ]
 
 export function SettingsNav({ active, onChange }: SettingsNavProps) {
   const { data: profile } = useProfile()
   const sections = SECTIONS.filter((section) => {
-    if (section.key === 'admin' || section.key === 'adminCompanies') return profile?.role === 'admin'
     if (section.key === 'subscription') return isCompanyManager(profile?.role)
     return true
   })

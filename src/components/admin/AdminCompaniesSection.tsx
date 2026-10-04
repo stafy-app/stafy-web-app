@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAdminCompanies } from '@stafy/hooks/useAdmin'
-import { AdminCompanyPlanPanel } from '@stafy/components/settings/AdminCompanyPlanPanel'
+import { AdminCompanyPlanPanel } from '@stafy/components/admin/AdminCompanyPlanPanel'
 import { STATUS_LABELS, formatPlanDate, planLabel } from '@stafy/utils/planLabels'
 
 export function AdminCompaniesSection() {

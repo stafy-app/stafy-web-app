@@ -192,7 +192,7 @@ backend, real Resend email, no mocks. Clean up any invitations left `pending`/`a
    stays `pending`.
 5. Click cancel on the pending row → success toast, row disappears from the table entirely (not
    just re-styled — cancelled rows are excluded from `GET /invitations`), tile count drops back.
-6. Have an employee (via `stafy-mobile`, or a fresh registration with the invited email) accept or
+6. Have an employee (a fresh registration with the invited email, or an existing account) accept or
    reject the invitation from the other side, then reload this page → row now shows `accepted`
    (badge-success) or `rejected`/`expired` (badge-neutral) with no action buttons, "accepted" or
    the relevant tile reflects it.

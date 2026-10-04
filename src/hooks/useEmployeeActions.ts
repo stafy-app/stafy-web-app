@@ -53,13 +53,13 @@ export function useRemoveFromCompany(employeeId: number) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: () => getUsers().removeManager(employeeId),
+    mutationFn: () => getUsers().removeMember(employeeId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team-members'] })
-      showToast('Coordonator eliminat din companie.')
+      showToast('Membru eliminat din companie.')
     },
     onError: (error) => {
-      showToast(getCodedErrorMessage(error, 'Nu am putut elimina coordonatorul din companie.'), { tone: 'danger' })
+      showToast(getCodedErrorMessage(error, 'Nu am putut elimina membrul din companie.'), { tone: 'danger' })
     },
   })
 }

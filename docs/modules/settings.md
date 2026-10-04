@@ -32,7 +32,7 @@ per row plus a numeric `company_id` text filter, not a dropdown (see backend
 
 | Actor | Interface | Role |
 |---|---|---|
-| Manager / admin | Settings page (`/settings`) | Views and edits their own account, their own company (if they own it), and the company's activity list; can trigger a password-reset email |
+| Manager | Settings page (`/settings`) | Views and edits their own account, their own company (if they own it), and the company's activity list; can trigger a password-reset email |
 
 ---
 
@@ -100,15 +100,17 @@ a given activity's color stays stable across the app rather than shifting with i
 ## Information Architecture
 
 Sidebar nav item "Settings" → `/settings` route → `SettingsPage`, which renders a fixed vertical
-left nav (`SettingsNav`, nine keys: Account/Company/Activities/Job titles/Audit/Security/Subscription/Admin/Companies) and the active
+left nav (`SettingsNav`, seven keys: Account/Company/Activities/Job titles/Audit/Security/Subscription) and the active
 section's component inside a single card. Section switching is local component state
 (`useState<SettingsSectionKey>`), not nested router routes — no section has its own URL, same
 non-routed approach the Employee Profile page's tabs already use. No modals. The Audit section has
 no route or sidebar item of its own — manager/admin read-only config-adjacent content, not a
-distinct workflow. The Admin section is documented separately —
-[`docs/modules/admin-dashboard.md`](admin-dashboard.md) — since it's a distinct actor (admin only,
-cross-company) rather than manager-facing settings; `SettingsNav` filters it out of the list
-entirely for non-admin callers. Subscription is shown to owner and manager only, and Companies to the admin only — both documented in [`docs/modules/subscription.md`](subscription.md).
+distinct workflow. Platform-admin surfaces (stats, companies, cross-company audit, own account)
+live in a separate console under `/admin/*` — see
+[`docs/modules/admin-dashboard.md`](admin-dashboard.md); a platform admin never reaches `/settings`
+(`AppLayout` redirects them to `/admin`). `AuditSection`, `AccountSection` and `SecuritySection`
+are shared: the admin console renders the same components. Subscription is shown to owner and
+manager only — documented in [`docs/modules/subscription.md`](subscription.md).
 
 ---
 

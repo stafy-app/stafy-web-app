@@ -6,7 +6,7 @@ Employee self time-tracking shell (`/me`, `/me/attendance`, `/me/history`, `/me/
 
 **In scope:** the four personal pages (home dashboard, attendance entry, history with delete, own-rates view — add/edit/delete); employee access to those routes (same shell managers use for self-tracking); rates self-service/read-only split per `is_own_company` (own-company employees and the company's owner alike can add/edit/delete their own rates; employees and non-owner managers who joined a company via invitation see them read-only), bonus editor hidden in the personal shell; incoming-invitation accept/reject cards; responsive layouts (desktop table + mobile card variants, touch-size targets).
 
-**Out of scope (this release):** an employee view of company data (team roster, reports, settings stay manager-only — employees redirect to `/me`); offline support (all reads/writes are online-only, same standing debt as the rest of the app); push/email notifications for invitations; a distinct employee mobile-web experience beyond responsive breakpoints (the native app remains the phone-first surface).
+**Out of scope (this release):** an employee view of company data (team roster, reports, settings stay manager-only — employees redirect to `/me`); offline support (all reads/writes are online-only, same standing debt as the rest of the app); push/email notifications for invitations; a distinct employee mobile-web experience beyond responsive breakpoints (no native client exists for now).
 
 ---
 

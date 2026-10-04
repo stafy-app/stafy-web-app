@@ -4,7 +4,8 @@ import { ICONS } from '@stafy/lib/icons'
 interface EmployeeActionsMenuProps {
   isActive: boolean
   /** Target is a coordinator (role="manager") — suspend/reactivate don't apply
-   * to them; the only lifecycle action is removing them from the company. */
+   * to them; removing them from the company is their only lifecycle action.
+   * Every other target gets suspend/reactivate (temporary) and remove (leaves). */
   isCoordinator?: boolean
   onEditJobTitle: () => void
   onExportCsv: () => void
@@ -67,80 +68,80 @@ export function EmployeeActionsMenu({
           </button>
         </li>
         <div className="my-1 h-px bg-[var(--color-line-soft)]" />
-        {isCoordinator ? (
-          <li>
-            {confirmingRemove ? (
-              <div className="flex items-center justify-between gap-2 px-1 py-1 text-[13px]">
-                <span className="text-[var(--color-ink-muted)]">Sigur?</span>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    disabled={disabled}
-                    onClick={(e) => {
-                      e.currentTarget.blur()
-                      setConfirmingRemove(false)
-                      onRemoveFromCompany?.()
-                    }}
-                    className="font-semibold text-[var(--color-error)] disabled:opacity-50"
-                  >
-                    Da, elimină
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.currentTarget.blur()
-                      setConfirmingRemove(false)
-                    }}
-                    className="text-[var(--color-ink-muted)]"
-                  >
-                    Anulează
-                  </button>
-                </div>
-              </div>
-            ) : (
+        {!isCoordinator &&
+          (isActive ? (
+            <li>
               <button
                 type="button"
                 disabled={disabled}
-                onClick={() => setConfirmingRemove(true)}
+                onClick={(e) => {
+                  e.currentTarget.blur()
+                  onSuspend()
+                }}
                 className="flex items-center gap-2 text-[13px] text-[var(--color-error)] disabled:opacity-50"
               >
                 <ICONS.userX className="h-3.5 w-3.5" />
-                Elimină din companie
+                Suspendă angajat
               </button>
-            )}
-          </li>
-        ) : isActive ? (
-          <li>
+            </li>
+          ) : (
+            <li>
+              <button
+                type="button"
+                disabled={disabled}
+                onClick={(e) => {
+                  e.currentTarget.blur()
+                  onReactivate()
+                }}
+                className="flex items-center gap-2 text-[13px] text-[var(--color-success)] disabled:opacity-50"
+              >
+                <ICONS.userCheck className="h-3.5 w-3.5" />
+                Reactivează angajat
+              </button>
+            </li>
+          ))}
+        <li>
+          {confirmingRemove ? (
+            <div className="flex items-center justify-between gap-2 px-1 py-1 text-[13px]">
+              <span className="text-[var(--color-ink-muted)]">Sigur?</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={disabled}
+                  onClick={(e) => {
+                    e.currentTarget.blur()
+                    setConfirmingRemove(false)
+                    onRemoveFromCompany?.()
+                  }}
+                  className="font-semibold text-[var(--color-error)] disabled:opacity-50"
+                >
+                  Da, elimină
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.currentTarget.blur()
+                    setConfirmingRemove(false)
+                  }}
+                  className="text-[var(--color-ink-muted)]"
+                >
+                  Anulează
+                </button>
+              </div>
+            </div>
+          ) : (
             <button
               type="button"
               disabled={disabled}
-              onClick={(e) => {
-                e.currentTarget.blur()
-                onSuspend()
-              }}
+              onClick={() => setConfirmingRemove(true)}
               className="flex items-center gap-2 text-[13px] text-[var(--color-error)] disabled:opacity-50"
             >
               <ICONS.userX className="h-3.5 w-3.5" />
-              Suspendă angajat
+              Elimină din companie
             </button>
-          </li>
-        ) : (
-          <li>
-            <button
-              type="button"
-              disabled={disabled}
-              onClick={(e) => {
-                e.currentTarget.blur()
-                onReactivate()
-              }}
-              className="flex items-center gap-2 text-[13px] text-[var(--color-success)] disabled:opacity-50"
-            >
-              <ICONS.userCheck className="h-3.5 w-3.5" />
-              Reactivează angajat
-            </button>
-          </li>
-        )}
+          )}
+        </li>
       </ul>
-    </div>
-  )
-}
+      </div>
+    )
+  }

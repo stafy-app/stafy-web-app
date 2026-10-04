@@ -3,8 +3,10 @@
 Firebase-based sign-in for `stafy-web-app` (managers and employees — employees use the `/me`
 personal shell only, see `docs/modules/personal-workspace.md`), plus the mandatory onboarding step
 managers/admins complete once, right after their first login. Every account registered through this
-app is a `manager`; employees register only via `stafy-mobile` and sign in here with that account,
-with no onboarding step. Route protection, session state, and the
+app is the owner of its own new company; if its email already has a live invitation, that company
+starts on the free `solo` plan instead of the 45-day trial (the invitation decides the plan, the
+form has no role choice). An employee gets into a company through an invitation (register-time
+auto-join, or accepting it afterwards) and has no onboarding step while they work there. Route protection, session state, and the
 onboarding gate all live together here because they're one continuous gate chain in `AppLayout`.
 
 ## Scope
@@ -27,7 +29,7 @@ seeded, but nothing edits it yet — see Deferred).
 |---|---|---|
 | Owner | `stafy-web-app` | Registers/logs in, completes company onboarding once, then uses company + personal shells. An account registered through this app is the owner of its own new company unless register-time auto-join places it in an inviting company (see below) |
 | Manager (non-owner) | `stafy-web-app` | A second manager in an owner's company, joined via invitation. Logs in and uses company + personal shells; never onboards the owner's company |
-| Employee | `stafy-web-app` | Logs in only (registers via `stafy-mobile` — this app has no employee registration path), no onboarding step, straight to the `/me` personal shell |
+| Employee | `stafy-web-app` | Registers through the same form as everyone else (always `role: 'owner'` — there is no role choice); an email with a live invitation gets a `solo` personal company (still owned by them) instead of the trial. Joins the company by register-time auto-join when exactly one pending invitation matches, otherwise by accepting from the incoming-invitations card. Works in the `/me` personal shell, no onboarding step while employed there. If removed from the company, lands as the owner of their own personal company (onboarding first) |
 | Backend | FastAPI (`stafy-backend`) | Verifies Firebase ID tokens, provisions/syncs `users` rows, stores onboarding data |
 | Firebase Auth | Google-managed service | Owns credential storage, issues and verifies ID tokens |
 
@@ -83,7 +85,7 @@ Coordonator, Manager HR, Manager Operațional. No write endpoint exists yet — 
 (no account) ─────────────────────────────────► (Firebase only) ───────────────────────────► provisioned,
                                                                                              onboarding_completed = false
 
-(employee rows are provisioned by stafy-mobile's register, with onboarding_completed = true)
+(an invited employee is provisioned by this same register call; register-time auto-join then makes the inviting company, which is already onboarded, their active company)
 
 provisioned ──── signInWithEmailAndPassword ────► POST /api/v1/auth/login ────► synced
 
@@ -130,10 +132,10 @@ vs. `stafy-mobile`).
 2. Form: organization name, city, address, job title (`useJobTitles()` populates the picklist from `GET /api/v1/job-titles`; "Altceva" reveals a free-text input, pre-selected by default here since the seeded titles are company-leadership roles a manager is likely to hold).
 3. Submit → `useCompleteOnboarding()` → `PATCH /api/v1/users/me/onboarding` → invalidates the `['profile']` query.
 4. `useProfile()` refetches with `onboarding_completed: true` → `AppLayout`'s gate re-evaluates and renders the real app — no manual `navigate()` call anywhere in this flow, the gate reacting to the refetched profile is what moves the manager forward.
+5. A person with pending invitations sees them as the same accept/reject card the app shell uses (`IncomingInvitations`), above the form. Accepting one makes the inviting company their active company, `onboarding_completed` becomes true, and the gate leaves `/onboarding` without the form ever being filled in.
 
-Employees have no onboarding flow — `onboarding_completed` is set `true` directly in
-`UserRepository.create_firebase_user` for `role: 'employee'`, at register time (via `stafy-mobile` —
-this app never registers employees, see Flow 1). There's nothing left to collect: name comes from register, and employees have no company/job-title data to
+Employees have no onboarding flow — `onboarding_completed` is true on the wire because their
+active company is the inviting company, which the owner already onboarded. There's nothing left to collect: name comes from register, and employees have no company/job-title data to
 gather (`job_title` stays `null` for every employee row — see Special Aspects for why a job-title
 step doesn't fit employees).
 
@@ -146,8 +148,13 @@ step doesn't fit employees).
 2. Also triggered automatically if an `employee` role is detected (see Special Aspects).
 
 ### Flow 6: Orphan-registration recovery
-1. Reached only via Flow 2 step 3 (`OrphanRegistrationError`) — `firebaseUser` is guaranteed set at
-   this point.
+1. Reached via Flow 2 step 3 (`OrphanRegistrationError`), or when a stored Firebase session loads
+   and `GET /profile` 404s (`SessionGate` redirects) — `firebaseUser` is guaranteed set at this
+   point, and it is the *stored session's* account that the form registers, whatever email was last
+   typed at login. The page therefore shows the signed-in email and a sign-out link. Dev builds keep
+   the Firebase session per tab (`browserSessionPersistence` in `src/services/firebase.ts`) so a
+   session left over from a real account doesn't follow every local run; production keeps the
+   SDK's persistent default.
 2. `/complete-registration` → `CompleteRegistrationPage.tsx`: a single form with first name and
    last name only. No role choice is presented — `role` is always `'manager'`, hardcoded, same as
    `RegisterPage`.
@@ -182,11 +189,14 @@ _complete-registration  (CompleteRegistrationLayout — signed-in only, no profi
 └── /complete-registration   (see Flow 6)
 
 _app  (AppLayout — signed-in + onboarded; employees confined to /me*)
-├── /            (Dashboard, manager/admin only — employees redirect to /me)
-├── /team, /team/$employeeId, /invitations, /reports, /settings (manager/admin only — employees redirect to /me)
-└── /me, /me/attendance, /me/history, /me/rates (both roles — the personal shell, see personal-workspace.md)
+├── /            (Dashboard, manager only — employees redirect to /me, platform admins to /admin)
+├── /team, /team/$employeeId, /invitations, /reports, /settings (manager only — employees redirect to /me)
+└── /me, /me/attendance, /me/history, /me/rates (company roles — the personal shell, see personal-workspace.md)
 
-Four sibling root-level layouts (`_auth`, `_onboarding`, `_complete-registration`, `_app`), each
+_admin  (AdminLayout — signed-in + platform admin; anyone else redirects to /)
+└── /admin, /admin/companies, /admin/audit, /admin/account   (see admin-dashboard.md)
+
+Five sibling root-level layouts (`_auth`, `_onboarding`, `_complete-registration`, `_app`, `_admin`), each
 gating independently rather than one shared guard — see Special Aspects for why.
 `_complete-registration` can't reuse `_onboarding`'s gate: `OnboardingLayout` requires `useProfile()`
 to succeed, but an orphaned account has no profile at all yet — that's the whole reason it's stuck.
