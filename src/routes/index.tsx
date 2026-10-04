@@ -18,6 +18,7 @@ import SettingsPage from '@stafy/pages/settings/SettingsPage'
 import AdminOverviewPage from '@stafy/pages/admin/AdminOverviewPage'
 import AdminCompaniesPage from '@stafy/pages/admin/AdminCompaniesPage'
 import AdminAuditPage from '@stafy/pages/admin/AdminAuditPage'
+import AdminInfraPage from '@stafy/pages/admin/AdminInfraPage'
 import AdminAccountPage from '@stafy/pages/admin/AdminAccountPage'
 import LoginPage from '@stafy/pages/auth/LoginPage'
 import RegisterPage from '@stafy/pages/auth/RegisterPage'
@@ -121,6 +122,12 @@ const adminCompaniesRoute = createRoute({
   component: AdminCompaniesPage,
 })
 
+const adminInfraRoute = createRoute({
+  path: '/admin/infra',
+  getParentRoute: () => adminLayoutRoute,
+  component: AdminInfraPage,
+})
+
 const adminAuditRoute = createRoute({
   path: '/admin/audit',
   getParentRoute: () => adminLayoutRoute,
@@ -197,7 +204,13 @@ const routeTree = rootRoute.addChildren([
     reportsRoute,
     settingsRoute,
   ]),
-  adminLayoutRoute.addChildren([adminOverviewRoute, adminCompaniesRoute, adminAuditRoute, adminAccountRoute]),
+  adminLayoutRoute.addChildren([
+    adminOverviewRoute,
+    adminCompaniesRoute,
+    adminInfraRoute,
+    adminAuditRoute,
+    adminAccountRoute,
+  ]),
   authLayoutRoute.addChildren([loginRoute, registerRoute]),
   onboardingLayoutRoute.addChildren([onboardingRoute]),
   completeRegistrationLayoutRoute.addChildren([completeRegistrationRoute]),

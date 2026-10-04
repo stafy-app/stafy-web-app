@@ -7,17 +7,17 @@ manager-facing app shell.
 
 ## Scope
 
-**In scope:** a dedicated route group (`/admin`, `/admin/companies`, `/admin/audit`,
-`/admin/account`) with a dense, monospace-leaning layout; total manager/employee/user counts; count
+**In scope:** a dedicated route group (`/admin`, `/admin/companies`, `/admin/infra`,
+`/admin/audit`, `/admin/account`) with a dense, monospace-leaning layout; total manager/employee/user counts; count
 of employees who never joined a real manager's company (`company_id` still equal to
 `personal_company_id`); new manager/employee signups over time (weekly or monthly); invitation
 counts by status across every company; time entries logged over time (daily or weekly) across every
 company; the company table with plan grant and plan history (see `subscription.md`); the
+platform-services status page (see `infra.md`); the
 cross-company audit feed with its company filter (see `settings.md`); the admin's own account and
 security sections.
 
-**Out of scope (this release):** infrastructure data (deploy status, error counts, database
-metrics); global announcements; per-company drill-down, member tree and admin actions on companies
+**Out of scope (this release):** global announcements; per-company drill-down, member tree and admin actions on companies
 or users; admin user management (granting/revoking the `admin` role) — the single admin account is
 provisioned directly in the database, the same way every `admin` row is created (see backend
 `stafy-backend/CLAUDE.md`); date-range filtering beyond the fixed period toggles; export of any
@@ -29,7 +29,7 @@ admin statistic.
 
 | Actor | Interface | Role |
 |---|---|---|
-| Platform admin | Admin console (`/admin/*`) | Reads platform-wide statistics, manages company plans, reads the cross-company audit feed, manages their own account |
+| Platform admin | Admin console (`/admin/*`) | Reads platform-wide statistics, manages company plans, reads the status of the platform's services, reads the cross-company audit feed, manages their own account |
 
 ---
 
@@ -82,9 +82,10 @@ All four stats are computed server-side, not client-side:
    (overview cards, growth chart, invitation funnel, activity chart). Growth and activity panels
    each have their own period toggle (week/month; day/week) that re-fetches only that panel.
 2. **Manage company plans** — the admin opens Companies from the console nav; see `subscription.md`.
-3. **Read the audit feed** — the admin opens Audit from the console nav; the feed spans every
+3. **Check the platform's services** — the admin opens Infra; see `infra.md`.
+4. **Read the audit feed** — the admin opens Audit from the console nav; the feed spans every
    company and offers a company filter; see `settings.md`.
-4. **Manage own account** — the admin opens Account from the console nav; the account and security
+5. **Manage own account** — the admin opens Account from the console nav; the account and security
    sections are the same components managers use in Settings.
 
 ---
@@ -97,6 +98,7 @@ All four stats are computed server-side, not client-side:
 |---|---|---|
 | `/admin` | `AdminOverviewPage` | `AdminSection` (the four stat panels) |
 | `/admin/companies` | `AdminCompaniesPage` | `AdminCompaniesSection` + `AdminCompanyPlanPanel` |
+| `/admin/infra` | `AdminInfraPage` | `ProviderCard` per provider (see `infra.md`) |
 | `/admin/audit` | `AdminAuditPage` | `AuditSection` (shared with Settings) |
 | `/admin/account` | `AdminAccountPage` | `AccountSection` + `SecuritySection` (shared with Settings) |
 
@@ -177,8 +179,7 @@ counts.
 
 | Item | Trigger |
 |---|---|
-| Infra panels (Render, Vercel, Neon, UptimeRobot, Sentry) and an internal health check | Read-only API tokens for each service exist and a backend proxy module holding them is built |
-| Global announcements and a what's-new modal | Infra panels are done |
+| Global announcements and a what's-new modal | The infra page is done |
 | Company member tree and admin actions on companies and users, including admin-initiated ownership transfer | Announcements are done |
 | Product and business statistics (activation funnel, at-risk companies, MRR) | Company member tree is done |
 | Admin role management UI | More than one admin account needs to exist |

@@ -25,6 +25,7 @@ import {
   LayoutDashboard,
   Briefcase,
   CreditCard,
+  Server,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -55,6 +56,7 @@ export const ICONS = {
   dashboard: LayoutDashboard,
   briefcase: Briefcase,
   creditCard: CreditCard,
+  server: Server,
 } satisfies Record<string, LucideIcon>
 
 export type IconName = keyof typeof ICONS

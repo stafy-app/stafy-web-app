@@ -618,6 +618,100 @@ export interface HourlyRatesListOut {
 }
 
 /**
+ * `unknown` = the provider's API could not be read (see `error`), not that the service is down; `unconfigured` = no credentials set.
+ */
+export type ProviderStatusHealth = typeof ProviderStatusHealth[keyof typeof ProviderStatusHealth];
+
+
+export const ProviderStatusHealth = {
+  ok: 'ok',
+  degraded: 'degraded',
+  down: 'down',
+  unknown: 'unknown',
+  unconfigured: 'unconfigured',
+} as const;
+
+/**
+ * Colours the metric when it has a threshold.
+ */
+export type ProviderMetricHealth = typeof ProviderMetricHealth[keyof typeof ProviderMetricHealth] | null;
+
+
+export const ProviderMetricHealth = {
+  ok: 'ok',
+  degraded: 'degraded',
+  down: 'down',
+  unknown: 'unknown',
+  unconfigured: 'unconfigured',
+} as const;
+
+export interface ProviderMetric {
+  /** What is measured, e.g. 'Storage'. */
+  label: string;
+  /** Already formatted value, e.g. '1.2 GB'. */
+  value: string;
+  /** Colours the metric when it has a threshold. */
+  health?: ProviderMetricHealth;
+}
+
+export type ProviderItemHealth = typeof ProviderItemHealth[keyof typeof ProviderItemHealth] | null;
+
+
+export const ProviderItemHealth = {
+  ok: 'ok',
+  degraded: 'degraded',
+  down: 'down',
+  unknown: 'unknown',
+  unconfigured: 'unconfigured',
+} as const;
+
+export interface ProviderItem {
+  /** Row title: a service, branch, monitor, deploy, issue. */
+  label: string;
+  /** Section the row belongs to, usually an environment label. */
+  group?: string | null;
+  health?: ProviderItemHealth;
+  /** One-line state of the row. */
+  summary?: string | null;
+  /** Secondary line, e.g. a commit. */
+  detail?: string | null;
+  /** Link to the row in the service. */
+  url?: string | null;
+  /** When the row last changed. */
+  at?: string | null;
+}
+
+export interface ProviderLink {
+  label: string;
+  url: string;
+}
+
+/**
+ * What one provider reports: the single shape every card in the panel renders.
+ */
+export interface ProviderStatus {
+  /** Stable provider id, e.g. 'render'. */
+  key: string;
+  /** Display name, e.g. 'Render'. */
+  label: string;
+  /** `unknown` = the provider's API could not be read (see `error`), not that the service is down; `unconfigured` = no credentials set. */
+  health: ProviderStatusHealth;
+  /** One line for the card header. */
+  summary?: string | null;
+  metrics?: ProviderMetric[];
+  items?: ProviderItem[];
+  links?: ProviderLink[];
+  /** When the data was read (cached up to ~45 s). */
+  fetched_at: string;
+  /** Short, secret-free reason when health is `unknown`: exception class and HTTP status only. */
+  error?: string | null;
+}
+
+export interface InfraStatusOut {
+  providers: ProviderStatus[];
+}
+
+/**
  * Role the invited person will have once they join: 'employee' or 'manager' (a second manager, not a duplicate owner — see docs/modules/invitations.md). Only the company's owner may set 'manager'; a non-owner manager sending an invitation must set 'employee'.
  */
 export type InvitationInInvitedRole = typeof InvitationInInvitedRole[keyof typeof InvitationInInvitedRole];
@@ -1120,4 +1214,15 @@ export const GetAdminActivityPeriod = {
   day: 'day',
   week: 'week',
 } as const;
+
+export type GetAdminInfraParams = {
+/**
+ * Skip the cache unless it is younger than a few seconds.
+ */
+refresh?: boolean;
+};
+
+export type GetAdminInfraProviderParams = {
+refresh?: boolean;
+};
 
