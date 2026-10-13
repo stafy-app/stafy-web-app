@@ -126,7 +126,7 @@ export function AdminCompanyPlanPanel({ companyId, companyName, onClose }: Admin
                 <th>Plan</th>
                 <th>Locuri</th>
                 <th>Expiră</th>
-                <th>Actor</th>
+                <th>Modificat de</th>
                 <th>Notă</th>
               </tr>
             </thead>

@@ -21,7 +21,7 @@ All visible text is Romanian, short, and addressed to the reader as „tu” (se
 - No em dash („—”) or `--` inside a sentence. Split into two sentences, or use a comma, a colon or parentheses. A lone „—” is allowed only as the empty-value placeholder in a table cell or field.
 - Plain words over formal ones: „Alege”, „Setează”, „Descarcă” rather than „Selectează”, „Configurează”, „Exportă”; no „Te rog”.
 - Failure messages start with „Nu am putut …” and end with a period; success toasts are a short past participle („Pontaj salvat.”).
-- Romanian over English where a common word exists („Acasă”, „funcție”, „Descarcă CSV”); product terms the landing site also uses („owner”, „Trial”) stay as they are.
+- Romanian over English wherever a Romanian word exists, adapted rather than translated word for word: „Acasă” (not Dashboard), „angajați” (not „oameni”/roster), „proprietarul companiei” (not owner), „funcție” (not job title), „Stare” (not Status), „Jurnal” (not Audit), „Perioadă de probă” (not Trial), „Descarcă CSV” (not Export). Plan names (Solo, Mic, Standard, Mare, Pilot) and „email”, „CSV”, „PDF” stay as they are.
 
 ## Sections to fill in as they're decided
 

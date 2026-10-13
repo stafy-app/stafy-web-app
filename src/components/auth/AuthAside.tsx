@@ -2,8 +2,8 @@ import { ICONS } from '@stafy/lib/icons'
 
 const POINTS = [
   { icon: ICONS.clock, text: 'Instructorii își pontează orele din browser, în 60 de secunde.' },
-  { icon: ICONS.tags, text: 'Tariful fiecărui om, pe fiecare activitate, se aplică singur.' },
-  { icon: ICONS.download, text: 'Raportul de activitate pe fiecare om, gata în PDF.' },
+  { icon: ICONS.tags, text: 'Tariful fiecărui angajat, pe fiecare activitate, se aplică singur.' },
+  { icon: ICONS.download, text: 'Raportul de activitate pentru fiecare angajat, gata în PDF.' },
 ]
 
 export function AuthAside() {

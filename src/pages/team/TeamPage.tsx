@@ -8,7 +8,7 @@ import { EmployeeCard } from '@stafy/components/team/EmployeeCard'
 import { ICONS } from '@stafy/lib/icons'
 
 export default function TeamPage() {
-  useTopBar({ title: 'Echipă', subtitle: 'Toți oamenii din companie' })
+  useTopBar({ title: 'Echipă', subtitle: 'Toți angajații companiei' })
   const navigate = useNavigate()
 
   const { year, month } = getCurrentPeriod()

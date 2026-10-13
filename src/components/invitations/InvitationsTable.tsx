@@ -32,7 +32,7 @@ export function InvitationsTable({ invitations }: InvitationsTableProps) {
             <th>Email</th>
             <th>Rol</th>
             <th>Funcție</th>
-            <th>Status</th>
+            <th>Stare</th>
             <th>Trimisă</th>
             <th>Expiră / Răspuns</th>
             <th className="text-right">Acțiuni</th>

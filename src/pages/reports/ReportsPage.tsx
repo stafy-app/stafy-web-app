@@ -15,7 +15,7 @@ import { ICONS } from '@stafy/lib/icons'
 import { isCompanyManager } from '@stafy/utils/companyRole'
 
 export default function ReportsPage() {
-  useTopBar({ title: 'Rapoarte', subtitle: 'Raportul lunar al fiecărui om, gata de descărcat' })
+  useTopBar({ title: 'Rapoarte', subtitle: 'Raportul lunar pentru fiecare angajat, gata de descărcat' })
 
   const [period, setPeriod] = useState(getCurrentPeriod)
   const current = getCurrentPeriod()

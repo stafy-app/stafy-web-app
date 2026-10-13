@@ -13,7 +13,7 @@ export default function AdminInfraPage() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-mono text-[18px] font-bold text-[var(--color-ink)]">Infra</h1>
+          <h1 className="font-mono text-[18px] font-bold text-[var(--color-ink)]">Infrastructură</h1>
           <p className="font-mono text-[12px] text-[var(--color-ink-muted)]">
             Starea serviciilor platformei, doar pentru citire. Se actualizează singură în fiecare minut.
             {dataUpdatedAt > 0 && ` Ultima citire: ${new Date(dataUpdatedAt).toLocaleTimeString('ro-RO')}.`}

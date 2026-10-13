@@ -21,7 +21,7 @@ const SECTIONS: { key: SettingsSectionKey; label: string; icon: IconName }[] = [
   { key: 'company', label: 'Companie', icon: 'building' },
   { key: 'activities', label: 'Activități', icon: 'tags' },
   { key: 'jobTitles', label: 'Funcții', icon: 'briefcase' },
-  { key: 'audit', label: 'Audit', icon: 'history' },
+  { key: 'audit', label: 'Jurnal', icon: 'history' },
   { key: 'security', label: 'Securitate', icon: 'shield' },
   { key: 'subscription', label: 'Abonament', icon: 'creditCard' },
 ]
