@@ -134,7 +134,7 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
         <div className="flex items-center gap-5 border-l border-[var(--color-line-soft)] pl-5">
           <div>
             <div className="text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
-              Ore luna curentă
+              Ore luna aceasta
             </div>
             <div className="mt-1 flex items-baseline gap-1.5">
               <span className="font-[var(--font-mono)] text-[20px] font-bold text-[var(--color-ink)]">
@@ -145,7 +145,7 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
           </div>
           <div>
             <div className="text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
-              Estimat de plată
+              De plată (estimat)
             </div>
             <div className="mt-1 font-[var(--font-mono)] text-[18px] font-bold text-[var(--color-ink)]">
               {gross.format(parseFloat(summary.estimated_gross))} RON

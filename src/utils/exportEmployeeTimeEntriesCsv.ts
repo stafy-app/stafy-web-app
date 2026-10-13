@@ -43,5 +43,5 @@ export function exportEmployeeTimeEntriesCsv(
   link.click()
 
   URL.revokeObjectURL(url)
-  showToast('Export CSV finalizat.')
+  showToast('Fișierul CSV a fost descărcat.')
 }

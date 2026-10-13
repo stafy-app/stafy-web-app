@@ -114,7 +114,7 @@ page.
 - **Title** (`h1`): 22px / 700, `letter-spacing: -0.015em`.
 - **Subtitle**: 13px, `--color-ink-muted`, `margin-top: 2px`.
 - **Action slot**: right side, any button/CTA the page passes in (Dashboard doesn't use one).
-- On Dashboard: no breadcrumb; title "Dashboard"; subtitle summarizing the team overview.
+- On Dashboard: no breadcrumb; title "Acasă" (matches the sidebar label); subtitle summarizing how the team is doing this month.
 
 ### General layout
 

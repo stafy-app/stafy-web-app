@@ -14,6 +14,15 @@ Until a section exists here, the source of truth for design tokens is `src/App.c
 
 Login, register, complete-registration and onboarding share the `src/components/auth/` kit: warm canvas with two soft brand glows, a white `rounded-[24px]` card, soft filled inputs with the brand focus ring, and a full-width pill primary button. Login and register add a dark brand panel on wide screens. Details in `docs/modules/auth.md` UI / Layout.
 
+## UI copy
+
+All visible text is Romanian, short, and addressed to the reader as „tu” (second person singular), in the same tone as the landing site:
+
+- No em dash („—”) or `--` inside a sentence. Split into two sentences, or use a comma, a colon or parentheses. A lone „—” is allowed only as the empty-value placeholder in a table cell or field.
+- Plain words over formal ones: „Alege”, „Setează”, „Descarcă” rather than „Selectează”, „Configurează”, „Exportă”; no „Te rog”.
+- Failure messages start with „Nu am putut …” and end with a period; success toasts are a short past participle („Pontaj salvat.”).
+- Romanian over English where a common word exists („Acasă”, „funcție”, „Descarcă CSV”); product terms the landing site also uses („owner”, „Trial”) stay as they are.
+
 ## Sections to fill in as they're decided
 
 - Component conventions (buttons, cards, tables, modals, empty states)

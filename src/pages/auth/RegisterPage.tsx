@@ -22,7 +22,7 @@ export default function RegisterPage() {
     try {
       await register({ firstName, lastName, email, password, role: 'owner' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'A apărut o eroare neașteptată')
+      setError(err instanceof Error ? err.message : 'A apărut o eroare neașteptată. Încearcă din nou.')
     } finally {
       setIsSubmitting(false)
     }

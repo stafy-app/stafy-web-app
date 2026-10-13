@@ -35,7 +35,7 @@ export default function OnboardingPage() {
 
     const jobTitle = isOtherJobTitle ? customJobTitle.trim() : selectedJobTitle
     if (!jobTitle) {
-      setError('Completează funcția din organizație.')
+      setError('Scrie ce funcție ai în organizație.')
       return
     }
 
@@ -63,7 +63,7 @@ export default function OnboardingPage() {
       )}
       <AuthCard
         title="Completează profilul companiei"
-        subtitle="Câteva detalii despre organizația ta înainte să continui."
+        subtitle="Spune-ne câteva lucruri despre organizația ta."
         widthClass="max-w-[480px]"
       >
         {error && <AuthError message={error} />}

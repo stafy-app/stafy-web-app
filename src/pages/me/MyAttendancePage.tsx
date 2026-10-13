@@ -9,8 +9,8 @@ import { Link } from '@tanstack/react-router'
 const ron = new Intl.NumberFormat('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 const ERROR_MESSAGES_RO: Record<string, string> = {
-  not_found: 'Activitatea selectată nu mai este disponibilă. Te rog selecteaz-o din nou.',
-  entry_already_exists: 'Există deja o înregistrare identică pentru acest interval orar.',
+  not_found: 'Activitatea aleasă nu mai e disponibilă. Alege din nou.',
+  entry_already_exists: 'Ai deja un pontaj pe exact acest interval.',
 }
 
 interface BackendErrorData {
@@ -34,7 +34,7 @@ function getErrorMessage(error: unknown): string {
     if (messages.length > 0) return messages.join(' ')
   }
   if (data?.detail) return data.detail
-  return 'A apărut o eroare la salvare. Te rog încearcă din nou.'
+  return 'Nu am putut salva pontajul. Încearcă din nou.'
 }
 
 function toLocalInputValue(date: Date) {
@@ -43,7 +43,7 @@ function toLocalInputValue(date: Date) {
 }
 
 export default function MyAttendancePage() {
-  useTopBar({ title: 'Pontaj', subtitle: 'Înregistrează-ți orele lucrate' })
+  useTopBar({ title: 'Pontaj', subtitle: 'Adaugă orele lucrate' })
 
   const { data: dashboard } = useMyDashboard()
   const { data: ratesData } = useMyHourlyRates()
@@ -65,12 +65,12 @@ export default function MyAttendancePage() {
 
   function handleSave() {
     if (!activityId) {
-      showToast('Te rog selectează o activitate.', { tone: 'warning' })
+      showToast('Alege o activitate.', { tone: 'warning' })
       return
     }
     const submissionEnd = getSubmissionTimeEnd(start, stop)
     if (submissionEnd.getTime() === start.getTime()) {
-      showToast('Ora de start și ora de stop nu pot fi identice.', { tone: 'warning' })
+      showToast('Ora de start și cea de stop nu pot fi la fel.', { tone: 'warning' })
       return
     }
     createEntry.mutate(
@@ -102,13 +102,13 @@ export default function MyAttendancePage() {
           </div>
           <div className="mx-auto mt-1 max-w-[420px] text-[13px] text-[var(--color-ink-muted)]">
             {isOwnCompany
-              ? 'Ca să poți înregistra ore, configurează-ți mai întâi tarifele orare pe activități.'
-              : 'Managerul companiei tale nu ți-a setat încă niciun tarif — nu poți înregistra ore până atunci.'}
-            {(dashboard?.total_hours ?? 0) === 0 && ' Momentan nu ai niciun pontaj luna aceasta.'}
+              ? 'Ca să pontezi ore, setează-ți întâi tarifele pe activități.'
+              : 'Managerul nu ți-a setat încă niciun tarif. Până atunci nu poți ponta ore.'}
+            {(dashboard?.total_hours ?? 0) === 0 && ' Luna aceasta nu ai încă niciun pontaj.'}
           </div>
           {isOwnCompany && (
             <Link to="/me/rates" className="btn btn-primary btn-sm mt-4">
-              Configurează tarife
+              Setează tarifele
             </Link>
           )}
         </div>
@@ -130,7 +130,7 @@ export default function MyAttendancePage() {
             onChange={(e) => setActivityId(e.target.value === '' ? null : Number(e.target.value))}
             className="select select-bordered min-h-12 w-full text-[16px]"
           >
-            <option value="">Selectează activitatea…</option>
+            <option value="">Alege activitatea…</option>
             {rates.map((rate) => (
               <option key={rate.activity_id} value={rate.activity_id}>
                 {rate.activity_name} · {ron.format(parseFloat(rate.hourly_rate_gross))} RON/h

@@ -11,10 +11,10 @@ export function useUpdateEmployeeJobTitle(employeeId: number) {
       getUsers().updateEmployeeJobTitle(employeeId, { job_title: jobTitle }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employee-summary', employeeId] })
-      showToast('Job title actualizat.')
+      showToast('Funcție actualizată.')
     },
     onError: (error) => {
-      showToast(getCodedErrorMessage(error, 'Nu s-a putut actualiza job title-ul.'), { tone: 'danger' })
+      showToast(getCodedErrorMessage(error, 'Nu am putut schimba funcția.'), { tone: 'danger' })
     },
   })
 }
@@ -29,7 +29,7 @@ export function useSuspendEmployee(employeeId: number) {
       showToast('Angajat suspendat.')
     },
     onError: (error) => {
-      showToast(getCodedErrorMessage(error, 'Nu s-a putut suspenda angajatul.'), { tone: 'danger' })
+      showToast(getCodedErrorMessage(error, 'Nu am putut suspenda angajatul.'), { tone: 'danger' })
     },
   })
 }
@@ -44,7 +44,7 @@ export function useReactivateEmployee(employeeId: number) {
       showToast('Angajat reactivat.')
     },
     onError: (error) => {
-      showToast(getCodedErrorMessage(error, 'Nu s-a putut reactiva angajatul.'), { tone: 'danger' })
+      showToast(getCodedErrorMessage(error, 'Nu am putut reactiva angajatul.'), { tone: 'danger' })
     },
   })
 }

@@ -36,7 +36,7 @@ function CompanyForm({ isOwnCompany, company }: { isOwnCompany: boolean; company
         <p className="text-[13px] text-[var(--color-ink-muted)]">
           {isOwnCompany
             ? 'Datele companiei tale.'
-            : 'Faci parte dintr-o companie administrată de alt manager — doar acesta îi poate modifica datele.'}
+            : 'Faci parte din compania altcuiva. Doar owner-ul ei îi poate schimba datele.'}
         </p>
       </div>
 

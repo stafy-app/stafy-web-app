@@ -32,7 +32,7 @@ export function useCreateTimeEntry() {
       showToast('Pontaj salvat.')
     },
     onError: () => {
-      showToast('Nu s-a putut salva pontajul.', { tone: 'danger' })
+      showToast('Nu am putut salva pontajul.', { tone: 'danger' })
     },
   })
 }
@@ -54,7 +54,7 @@ export function useUpdateTimeEntry() {
       showToast('Pontaj corectat.')
     },
     onError: () => {
-      showToast('Nu s-a putut corecta pontajul.', { tone: 'danger' })
+      showToast('Nu am putut corecta pontajul.', { tone: 'danger' })
     },
   })
 }
@@ -75,7 +75,7 @@ export function useDeleteTimeEntry() {
       showToast('Pontaj șters.')
     },
     onError: () => {
-      showToast('Nu s-a putut șterge pontajul.', { tone: 'danger' })
+      showToast('Nu am putut șterge pontajul.', { tone: 'danger' })
     },
   })
 }
@@ -98,7 +98,7 @@ export function useUpdateMyHourlyRate() {
       showToast('Tarif actualizat.')
     },
     onError: () => {
-      showToast('Nu s-a putut actualiza tariful.', { tone: 'danger' })
+      showToast('Nu am putut actualiza tariful.', { tone: 'danger' })
     },
   })
 }
@@ -113,7 +113,7 @@ export function useCreateMyActivity() {
       showToast('Activitate adăugată.')
     },
     onError: () => {
-      showToast('Nu s-a putut adăuga activitatea.', { tone: 'danger' })
+      showToast('Nu am putut adăuga activitatea.', { tone: 'danger' })
     },
   })
 }
@@ -128,7 +128,7 @@ export function useDeleteMyActivity() {
       showToast('Activitate ștearsă.')
     },
     onError: () => {
-      showToast('Nu s-a putut șterge activitatea.', { tone: 'danger' })
+      showToast('Nu am putut șterge activitatea.', { tone: 'danger' })
     },
   })
 }

@@ -26,7 +26,7 @@ export default function CompleteRegistrationPage() {
       // (redirects to /onboarding, same as a fresh register()).
       navigate({ to: '/' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'A apărut o eroare neașteptată')
+      setError(err instanceof Error ? err.message : 'A apărut o eroare neașteptată. Încearcă din nou.')
     } finally {
       setIsSubmitting(false)
     }
@@ -35,7 +35,7 @@ export default function CompleteRegistrationPage() {
   return (
     <AuthCard
       title="Mai sunt câțiva pași"
-      subtitle="Contul tău a fost creat, dar înregistrarea nu s-a finalizat ultima dată. Completează datele de mai jos ca să continui."
+      subtitle="Contul există, dar înregistrarea nu s-a terminat data trecută. Completează-ți numele ca să continui."
     >
       {error && <AuthError message={error} />}
 

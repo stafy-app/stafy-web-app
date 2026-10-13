@@ -28,7 +28,7 @@ const COMMON_ERROR_MESSAGES: Record<string, string> = {
   seats_limit_reached: 'Ai atins limita de locuri a planului. Suspendă un membru sau schimbă planul.',
   seats_over_new_limit:
     'Ai mai mulți membri decât permite planul ales. Elimină sau suspendă membri înainte de schimbare.',
-  plan_change_not_allowed: 'Această schimbare de plan nu este disponibilă acum. Contactează-ne.',
+  plan_change_not_allowed: 'Schimbarea asta de plan nu e disponibilă acum. Scrie-ne și te ajutăm.',
 }
 
 /** Message for a common (cross-screen) error code, or `fallback` when the error isn't one. */

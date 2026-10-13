@@ -15,7 +15,7 @@ import { ICONS } from '@stafy/lib/icons'
 import { isCompanyManager } from '@stafy/utils/companyRole'
 
 export default function ReportsPage() {
-  useTopBar({ title: 'Rapoarte', subtitle: 'Export și rapoarte lunare' })
+  useTopBar({ title: 'Rapoarte', subtitle: 'Raportul lunar al fiecărui om, gata de descărcat' })
 
   const [period, setPeriod] = useState(getCurrentPeriod)
   const current = getCurrentPeriod()
@@ -77,7 +77,7 @@ export default function ReportsPage() {
       setTimeout(() => URL.revokeObjectURL(url), 1000)
       showToast('PDF descărcat.')
     } catch {
-      showToast('Nu s-a putut genera PDF-ul.', { tone: 'danger' })
+      showToast('Nu am putut genera PDF-ul.', { tone: 'danger' })
     } finally {
       setIsDownloading(false)
     }
@@ -118,7 +118,7 @@ export default function ReportsPage() {
             <div>
               <div className="text-[13px] font-medium text-[var(--color-ink)]">Include listă pontaje</div>
               <div className="mt-0.5 text-[11px] text-[var(--color-ink-muted)]">
-                Adaugă tabelul detaliat cu toate pontajele lunii în raport.
+                Include în raport toate pontajele din lună.
               </div>
             </div>
           </label>
@@ -173,7 +173,7 @@ export default function ReportsPage() {
             </PDFViewer>
           ) : (
             <div className="flex h-full items-center justify-center bg-[var(--color-surface)] text-[13px] text-[var(--color-ink-muted)]">
-              Selectează un angajat pentru a genera raportul.
+              Alege un angajat ca să vezi raportul.
             </div>
           )}
         </div>

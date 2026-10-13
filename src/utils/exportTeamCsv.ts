@@ -30,5 +30,5 @@ export function exportTeamCsv(members: CompanyTopEmployeeOut[], year: number, mo
   link.click()
 
   URL.revokeObjectURL(url)
-  showToast('Export CSV finalizat.')
+  showToast('Fișierul CSV a fost descărcat.')
 }

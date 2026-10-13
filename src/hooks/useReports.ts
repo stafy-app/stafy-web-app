@@ -23,7 +23,7 @@ export function useSetReportBonus(employeeId: number, year: number, month: numbe
       showToast('Bonus salvat.')
     },
     onError: (error) => {
-      showToast(getCodedErrorMessage(error, 'Nu s-a putut salva bonusul.'), { tone: 'danger' })
+      showToast(getCodedErrorMessage(error, 'Nu am putut salva bonusul.'), { tone: 'danger' })
     },
   })
 }
@@ -38,7 +38,7 @@ export function useClearReportBonus(employeeId: number, year: number, month: num
       showToast('Bonus șters.')
     },
     onError: (error) => {
-      showToast(getCodedErrorMessage(error, 'Nu s-a putut șterge bonusul.'), { tone: 'danger' })
+      showToast(getCodedErrorMessage(error, 'Nu am putut șterge bonusul.'), { tone: 'danger' })
     },
   })
 }

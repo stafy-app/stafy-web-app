@@ -17,7 +17,7 @@ const formatHours = (value: number) => `${value.toFixed(1)}h`
 const formatCount = (value: number) => Math.round(value).toString()
 
 export default function DashboardPage() {
-  useTopBar({ title: 'Dashboard', subtitle: 'Prezentare generală a echipei tale' })
+  useTopBar({ title: 'Acasă', subtitle: 'Cum stă echipa luna aceasta' })
 
   const [period, setPeriod] = useState(getCurrentPeriod)
   const current = getCurrentPeriod()
@@ -71,7 +71,7 @@ export default function DashboardPage() {
           formatValue={formatHours}
         />
         <KpiCard
-          label="Total plată"
+          label="Total de plată"
           icon={Wallet}
           value={dashboard ? parseFloat(dashboard.total_gross_salary) : 0}
           durationMs={1000}

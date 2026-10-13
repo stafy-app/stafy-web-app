@@ -100,7 +100,7 @@ export function AdminSection() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <KpiCard label="Manageri" icon={UserCog} value={overview?.total_managers ?? 0} durationMs={600} />
         <KpiCard label="Angajați" icon={Users} value={overview?.total_employees ?? 0} durationMs={600} />
-        <KpiCard label="Total useri" icon={Building2} value={overview?.total_users ?? 0} durationMs={600} />
+        <KpiCard label="Utilizatori" icon={Building2} value={overview?.total_users ?? 0} durationMs={600} />
         <KpiCard
           label="Fără manager"
           icon={UserX}

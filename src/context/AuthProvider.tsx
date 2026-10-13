@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         await getAuthApi().registerUser({ first_name: firstName, last_name: lastName, role })
       } catch (backendError) {
-        throw new Error('Înregistrarea nu a putut fi finalizată. Încearcă din nou mai târziu.', {
+        throw new Error('Nu am putut termina înregistrarea. Mai încearcă puțin mai târziu.', {
           cause: backendError,
         })
       }

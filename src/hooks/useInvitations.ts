@@ -11,8 +11,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   invitation_already_pending: 'Există deja o invitație în așteptare pentru acest email.',
   invitation_not_actionable: 'Această invitație nu mai poate fi modificată.',
   invitation_not_found: 'Invitația nu a fost găsită.',
-  invitation_role_not_allowed: 'Doar administratorul companiei poate invita alți manageri.',
-  owner_has_team: 'Ai deja propria echipă — nu poți accepta o altă invitație cât timp o conduci.',
+  invitation_role_not_allowed: 'Doar owner-ul companiei poate invita manageri.',
+  owner_has_team: 'Ai deja o echipă proprie. Cât timp o conduci, nu poți intra în altă companie.',
 }
 
 function invitationErrorMessage(error: unknown, fallback: string): string {
@@ -37,7 +37,7 @@ export function useSendInvitation() {
       showToast('Invitație trimisă.')
     },
     onError: (error) => {
-      showToast(invitationErrorMessage(error, 'Nu s-a putut trimite invitația.'), {
+      showToast(invitationErrorMessage(error, 'Nu am putut trimite invitația.'), {
         tone: 'danger',
       })
     },
@@ -54,7 +54,7 @@ export function useResendInvitation() {
       showToast('Invitație retrimisă.')
     },
     onError: (error) => {
-      showToast(invitationErrorMessage(error, 'Nu s-a putut retrimite invitația.'), {
+      showToast(invitationErrorMessage(error, 'Nu am putut retrimite invitația.'), {
         tone: 'danger',
       })
     },
@@ -71,7 +71,7 @@ export function useCancelInvitation() {
       showToast('Invitație anulată.')
     },
     onError: (error) => {
-      showToast(invitationErrorMessage(error, 'Nu s-a putut anula invitația.'), {
+      showToast(invitationErrorMessage(error, 'Nu am putut anula invitația.'), {
         tone: 'danger',
       })
     },

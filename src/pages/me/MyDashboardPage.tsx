@@ -37,15 +37,15 @@ export default function MyDashboardPage() {
           </div>
           <div className="mt-1 text-[13px] text-[var(--color-ink-soft)]">
             {profile?.is_own_company ?? false
-              ? 'Ca să poți înregistra ore, configurează-ți mai întâi tarifele orare pe activități.'
-              : 'Managerul companiei tale nu ți-a setat încă niciun tarif — nu poți înregistra ore până atunci.'}
+              ? 'Ca să pontezi ore, setează-ți întâi tarifele pe activități.'
+              : 'Managerul nu ți-a setat încă niciun tarif. Până atunci nu poți ponta ore.'}
           </div>
           {(profile?.is_own_company ?? false) && (
             <Link
               to="/me/rates"
               className="btn btn-primary btn-sm mt-3 min-h-11 sm:min-h-0"
             >
-              Configurează tarife
+              Setează tarifele
             </Link>
           )}
         </div>
@@ -93,8 +93,8 @@ export default function MyDashboardPage() {
 
       {profile && (
         <div className="text-[12px] text-[var(--color-ink-muted)]">
-          Pontaje înregistrate pe numele {profile.first_name} {profile.last_name} · apar și în
-          statisticile companiei, la fel ca ale oricărui angajat.
+          Pontajele pe numele {profile.first_name} {profile.last_name} apar și în statisticile companiei,
+          ca ale oricărui angajat.
         </div>
       )}
     </div>

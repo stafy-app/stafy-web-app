@@ -23,18 +23,18 @@ export function mapAuthError(error: unknown): string {
     case 'auth/invalid-credential':
     case 'auth/wrong-password':
     case 'auth/user-not-found':
-      return 'Email sau parolă incorectă'
+      return 'Emailul sau parola nu sunt corecte.'
     case 'auth/email-already-in-use':
-      return 'Există deja un cont cu acest email'
+      return 'Există deja un cont cu acest email.'
     case 'auth/weak-password':
-      return 'Parola trebuie să aibă minim 6 caractere'
+      return 'Parola trebuie să aibă cel puțin 6 caractere.'
     case 'auth/invalid-email':
-      return 'Adresa de email nu este validă'
+      return 'Adresa de email nu pare corectă.'
     case 'auth/too-many-requests':
-      return 'Prea multe încercări. Încearcă din nou mai târziu'
+      return 'Prea multe încercări. Mai încearcă peste câteva minute.'
     case 'auth/network-request-failed':
-      return 'Fără conexiune la internet'
+      return 'Nu ai conexiune la internet.'
     default:
-      return err?.response?.data?.detail ?? err?.message ?? 'A apărut o eroare neașteptată'
+      return err?.response?.data?.detail ?? err?.message ?? 'A apărut o eroare neașteptată. Încearcă din nou.'
   }
 }

@@ -15,7 +15,7 @@ export default function AdminInfraPage() {
         <div>
           <h1 className="font-mono text-[18px] font-bold text-[var(--color-ink)]">Infra</h1>
           <p className="font-mono text-[12px] text-[var(--color-ink-muted)]">
-            Starea serviciilor platformei, doar citire. Se actualizează singură la un minut.
+            Starea serviciilor platformei, doar pentru citire. Se actualizează singură în fiecare minut.
             {dataUpdatedAt > 0 && ` Ultima citire: ${new Date(dataUpdatedAt).toLocaleTimeString('ro-RO')}.`}
           </p>
         </div>
