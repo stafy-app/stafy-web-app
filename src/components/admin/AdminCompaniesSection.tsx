@@ -15,7 +15,7 @@ export function AdminCompaniesSection() {
       <div>
         <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">Companii și abonamente</h2>
         <p className="text-[13px] text-[var(--color-ink-muted)]">
-          Companiile care au un proprietar, cu planul și locurile folosite. Alege una ca să-i schimbi planul sau să vezi istoricul.
+          Companiile cu owner, planul lor și locurile folosite. Alege una ca să-i schimbi planul sau să vezi istoricul.
         </p>
       </div>
 
@@ -27,7 +27,7 @@ export function AdminCompaniesSection() {
             <thead>
               <tr>
                 <th>Companie</th>
-                <th>Proprietar</th>
+                <th>Owner</th>
                 <th>Plan</th>
                 <th>Stare</th>
                 <th>Locuri</th>

@@ -6,7 +6,7 @@ import type { SubscriptionOut } from '@stafy/api/generated/endpoints/index.schem
  * picker's descriptions only — the backend stays the source of truth for enforcement.
  */
 export const PLAN_LABELS: Record<string, string> = {
-  trial: 'Perioadă de probă',
+  trial: 'Trial',
   pilot: 'Pilot',
   solo: 'Solo',
   small: 'Mic',
@@ -28,7 +28,7 @@ export const STATUS_LABELS: Record<string, string> = {
 }
 
 export const EVENT_LABELS: Record<string, string> = {
-  trial_started: 'Perioadă de probă începută',
+  trial_started: 'Trial pornit',
   solo_assigned: 'Plan Solo atribuit',
   pilot_granted: 'Pilot acordat',
   pilot_extended: 'Pilot extins',

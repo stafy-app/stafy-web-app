@@ -11,7 +11,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   invitation_already_pending: 'Există deja o invitație în așteptare pentru acest email.',
   invitation_not_actionable: 'Această invitație nu mai poate fi modificată.',
   invitation_not_found: 'Invitația nu a fost găsită.',
-  invitation_role_not_allowed: 'Doar proprietarul companiei poate invita manageri.',
+  invitation_role_not_allowed: 'Doar owner-ul companiei poate invita manageri.',
   owner_has_team: 'Ai deja o echipă proprie. Cât timp o conduci, nu poți intra în altă companie.',
 }
 
