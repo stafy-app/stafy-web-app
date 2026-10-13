@@ -295,7 +295,7 @@ export function ReportDocument({ report, includeTimeEntries, timeEntries }: Repo
 
   return (
     <Document
-      title={`Raport de activitate — ${employeeName} — ${periodLabel}`}
+      title={`Raport de activitate, ${employeeName}, ${periodLabel}`}
       author={managerName}
       subject="Raport de activitate și calcul salarial"
       creator="stafy.ro"
@@ -383,7 +383,7 @@ export function ReportDocument({ report, includeTimeEntries, timeEntries }: Repo
           ))}
           {report.bonus && (
             <View style={styles.tableRow} wrap={false}>
-              <Text style={[styles.colActivity, styles.bonusLabel]}>• Bonus{report.bonus.reason ? ` — ${report.bonus.reason}` : ''}</Text>
+              <Text style={[styles.colActivity, styles.bonusLabel]}>• Bonus{report.bonus.reason ? ` (${report.bonus.reason})` : ''}</Text>
               <Text style={styles.colHours}>—</Text>
               <Text style={styles.colRate}>—</Text>
               <Text style={[styles.colTotal, styles.mono]}>{ron.format(bonusAmount)} RON</Text>
@@ -438,7 +438,7 @@ export function ReportDocument({ report, includeTimeEntries, timeEntries }: Repo
 
         <View style={styles.footer} fixed>
           <View style={styles.footerLeft}>
-            <Text style={styles.footerNote}>Confidențial — conține date cu caracter personal</Text>
+            <Text style={styles.footerNote}>Confidențial. Conține date cu caracter personal.</Text>
             <Text>Document generat automat de stafy.ro · Format {TEMPLATE_VERSION} · Ref: {ref}</Text>
           </View>
           <Text render={({ pageNumber, totalPages }) => `Pagina ${pageNumber} / ${totalPages}`} />

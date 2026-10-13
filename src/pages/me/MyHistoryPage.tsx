@@ -6,7 +6,7 @@ import { AttendancePeriodHeader } from '@stafy/components/employee/tabs/Attendan
 import { AttendanceEntriesTable } from '@stafy/components/employee/tabs/AttendanceEntriesTable'
 
 export default function MyHistoryPage() {
-  useTopBar({ title: 'Istoric', subtitle: 'Pontajele tale înregistrate' })
+  useTopBar({ title: 'Istoric', subtitle: 'Toate pontajele tale' })
 
   const { data: profile } = useProfile()
   const employeeId = profile?.id

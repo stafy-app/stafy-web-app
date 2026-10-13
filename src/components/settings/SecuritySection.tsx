@@ -19,20 +19,20 @@ export function SecuritySection() {
   }
 
   function handleDeleteAccount() {
-    showToast('Funcționalitate indisponibilă momentan.', { tone: 'warning' })
+    showToast('Ștergerea contului nu e disponibilă încă.', { tone: 'warning' })
   }
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">Securitate</h2>
-        <p className="text-[13px] text-[var(--color-ink-muted)]">Parola contului și opțiuni ireversibile.</p>
+        <p className="text-[13px] text-[var(--color-ink-muted)]">Parola și ștergerea contului.</p>
       </div>
 
       {canResetPassword ? (
         <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface-2)] p-5">
           <p className="text-[13px] text-[var(--color-ink-soft)]">
-            Îți trimitem un email cu un link pentru a-ți seta o parolă nouă.
+            Îți trimitem pe email un link cu care îți setezi o parolă nouă.
           </p>
           <button
             type="button"
@@ -40,12 +40,12 @@ export function SecuritySection() {
             disabled={isPending}
             className="btn btn-primary mt-3"
           >
-            {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Trimite email de resetare a parolei'}
+            {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Trimite linkul de resetare'}
           </button>
         </div>
       ) : (
         <p className="text-[13px] text-[var(--color-ink-muted)]">
-          Contul tău este conectat printr-un furnizor extern — parola se gestionează de acolo, nu din Stafy.
+          Te conectezi cu un cont extern, așa că parola o schimbi de acolo, nu din Stafy.
         </p>
       )}
 

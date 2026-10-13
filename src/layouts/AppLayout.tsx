@@ -30,7 +30,7 @@ export function AppLayout() {
         // (onboarding_completed is set true at register time, see OnboardingLayout).
         if (profile.role === 'employee') {
           if (pathname !== '/me' && !pathname.startsWith('/me/')) {
-            setBlockedMessage('Zona aceasta este doar pentru manageri — ai fost redirecționat la pagina ta personală.')
+            setBlockedMessage('Pagina aceea e doar pentru manageri, așa că te-am adus în spațiul tău personal.')
             return <Navigate to="/me" />
           }
         } else if (!profile.onboarding_completed) {

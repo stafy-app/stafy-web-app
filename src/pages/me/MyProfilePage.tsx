@@ -5,7 +5,7 @@ import { AccountSection } from '@stafy/components/settings/AccountSection'
 import { SecuritySection } from '@stafy/components/settings/SecuritySection'
 
 export default function MyProfilePage() {
-  useTopBar({ title: 'Profilul meu', subtitle: 'Datele contului și securitate' })
+  useTopBar({ title: 'Profilul meu', subtitle: 'Contul tău și parola' })
   const { logout } = useAuth()
   const { data: profile } = useProfile()
 
@@ -17,8 +17,8 @@ export default function MyProfilePage() {
             <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">Companie</h2>
             <p className="text-[13px] text-[var(--color-ink-muted)]">
               {profile?.is_own_company === false
-                ? 'Ești membru într-o companie administrată de alt manager.'
-                : 'Aceasta este compania asociată contului tău.'}
+                ? 'Lucrezi în compania altcuiva.'
+                : 'Compania asociată contului tău.'}
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">

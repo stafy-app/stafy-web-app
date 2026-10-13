@@ -21,7 +21,7 @@ export default function TestsPage() {
           <button
             type="button"
             className="btn btn-error"
-            onClick={() => showToast('Nu s-a putut trimite formularul.', { tone: 'danger' })}
+            onClick={() => showToast('Nu am putut trimite formularul.', { tone: 'danger' })}
           >
             Danger toast
           </button>

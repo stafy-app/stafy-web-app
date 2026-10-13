@@ -82,7 +82,7 @@ export function JobTitlesSection() {
       <div>
         <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">Funcții</h2>
         <p className="text-[13px] text-[var(--color-ink-muted)]">
-          Funcțiile disponibile pentru compania ta — folosite la trimiterea invitațiilor de angajare.
+          Funcțiile din compania ta. Le alegi când trimiți o invitație.
         </p>
       </div>
 

@@ -27,7 +27,7 @@ export default function LoginPage() {
         navigate({ to: '/complete-registration' })
         return
       }
-      setError(err instanceof Error ? err.message : 'A apărut o eroare neașteptată')
+      setError(err instanceof Error ? err.message : 'A apărut o eroare neașteptată. Încearcă din nou.')
     } finally {
       setIsSubmitting(false)
     }

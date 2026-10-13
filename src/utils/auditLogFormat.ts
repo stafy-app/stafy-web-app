@@ -18,7 +18,7 @@ export const ACTION_LABELS: Record<string, string> = {
   'company.settings_updated': 'Date companie actualizate',
   'activity.created': 'Activitate creată',
   'activity.renamed': 'Activitate redenumită',
-  'user.removed_from_company': 'Manager eliminat din companie',
+  'user.removed_from_company': 'Membru eliminat din companie',
   'company_job_title.created': 'Funcție creată',
   'company_job_title.renamed': 'Funcție redenumită',
   'company_job_title.deleted': 'Funcție ștearsă',
@@ -41,7 +41,7 @@ export function formatAuditDetail(entry: AuditLogOut): string {
     case 'bonus.set': {
       const amount = field(after, 'amount') ?? '—'
       const reason = field(after, 'reason')
-      return reason ? `${amount} RON — ${reason}` : `${amount} RON`
+      return reason ? `${amount} RON (${reason})` : `${amount} RON`
     }
     case 'bonus.cleared':
       return `${field(before, 'amount') ?? '—'} RON`

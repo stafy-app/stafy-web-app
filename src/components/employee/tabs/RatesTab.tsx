@@ -44,15 +44,15 @@ export function RatesTab({ employeeId }: RatesTabProps) {
     <div className="flex flex-col gap-4">
       <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
         <p className="text-[12px] text-[var(--color-ink-muted)]">
-          Angajatul vede tariful configurat pentru fiecare activitate, dar nu îl poate modifica. O schimbare aici
-          se aplică doar pontajelor viitoare — cele deja înregistrate păstrează tariful din momentul lucrului.
+          Angajatul își vede tarifele, dar nu le poate schimba. Un tarif nou se aplică de acum înainte, iar
+          pontajele deja făcute rămân la tariful de atunci.
         </p>
       </div>
 
       <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
         {isLoading ? null : rates.length === 0 ? (
           <div className="py-8 text-center text-[13px] text-[var(--color-ink-muted)]">
-            Compania nu are activități configurate încă.
+            Compania nu are încă nicio activitate.
           </div>
         ) : (
           <table className="w-full text-[13px]">

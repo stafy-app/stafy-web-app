@@ -65,7 +65,7 @@ export function ActivitiesSection() {
       <div>
         <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">Activități</h2>
         <p className="text-[13px] text-[var(--color-ink-muted)]">
-          Activitățile disponibile pentru compania ta. Angajații își pot activa un tarif pentru oricare dintre ele.
+          Activitățile din compania ta. Angajații își pot activa un tarif pe oricare dintre ele.
         </p>
       </div>
 

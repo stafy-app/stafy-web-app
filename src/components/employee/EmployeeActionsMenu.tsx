@@ -51,7 +51,7 @@ export function EmployeeActionsMenu({
             className="flex items-center gap-2 text-[13px] text-[var(--color-ink)]"
           >
             <ICONS.pencil className="h-3.5 w-3.5" />
-            Editează job title
+            Schimbă funcția
           </button>
         </li>
         <li>
@@ -64,7 +64,7 @@ export function EmployeeActionsMenu({
             className="flex items-center gap-2 text-[13px] text-[var(--color-ink)]"
           >
             <ICONS.download className="h-3.5 w-3.5" />
-            Exportă pontaje CSV
+            Descarcă pontajele (CSV)
           </button>
         </li>
         <div className="my-1 h-px bg-[var(--color-line-soft)]" />

@@ -20,7 +20,7 @@ const SECTION_COMPONENTS: Record<SettingsSectionKey, React.ComponentType> = {
 }
 
 export default function SettingsPage() {
-  useTopBar({ title: 'Setări', subtitle: 'Setările contului și ale companiei' })
+  useTopBar({ title: 'Setări', subtitle: 'Contul tău și compania' })
 
   const [active, setActive] = useState<SettingsSectionKey>('account')
   const ActiveSection = SECTION_COMPONENTS[active]

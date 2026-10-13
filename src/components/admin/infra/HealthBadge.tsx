@@ -4,7 +4,7 @@ type Health = ProviderStatusHealth
 
 const STYLES: Record<Health, { label: string; dot: string; pill: string }> = {
   ok: {
-    label: 'OK',
+    label: 'Funcționează',
     dot: 'bg-[var(--color-success)]',
     pill: 'bg-[var(--color-success-soft)] text-[var(--color-success)]',
   },
@@ -14,7 +14,7 @@ const STYLES: Record<Health, { label: string; dot: string; pill: string }> = {
     pill: 'bg-[var(--color-warning-soft)] text-[var(--color-warning-content)]',
   },
   down: {
-    label: 'Căzut',
+    label: 'Nefuncțional',
     dot: 'bg-[var(--color-error)]',
     pill: 'bg-[var(--color-error-soft)] text-[var(--color-error)]',
   },

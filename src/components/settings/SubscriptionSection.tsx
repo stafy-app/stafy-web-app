@@ -53,7 +53,7 @@ export function SubscriptionSection() {
 
       {isReadOnly && (
         <div role="alert" className="alert alert-error text-sm">
-          Planul a expirat: pontajul angajaților funcționează în continuare, dar restul modificărilor sunt blocate.
+          Planul a expirat. Echipa poate ponta în continuare, dar alte modificări nu se mai pot face.
           {isOwner ? ' Alege planul Solo mai jos sau contactează-ne pentru un plan plătit.' : ' Owner-ul companiei poate reactiva planul.'}
         </div>
       )}
@@ -117,7 +117,7 @@ export function SubscriptionSection() {
 
           {paidOptions.length === 0 && (
             <p className="text-[13px] text-[var(--color-ink-muted)]">
-              Pentru un plan plătit sau peste 30 de angajați, contactează-ne — activăm planul pentru tine.
+              Vrei un plan plătit sau ai peste 30 de angajați? Scrie-ne și îl activăm noi.
             </p>
           )}
         </div>

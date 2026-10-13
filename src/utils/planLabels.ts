@@ -28,12 +28,12 @@ export const STATUS_LABELS: Record<string, string> = {
 }
 
 export const EVENT_LABELS: Record<string, string> = {
-  trial_started: 'Trial început',
+  trial_started: 'Trial pornit',
   solo_assigned: 'Plan Solo atribuit',
   pilot_granted: 'Pilot acordat',
   pilot_extended: 'Pilot extins',
-  upgraded: 'Upgrade',
-  downgraded: 'Downgrade',
+  upgraded: 'Trecere la un plan mai mare',
+  downgraded: 'Trecere la un plan mai mic',
   expired_to_read_only: 'Expirat (doar citire)',
   reactivated: 'Reactivat',
 }

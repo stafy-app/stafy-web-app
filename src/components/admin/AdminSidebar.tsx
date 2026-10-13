@@ -11,9 +11,9 @@ interface AdminNavItem {
 }
 
 const ADMIN_NAV_ITEMS: AdminNavItem[] = [
-  { to: '/admin', label: 'Overview', icon: 'dashboard' },
+  { to: '/admin', label: 'Privire generală', icon: 'dashboard' },
   { to: '/admin/companies', label: 'Companii', icon: 'building' },
-  { to: '/admin/infra', label: 'Infra', icon: 'server' },
+  { to: '/admin/infra', label: 'Infrastructură', icon: 'server' },
   { to: '/admin/audit', label: 'Audit', icon: 'history' },
   { to: '/admin/account', label: 'Cont', icon: 'user' },
 ]
