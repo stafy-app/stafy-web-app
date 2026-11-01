@@ -1,8 +1,15 @@
 import { useState } from 'react'
-import { Users, UserCog, UserX, Building2 } from 'lucide-react'
+import { Building2, CalendarClock, Gauge, UserCog, UserX, Users, UsersRound } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { KpiCard } from '@stafy/components/dashboard/KpiCard'
-import { useAdminActivity, useAdminGrowth, useAdminInvitationFunnel, useAdminOverview } from '@stafy/hooks/useAdmin'
+import {
+  useAdminActivity,
+  useAdminCompaniesSummary,
+  useAdminGrowth,
+  useAdminInvitationFunnel,
+  useAdminOverview,
+} from '@stafy/hooks/useAdmin'
+import { planLabel } from '@stafy/utils/planLabels'
 import {
   GetAdminActivityPeriod,
   GetAdminGrowthPeriod,
@@ -69,6 +76,7 @@ export function AdminSection() {
   const [activityPeriod, setActivityPeriod] = useState<GetAdminActivityPeriod>(GetAdminActivityPeriod.day)
 
   const { data: overview } = useAdminOverview()
+  const { data: companies } = useAdminCompaniesSummary()
   const { data: growth } = useAdminGrowth({ period: growthPeriod })
   const { data: funnel } = useAdminInvitationFunnel()
   const { data: activity } = useAdminActivity({ period: activityPeriod })
@@ -98,9 +106,46 @@ export function AdminSection() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <KpiCard
+          label="Companii"
+          icon={Building2}
+          value={companies?.total_companies ?? 0}
+          durationMs={600}
+          subtext={`${companies?.active ?? 0} active · ${companies?.read_only ?? 0} doar citire`}
+        />
+        <KpiCard
+          label="Expiră în 7 zile"
+          icon={CalendarClock}
+          value={companies?.expiring_soon ?? 0}
+          durationMs={600}
+          subtext="Companii active cu planul aproape de final"
+        />
+        <KpiCard
+          label="La limita de locuri"
+          icon={Gauge}
+          value={companies?.at_seat_limit ?? 0}
+          durationMs={600}
+          subtext="Toate locurile planului sunt ocupate"
+        />
+        <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
+          <div className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--color-ink-muted)]">
+            Pe planuri
+          </div>
+          <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-[13px]">
+            {(companies?.plans ?? []).map((entry) => (
+              <li key={entry.plan_type} className="flex justify-between">
+                <span className="text-[var(--color-ink-muted)]">{planLabel(entry.plan_type)}</span>
+                <span className="font-semibold text-[var(--color-ink)]">{entry.count}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <KpiCard label="Manageri" icon={UserCog} value={overview?.total_managers ?? 0} durationMs={600} />
         <KpiCard label="Angajați" icon={Users} value={overview?.total_employees ?? 0} durationMs={600} />
-        <KpiCard label="Utilizatori" icon={Building2} value={overview?.total_users ?? 0} durationMs={600} />
+        <KpiCard label="Utilizatori" icon={UsersRound} value={overview?.total_users ?? 0} durationMs={600} />
         <KpiCard
           label="Fără manager"
           icon={UserX}

@@ -19,6 +19,29 @@ export interface AccountUpdateIn {
   last_name: string;
 }
 
+export type ActiveAnnouncementOutSeverity = typeof ActiveAnnouncementOutSeverity[keyof typeof ActiveAnnouncementOutSeverity];
+
+
+export const ActiveAnnouncementOutSeverity = {
+  info: 'info',
+  warning: 'warning',
+  critical: 'critical',
+} as const;
+
+export interface ActiveAnnouncementOut {
+  id: number;
+  severity: ActiveAnnouncementOutSeverity;
+  title: string;
+  body: string;
+  /** False for `critical`: it cannot be hidden for good and comes back until it ends. */
+  dismissible: boolean;
+  ends_at: string | null;
+}
+
+export interface ActiveAnnouncementsOut {
+  data: ActiveAnnouncementOut[];
+}
+
 export interface ActivityOut {
   /** Activity ID. */
   id: number;
@@ -65,6 +88,171 @@ export interface AdminActivityOut {
   data: AdminActivityPointOut[];
 }
 
+export type AdminAnnouncementOutSeverity = typeof AdminAnnouncementOutSeverity[keyof typeof AdminAnnouncementOutSeverity];
+
+
+export const AdminAnnouncementOutSeverity = {
+  info: 'info',
+  warning: 'warning',
+  critical: 'critical',
+} as const;
+
+export type AdminAnnouncementOutStatus = typeof AdminAnnouncementOutStatus[keyof typeof AdminAnnouncementOutStatus];
+
+
+export const AdminAnnouncementOutStatus = {
+  draft: 'draft',
+  published: 'published',
+} as const;
+
+/**
+ * Derived: draft, scheduled (not started), live, or ended.
+ */
+export type AdminAnnouncementOutState = typeof AdminAnnouncementOutState[keyof typeof AdminAnnouncementOutState];
+
+
+export const AdminAnnouncementOutState = {
+  draft: 'draft',
+  scheduled: 'scheduled',
+  live: 'live',
+  ended: 'ended',
+} as const;
+
+export type AdminAnnouncementOutAudienceRolesItem = typeof AdminAnnouncementOutAudienceRolesItem[keyof typeof AdminAnnouncementOutAudienceRolesItem];
+
+
+export const AdminAnnouncementOutAudienceRolesItem = {
+  owner: 'owner',
+  manager: 'manager',
+  employee: 'employee',
+} as const;
+
+export interface AdminAnnouncementOut {
+  id: number;
+  kind: string;
+  severity: AdminAnnouncementOutSeverity;
+  title: string;
+  body: string;
+  status: AdminAnnouncementOutStatus;
+  /** Derived: draft, scheduled (not started), live, or ended. */
+  state: AdminAnnouncementOutState;
+  audience_roles: AdminAnnouncementOutAudienceRolesItem[];
+  starts_at: string | null;
+  ends_at: string | null;
+  dismissed_count: number;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminAnnouncementsOut {
+  data: AdminAnnouncementOut[];
+}
+
+export type AdminPlanCountOutPlanType = typeof AdminPlanCountOutPlanType[keyof typeof AdminPlanCountOutPlanType];
+
+
+export const AdminPlanCountOutPlanType = {
+  trial: 'trial',
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export interface AdminPlanCountOut {
+  plan_type: AdminPlanCountOutPlanType;
+  count: number;
+}
+
+export interface AdminCompaniesSummaryOut {
+  total_companies: number;
+  active: number;
+  read_only: number;
+  /** Active companies whose plan expires within 7 days. */
+  expiring_soon: number;
+  /** Companies with a seat cap above zero and every seat used. */
+  at_seat_limit: number;
+  /** Every plan type, in tier order, zero counts included. */
+  plans: AdminPlanCountOut[];
+}
+
+export type AdminCompanyDetailOutPlanType = typeof AdminCompanyDetailOutPlanType[keyof typeof AdminCompanyDetailOutPlanType];
+
+
+export const AdminCompanyDetailOutPlanType = {
+  trial: 'trial',
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export type AdminCompanyDetailOutPlanStatus = typeof AdminCompanyDetailOutPlanStatus[keyof typeof AdminCompanyDetailOutPlanStatus];
+
+
+export const AdminCompanyDetailOutPlanStatus = {
+  active: 'active',
+  read_only: 'read_only',
+} as const;
+
+export interface AdminCompanyDetailOut {
+  company_id: number;
+  company_name: string;
+  owner_name: string;
+  owner_email: string;
+  plan_type: AdminCompanyDetailOutPlanType;
+  plan_status: AdminCompanyDetailOutPlanStatus;
+  seats_limit: number | null;
+  seats_used: number;
+  plan_expires_at: string | null;
+  /** Start of the company's most recent time entry; null if none. A date only - never hours or per-user activity. */
+  last_activity_at: string | null;
+  city: string | null;
+  address: string | null;
+  timezone: string;
+  created_at: string;
+  onboarded_at: string | null;
+  admin_note: string | null;
+  admin_tags: string[];
+  admin_note_updated_at: string | null;
+  /** Display name of the admin who last edited the note. */
+  admin_note_updated_by: string | null;
+}
+
+export type AdminCompanyMemberOutCompanyRole = typeof AdminCompanyMemberOutCompanyRole[keyof typeof AdminCompanyMemberOutCompanyRole];
+
+
+export const AdminCompanyMemberOutCompanyRole = {
+  owner: 'owner',
+  manager: 'manager',
+  employee: 'employee',
+} as const;
+
+export interface AdminCompanyMemberOut {
+  user_id: number;
+  name: string;
+  email: string;
+  company_role: AdminCompanyMemberOutCompanyRole;
+  job_title: string | null;
+  /** False = suspended in this company. */
+  is_active: boolean;
+  joined_at: string;
+}
+
+export interface AdminCompanyMembersOut {
+  data: AdminCompanyMemberOut[];
+  total: number;
+}
+
+export interface AdminCompanyNotesIn {
+  note?: string | null;
+  /** @maxItems 10 */
+  tags?: string[];
+}
+
 export type AdminCompanySubscriptionOutPlanType = typeof AdminCompanySubscriptionOutPlanType[keyof typeof AdminCompanySubscriptionOutPlanType];
 
 
@@ -95,10 +283,14 @@ export interface AdminCompanySubscriptionOut {
   seats_limit: number | null;
   seats_used: number;
   plan_expires_at: string | null;
+  /** Start of the company's most recent time entry; null if none. A date only - never hours or per-user activity. */
+  last_activity_at: string | null;
 }
 
 export interface AdminCompanySubscriptionsListOut {
   data: AdminCompanySubscriptionOut[];
+  /** Matches before pagination. */
+  total: number;
 }
 
 export interface AdminGrowthPointOut {
@@ -143,6 +335,85 @@ export interface AdminSubscriptionChangeIn {
   /** Required (and in the future) for `pilot`; must be omitted otherwise. */
   expires_at?: string | null;
   note?: string | null;
+}
+
+export type AnnouncementInSeverity = typeof AnnouncementInSeverity[keyof typeof AnnouncementInSeverity];
+
+
+export const AnnouncementInSeverity = {
+  info: 'info',
+  warning: 'warning',
+  critical: 'critical',
+} as const;
+
+export type AnnouncementInAudienceRolesItem = typeof AnnouncementInAudienceRolesItem[keyof typeof AnnouncementInAudienceRolesItem];
+
+
+export const AnnouncementInAudienceRolesItem = {
+  owner: 'owner',
+  manager: 'manager',
+  employee: 'employee',
+} as const;
+
+export type AnnouncementInStatus = typeof AnnouncementInStatus[keyof typeof AnnouncementInStatus];
+
+
+export const AnnouncementInStatus = {
+  draft: 'draft',
+  published: 'published',
+} as const;
+
+export interface AnnouncementIn {
+  severity: AnnouncementInSeverity;
+  /**
+     * Plain text.
+     * @minLength 1
+     * @maxLength 100
+     */
+  title: string;
+  /**
+     * Plain text.
+     * @minLength 1
+     * @maxLength 1000
+     */
+  body: string;
+  /** @minItems 1 */
+  audience_roles?: AnnouncementInAudienceRolesItem[];
+  /** Null = from publish. */
+  starts_at?: string | null;
+  /** Null = until unpublished. */
+  ends_at?: string | null;
+  status?: AnnouncementInStatus;
+}
+
+export type AnnouncementPatchInSeverity = typeof AnnouncementPatchInSeverity[keyof typeof AnnouncementPatchInSeverity] | null;
+
+
+export const AnnouncementPatchInSeverity = {
+  info: 'info',
+  warning: 'warning',
+  critical: 'critical',
+} as const;
+
+export type AnnouncementPatchInStatus = typeof AnnouncementPatchInStatus[keyof typeof AnnouncementPatchInStatus] | null;
+
+
+export const AnnouncementPatchInStatus = {
+  draft: 'draft',
+  published: 'published',
+} as const;
+
+/**
+ * Only the fields present are changed; send `null` for a window bound to clear it.
+ */
+export interface AnnouncementPatchIn {
+  severity?: AnnouncementPatchInSeverity;
+  title?: string | null;
+  body?: string | null;
+  audience_roles?: ('owner' | 'manager' | 'employee')[] | null;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  status?: AnnouncementPatchInStatus;
 }
 
 /**
@@ -1224,5 +1495,76 @@ refresh?: boolean;
 
 export type GetAdminInfraProviderParams = {
 refresh?: boolean;
+};
+
+export type ListAdminCompaniesParams = {
+/**
+ * Company, owner name or owner email.
+ */
+q?: string | null;
+plan_type?: ListAdminCompaniesPlanType;
+plan_status?: ListAdminCompaniesPlanStatus;
+sort?: ListAdminCompaniesSort;
+order?: ListAdminCompaniesOrder;
+/**
+ * @minimum 1
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+page_size?: number;
+};
+
+export type ListAdminCompaniesPlanType = typeof ListAdminCompaniesPlanType[keyof typeof ListAdminCompaniesPlanType] | null;
+
+
+export const ListAdminCompaniesPlanType = {
+  trial: 'trial',
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export type ListAdminCompaniesPlanStatus = typeof ListAdminCompaniesPlanStatus[keyof typeof ListAdminCompaniesPlanStatus] | null;
+
+
+export const ListAdminCompaniesPlanStatus = {
+  active: 'active',
+  read_only: 'read_only',
+} as const;
+
+export type ListAdminCompaniesSort = typeof ListAdminCompaniesSort[keyof typeof ListAdminCompaniesSort];
+
+
+export const ListAdminCompaniesSort = {
+  name: 'name',
+  plan: 'plan',
+  seats: 'seats',
+  expires: 'expires',
+  last_activity: 'last_activity',
+} as const;
+
+export type ListAdminCompaniesOrder = typeof ListAdminCompaniesOrder[keyof typeof ListAdminCompaniesOrder];
+
+
+export const ListAdminCompaniesOrder = {
+  asc: 'asc',
+  desc: 'desc',
+} as const;
+
+export type ListAdminCompanyMembersParams = {
+/**
+ * @minimum 1
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+page_size?: number;
 };
 

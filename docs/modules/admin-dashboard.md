@@ -8,7 +8,11 @@ manager-facing app shell.
 ## Scope
 
 **In scope:** a dedicated route group (`/admin`, `/admin/companies`, `/admin/infra`,
-`/admin/audit`, `/admin/account`) with a dense, monospace-leaning layout; total manager/employee/user counts; count
+`/admin/audit`, `/admin/account`, plus `/admin/announcements`) with a dense, monospace-leaning layout; company-level KPIs
+(total companies, active vs read-only, plans expiring within 7 days, companies at their seat limit,
+count per plan); the company detail panel (owner contact as a `mailto:` link, profile, internal note and tags, paged live member list with role and standing but never hours or pay); the company table with search, plan/status filters, sortable columns, pagination
+and the date of each company's last time entry (a date only - never hours or per-user activity);
+total manager/employee/user counts; count
 of employees who never joined a real manager's company (`company_id` still equal to
 `personal_company_id`); new manager/employee signups over time (weekly or monthly); invitation
 counts by status across every company; time entries logged over time (daily or weekly) across every
@@ -17,8 +21,8 @@ platform-services status page (see `infra.md`); the
 cross-company audit feed with its company filter (see `settings.md`); the admin's own account and
 security sections.
 
-**Out of scope (this release):** global announcements; per-company drill-down, member tree and admin actions on companies
-or users; admin user management (granting/revoking the `admin` role) — the single admin account is
+**Out of scope (this release):** markdown announcements (modal announcements are live, see `announcements.md`); admin actions on companies or users (block,
+forced read-only, suspend, session revocation, ownership transfer); admin user management (granting/revoking the `admin` role) — the single admin account is
 provisioned directly in the database, the same way every `admin` row is created (see backend
 `stafy-backend/CLAUDE.md`); date-range filtering beyond the fixed period toggles; export of any
 admin statistic.
@@ -98,6 +102,7 @@ All four stats are computed server-side, not client-side:
 |---|---|---|
 | `/admin` | `AdminOverviewPage` | `AdminSection` (the four stat panels) |
 | `/admin/companies` | `AdminCompaniesPage` | `AdminCompaniesSection` + `AdminCompanyPlanPanel` |
+| `/admin/announcements` | `AdminAnnouncementsPage` | `AdminAnnouncementsSection` (see `announcements.md`) |
 | `/admin/infra` | `AdminInfraPage` | `ProviderCard` per provider (see `infra.md`) |
 | `/admin/audit` | `AdminAuditPage` | `AuditSection` (shared with Settings) |
 | `/admin/account` | `AdminAccountPage` | `AccountSection` + `SecuritySection` (shared with Settings) |
@@ -115,7 +120,7 @@ in `src/components/admin/`; the shared account/audit sections stay in `src/compo
 - `AdminSidebar`: fixed-width rail, monospace labels and console title, icons from the `ICONS`
   registry, the signed-in email and app version at the bottom, plus a sign-out button.
 - Each page body renders inside `AdminPanel`, the same surface card Settings gives its sections.
-- Overview: a 4-column KPI row (`KpiCard`, reused from the Dashboard page) — managers, employees,
+- Overview: a first KPI row for companies (`KpiCard`: companies with an active/read-only subtext, expiring in 7 days, at seat limit, plus a per-plan count tile), then a 4-column KPI row (`KpiCard`, reused from the Dashboard page) — managers, employees,
   total users, employees without a manager (with a one-line subtext explaining the count).
 - Growth: a bordered panel with a title, a two-option period toggle (DaisyUI `join`/`btn` group)
   top-right, and a Recharts `LineChart` — two lines (managers, employees), theme-token colors.
@@ -133,6 +138,9 @@ in `src/components/admin/`; the shared account/audit sections stay in `src/compo
 | Endpoint | Method | Notes |
 |---|---|---|
 | `/api/v1/admin/overview` | GET | Admin only. Returns manager/employee/total counts plus `employees_without_manager`. |
+| `/api/v1/admin/companies/summary` | GET | Admin only. Company totals, expiring, at seat limit and per-plan counts (owned by the subscriptions domain). |
+| `/api/v1/admin/companies/{id}`, `/members`, `/notes` | GET / GET / PUT | Admin only. Detail panel, its member list and the internal note and tags editor (see `subscription.md`). |
+| `/api/v1/admin/companies` | GET | Admin only. Paged company table with `q`, `plan_type`, `plan_status`, `sort`, `order`, `page`, `page_size` (see `subscription.md`). |
 | `/api/v1/admin/growth?period=week\|month` | GET | Admin only. One point per bucket: `period_start`, `new_managers`, `new_employees`. |
 | `/api/v1/admin/invitations-funnel` | GET | Admin only. Flat count per `TeamInvitation.status`. |
 | `/api/v1/admin/activity?period=day\|week` | GET | Admin only. One point per bucket: `period_start`, `time_entries_count`. |
@@ -179,8 +187,8 @@ counts.
 
 | Item | Trigger |
 |---|---|
-| Global announcements and a what's-new modal | The infra page is done |
-| Company member tree and admin actions on companies and users, including admin-initiated ownership transfer | Announcements are done |
+| What's-new modal and markdown announcements | Banner announcements prove useful |
+| Admin actions on companies and users, including admin-initiated ownership transfer | The company detail panel is in daily use |
 | Product and business statistics (activation funnel, at-risk companies, MRR) | Company member tree is done |
 | Admin role management UI | More than one admin account needs to exist |
 | Date-range filtering beyond the week/month and day/week toggles | Real need surfaces past the fixed periods |

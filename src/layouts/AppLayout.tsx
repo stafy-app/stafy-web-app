@@ -3,6 +3,7 @@ import { SessionGate } from '@stafy/components/layout/SessionGate'
 import { Sidebar } from '@stafy/components/layout/Sidebar'
 import { BottomNav } from '@stafy/components/layout/BottomNav'
 import { Topbar } from '@stafy/components/layout/Topbar'
+import { AnnouncementModal } from '@stafy/components/layout/AnnouncementModal'
 import { PlanStatusBanner } from '@stafy/components/layout/PlanStatusBanner'
 import { IncomingInvitations } from '@stafy/components/invitations/IncomingInvitations'
 import { TopBarProvider } from '@stafy/context/TopBarProvider'
@@ -39,6 +40,7 @@ export function AppLayout() {
 
         return (
           <TopBarProvider>
+            <AnnouncementModal />
             <div className="flex min-h-screen">
               <Sidebar />
               <div className="flex min-w-0 flex-1 flex-col">

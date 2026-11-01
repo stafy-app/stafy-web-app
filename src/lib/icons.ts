@@ -19,6 +19,7 @@ import {
   Clock,
   User,
   Building2,
+  Megaphone,
   Tags,
   ShieldCheck,
   History,
@@ -57,6 +58,7 @@ export const ICONS = {
   briefcase: Briefcase,
   creditCard: CreditCard,
   server: Server,
+  megaphone: Megaphone,
 } satisfies Record<string, LucideIcon>
 
 export type IconName = keyof typeof ICONS

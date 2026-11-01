@@ -113,7 +113,11 @@ other role.
 |---|---|---|
 | `/api/v1/subscriptions/me` | GET | `useMySubscription` — Subscription section, banner |
 | `/api/v1/subscriptions/me` | PATCH | `useChangeMyPlan` — owner's plan switch |
-| `/api/v1/admin/companies` | GET | `useAdminCompanies` |
+| `/api/v1/admin/companies` | GET | `useAdminCompanies(params)` - search, plan/status filters, sortable headers, 25-row pages, `last_activity_at` column |
+| `/api/v1/admin/companies/summary` | GET | `useAdminCompaniesSummary` (Overview KPIs) |
+| `/api/v1/admin/companies/{id}` | GET | `useAdminCompany` (detail panel) |
+| `/api/v1/admin/companies/{id}/members` | GET | `useAdminCompanyMembers` (25 per page) |
+| `/api/v1/admin/companies/{id}/notes` | PUT | `useAdminSetCompanyNotes` |
 | `/api/v1/admin/companies/{id}/subscription` | GET / PATCH | `useAdminCompanySubscription`, `useAdminSetSubscription` |
 | `/api/v1/admin/companies/{id}/subscription/events` | GET | `useAdminSubscriptionEvents` |
 
