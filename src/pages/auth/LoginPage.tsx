@@ -3,6 +3,7 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { AuthCard } from '@stafy/components/auth/AuthCard'
 import { AuthError } from '@stafy/components/auth/AuthError'
 import { AuthField } from '@stafy/components/auth/AuthField'
+import { LoginAnnouncements } from '@stafy/components/auth/LoginAnnouncements'
 import { AUTH_LINK, AUTH_SUBMIT } from '@stafy/components/auth/authStyles'
 import { useAuth } from '@stafy/hooks/useAuth'
 import { OrphanRegistrationError } from '@stafy/utils/authError'
@@ -35,6 +36,7 @@ export default function LoginPage() {
 
   return (
     <AuthCard title="Bine ai revenit" subtitle="Intră în contul tău Stafy.">
+      <LoginAnnouncements />
       {error && <AuthError message={error} />}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">

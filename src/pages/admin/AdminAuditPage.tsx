@@ -1,10 +1,5 @@
-import { AdminPanel } from '@stafy/components/admin/AdminPanel'
-import { AuditSection } from '@stafy/components/settings/AuditSection'
+import { AdminAuditSection } from '@stafy/components/admin/AdminAuditSection'
 
 export default function AdminAuditPage() {
-  return (
-    <AdminPanel>
-      <AuditSection />
-    </AdminPanel>
-  )
+  return <AdminAuditSection />
 }

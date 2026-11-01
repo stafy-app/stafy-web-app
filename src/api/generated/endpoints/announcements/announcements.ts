@@ -5,7 +5,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type {
-  ActiveAnnouncementsOut
+  ActiveAnnouncementsOut,
+  PublicAnnouncementsOut
 } from '../index.schemas';
 
 import { api } from '../../../../services/api';
@@ -25,6 +26,17 @@ const listActiveAnnouncements = (
       );
     }
   /**
+ * @summary Announcements flagged for the login page; no authentication
+ */
+const listPublicAnnouncements = (
+
+ ) => {
+      return api<PublicAnnouncementsOut>(
+      {url: `/api/v1/announcements/public`, method: 'GET'
+    },
+      );
+    }
+  /**
  * @summary Hide a banner for the caller; idempotent. `critical` cannot be dismissed
  */
 const dismissAnnouncement = (
@@ -35,6 +47,7 @@ const dismissAnnouncement = (
     },
       );
     }
-  return {listActiveAnnouncements,dismissAnnouncement}};
+  return {listActiveAnnouncements,listPublicAnnouncements,dismissAnnouncement}};
 export type ListActiveAnnouncementsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAnnouncements>['listActiveAnnouncements']>>>
+export type ListPublicAnnouncementsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAnnouncements>['listPublicAnnouncements']>>>
 export type DismissAnnouncementResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAnnouncements>['dismissAnnouncement']>>>

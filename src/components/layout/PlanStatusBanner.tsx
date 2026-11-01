@@ -10,6 +10,15 @@ export function PlanStatusBanner() {
 
   if (!subscription) return null
 
+  if (subscription.restriction === 'read_only') {
+    return (
+      <div role="alert" className="alert alert-error rounded-none text-sm">
+        Compania este în modul doar citire, setat de echipa Stafy. Echipa poate ponta în continuare, dar alte
+        modificări nu se pot face până ne contactezi.
+      </div>
+    )
+  }
+
   if (subscription.plan_status === 'read_only') {
     return (
       <div role="alert" className="alert alert-error rounded-none text-sm">

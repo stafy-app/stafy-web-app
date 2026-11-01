@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Info, OctagonAlert, TriangleAlert, X, type LucideIcon } from 'lucide-react'
+import { Info, OctagonAlert, Sparkles, TriangleAlert, X, type LucideIcon } from 'lucide-react'
+import { AnnouncementMarkdown } from '@stafy/components/shared/AnnouncementMarkdown'
 import { useActiveAnnouncements, useDismissAnnouncement } from '@stafy/hooks/useAnnouncements'
 
 const SEVERITY: Record<string, { label: string; Icon: LucideIcon; tone: string; soft: string; dot: string }> = {
@@ -7,6 +8,9 @@ const SEVERITY: Record<string, { label: string; Icon: LucideIcon; tone: string; 
   warning: { label: 'Avertisment', Icon: TriangleAlert, tone: 'text-warning', soft: 'bg-warning/10', dot: 'bg-warning' },
   critical: { label: 'Important', Icon: OctagonAlert, tone: 'text-error', soft: 'bg-error/10', dot: 'bg-error' },
 }
+
+// A what's-new announcement is a product update, not an alert: it gets its own accent, whatever its severity.
+const WHATS_NEW = { label: 'Noutăți', Icon: Sparkles, tone: 'text-primary', soft: 'bg-primary/10', dot: 'bg-primary' }
 
 /**
  * Platform announcements as a modal over the whole app, one at a time, most severe first. Severity is
@@ -38,7 +42,7 @@ export function AnnouncementModal() {
 
   if (!current) return null
 
-  const severity = SEVERITY[current.severity] ?? SEVERITY.info
+  const severity = current.kind === 'whats_new' ? WHATS_NEW : (SEVERITY[current.severity] ?? SEVERITY.info)
   const { Icon } = severity
 
   return (
@@ -65,13 +69,22 @@ export function AnnouncementModal() {
         <h3 id="announcement-title" className="text-[18px] font-semibold text-[var(--color-ink)]">
           {current.title}
         </h3>
-        <p className="mt-2 whitespace-pre-line text-[14px] text-[var(--color-ink-muted)]">{current.body}</p>
+        <AnnouncementMarkdown className="mt-2 text-[14px] text-[var(--color-ink-muted)]">{current.body}</AnnouncementMarkdown>
 
-        <div className="modal-action justify-center">
+        <div className="modal-action flex-wrap justify-center">
+          {current.cta_label && current.cta_url && (
+            <a
+              className="btn btn-primary btn-sm"
+              href={current.cta_url}
+              {...(current.cta_url.startsWith('/') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
+            >
+              {current.cta_label}
+            </a>
+          )}
           {current.dismissible ? (
             <button
               type="button"
-              className="btn btn-primary btn-sm"
+              className={`btn btn-sm ${current.cta_url ? 'btn-ghost' : 'btn-primary'}`}
               autoFocus
               disabled={dismiss.isPending}
               onClick={() => dismiss.mutate(current.id)}
@@ -79,7 +92,12 @@ export function AnnouncementModal() {
               Am înțeles
             </button>
           ) : (
-            <button type="button" className="btn btn-primary btn-sm" autoFocus onClick={closeForNow}>
+            <button
+              type="button"
+              className={`btn btn-sm ${current.cta_url ? 'btn-ghost' : 'btn-primary'}`}
+              autoFocus
+              onClick={closeForNow}
+            >
               Închide
             </button>
           )}

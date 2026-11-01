@@ -19,6 +19,14 @@ export interface AccountUpdateIn {
   last_name: string;
 }
 
+export type ActiveAnnouncementOutKind = typeof ActiveAnnouncementOutKind[keyof typeof ActiveAnnouncementOutKind];
+
+
+export const ActiveAnnouncementOutKind = {
+  announcement: 'announcement',
+  whats_new: 'whats_new',
+} as const;
+
 export type ActiveAnnouncementOutSeverity = typeof ActiveAnnouncementOutSeverity[keyof typeof ActiveAnnouncementOutSeverity];
 
 
@@ -30,9 +38,13 @@ export const ActiveAnnouncementOutSeverity = {
 
 export interface ActiveAnnouncementOut {
   id: number;
+  kind: ActiveAnnouncementOutKind;
   severity: ActiveAnnouncementOutSeverity;
   title: string;
+  /** Markdown: bold, italic, lists and links only. */
   body: string;
+  cta_label: string | null;
+  cta_url: string | null;
   /** False for `critical`: it cannot be hidden for good and comes back until it ends. */
   dismissible: boolean;
   ends_at: string | null;
@@ -88,6 +100,14 @@ export interface AdminActivityOut {
   data: AdminActivityPointOut[];
 }
 
+export type AdminAnnouncementOutKind = typeof AdminAnnouncementOutKind[keyof typeof AdminAnnouncementOutKind];
+
+
+export const AdminAnnouncementOutKind = {
+  announcement: 'announcement',
+  whats_new: 'whats_new',
+} as const;
+
 export type AdminAnnouncementOutSeverity = typeof AdminAnnouncementOutSeverity[keyof typeof AdminAnnouncementOutSeverity];
 
 
@@ -129,10 +149,13 @@ export const AdminAnnouncementOutAudienceRolesItem = {
 
 export interface AdminAnnouncementOut {
   id: number;
-  kind: string;
+  kind: AdminAnnouncementOutKind;
   severity: AdminAnnouncementOutSeverity;
   title: string;
   body: string;
+  cta_label: string | null;
+  cta_url: string | null;
+  show_on_login: boolean;
   status: AdminAnnouncementOutStatus;
   /** Derived: draft, scheduled (not started), live, or ended. */
   state: AdminAnnouncementOutState;
@@ -198,6 +221,17 @@ export const AdminCompanyDetailOutPlanStatus = {
   read_only: 'read_only',
 } as const;
 
+/**
+ * Platform-admin restriction; null when none.
+ */
+export type AdminCompanyDetailOutRestriction = typeof AdminCompanyDetailOutRestriction[keyof typeof AdminCompanyDetailOutRestriction] | null;
+
+
+export const AdminCompanyDetailOutRestriction = {
+  read_only: 'read_only',
+  suspended: 'suspended',
+} as const;
+
 export interface AdminCompanyDetailOut {
   company_id: number;
   company_name: string;
@@ -210,6 +244,8 @@ export interface AdminCompanyDetailOut {
   plan_expires_at: string | null;
   /** Start of the company's most recent time entry; null if none. A date only - never hours or per-user activity. */
   last_activity_at: string | null;
+  /** Platform-admin restriction; null when none. */
+  restriction: AdminCompanyDetailOutRestriction;
   city: string | null;
   address: string | null;
   timezone: string;
@@ -220,6 +256,9 @@ export interface AdminCompanyDetailOut {
   admin_note_updated_at: string | null;
   /** Display name of the admin who last edited the note. */
   admin_note_updated_by: string | null;
+  /** Why the current restriction was set; null when there is none. */
+  restriction_reason: string | null;
+  restricted_at: string | null;
 }
 
 export type AdminCompanyMemberOutCompanyRole = typeof AdminCompanyMemberOutCompanyRole[keyof typeof AdminCompanyMemberOutCompanyRole];
@@ -239,6 +278,8 @@ export interface AdminCompanyMemberOut {
   job_title: string | null;
   /** False = suspended in this company. */
   is_active: boolean;
+  /** True when a platform admin blocked the account; it cannot use the API in any company. */
+  blocked: boolean;
   joined_at: string;
 }
 
@@ -251,6 +292,28 @@ export interface AdminCompanyNotesIn {
   note?: string | null;
   /** @maxItems 10 */
   tags?: string[];
+}
+
+/**
+ * `read_only`, `suspended`, or null to lift the current restriction.
+ */
+export type AdminCompanyRestrictionInRestriction = typeof AdminCompanyRestrictionInRestriction[keyof typeof AdminCompanyRestrictionInRestriction] | null;
+
+
+export const AdminCompanyRestrictionInRestriction = {
+  read_only: 'read_only',
+  suspended: 'suspended',
+} as const;
+
+export interface AdminCompanyRestrictionIn {
+  /** `read_only`, `suspended`, or null to lift the current restriction. */
+  restriction: AdminCompanyRestrictionInRestriction;
+  /**
+     * Mandatory, whether setting or lifting; recorded in the audit log.
+     * @minLength 1
+     * @maxLength 500
+     */
+  reason: string;
 }
 
 export type AdminCompanySubscriptionOutPlanType = typeof AdminCompanySubscriptionOutPlanType[keyof typeof AdminCompanySubscriptionOutPlanType];
@@ -273,6 +336,17 @@ export const AdminCompanySubscriptionOutPlanStatus = {
   read_only: 'read_only',
 } as const;
 
+/**
+ * Platform-admin restriction; null when none.
+ */
+export type AdminCompanySubscriptionOutRestriction = typeof AdminCompanySubscriptionOutRestriction[keyof typeof AdminCompanySubscriptionOutRestriction] | null;
+
+
+export const AdminCompanySubscriptionOutRestriction = {
+  read_only: 'read_only',
+  suspended: 'suspended',
+} as const;
+
 export interface AdminCompanySubscriptionOut {
   company_id: number;
   company_name: string;
@@ -285,6 +359,8 @@ export interface AdminCompanySubscriptionOut {
   plan_expires_at: string | null;
   /** Start of the company's most recent time entry; null if none. A date only - never hours or per-user activity. */
   last_activity_at: string | null;
+  /** Platform-admin restriction; null when none. */
+  restriction: AdminCompanySubscriptionOutRestriction;
 }
 
 export interface AdminCompanySubscriptionsListOut {
@@ -337,6 +413,23 @@ export interface AdminSubscriptionChangeIn {
   note?: string | null;
 }
 
+export interface AdminUserActionIn {
+  /**
+     * Mandatory; recorded in the audit log.
+     * @minLength 1
+     * @maxLength 500
+     */
+  reason: string;
+}
+
+export type AnnouncementInKind = typeof AnnouncementInKind[keyof typeof AnnouncementInKind];
+
+
+export const AnnouncementInKind = {
+  announcement: 'announcement',
+  whats_new: 'whats_new',
+} as const;
+
 export type AnnouncementInSeverity = typeof AnnouncementInSeverity[keyof typeof AnnouncementInSeverity];
 
 
@@ -364,6 +457,7 @@ export const AnnouncementInStatus = {
 } as const;
 
 export interface AnnouncementIn {
+  kind?: AnnouncementInKind;
   severity: AnnouncementInSeverity;
   /**
      * Plain text.
@@ -372,11 +466,16 @@ export interface AnnouncementIn {
      */
   title: string;
   /**
-     * Plain text.
+     * Markdown: bold, italic, lists and links only.
      * @minLength 1
      * @maxLength 1000
      */
   body: string;
+  cta_label?: string | null;
+  /** https URL or app-relative path; set together with `cta_label`. */
+  cta_url?: string | null;
+  /** Also show it, to signed-out visitors, on the login page. */
+  show_on_login?: boolean;
   /** @minItems 1 */
   audience_roles?: AnnouncementInAudienceRolesItem[];
   /** Null = from publish. */
@@ -385,6 +484,14 @@ export interface AnnouncementIn {
   ends_at?: string | null;
   status?: AnnouncementInStatus;
 }
+
+export type AnnouncementPatchInKind = typeof AnnouncementPatchInKind[keyof typeof AnnouncementPatchInKind] | null;
+
+
+export const AnnouncementPatchInKind = {
+  announcement: 'announcement',
+  whats_new: 'whats_new',
+} as const;
 
 export type AnnouncementPatchInSeverity = typeof AnnouncementPatchInSeverity[keyof typeof AnnouncementPatchInSeverity] | null;
 
@@ -407,9 +514,13 @@ export const AnnouncementPatchInStatus = {
  * Only the fields present are changed; send `null` for a window bound to clear it.
  */
 export interface AnnouncementPatchIn {
+  kind?: AnnouncementPatchInKind;
   severity?: AnnouncementPatchInSeverity;
   title?: string | null;
   body?: string | null;
+  cta_label?: string | null;
+  cta_url?: string | null;
+  show_on_login?: boolean | null;
   audience_roles?: ('owner' | 'manager' | 'employee')[] | null;
   starts_at?: string | null;
   ends_at?: string | null;
@@ -447,6 +558,8 @@ export interface AuditLogOut {
   before?: AuditLogOutBefore;
   /** State after the action. */
   after?: AuditLogOutAfter;
+  /** Why a platform admin took the action; null for ordinary company activity. */
+  reason?: string | null;
   /** When the action was recorded. */
   created_at: string;
 }
@@ -950,6 +1063,8 @@ export interface ProviderItem {
   url?: string | null;
   /** When the row last changed. */
   at?: string | null;
+  /** The row's own figures, e.g. a monitor's uptime; the client shows one column per label. */
+  metrics?: ProviderMetric[];
 }
 
 export interface ProviderLink {
@@ -969,6 +1084,8 @@ export interface ProviderStatus {
   health: ProviderStatusHealth;
   /** One line for the card header. */
   summary?: string | null;
+  /** What this service does for Stafy, in one sentence (Romanian), so the panel is readable without knowing the vendor. */
+  description?: string | null;
   metrics?: ProviderMetric[];
   items?: ProviderItem[];
   links?: ProviderLink[];
@@ -1088,6 +1205,38 @@ export interface PayrollBonusSetIn {
   reason?: string | null;
 }
 
+export type PublicAnnouncementOutKind = typeof PublicAnnouncementOutKind[keyof typeof PublicAnnouncementOutKind];
+
+
+export const PublicAnnouncementOutKind = {
+  announcement: 'announcement',
+  whats_new: 'whats_new',
+} as const;
+
+export type PublicAnnouncementOutSeverity = typeof PublicAnnouncementOutSeverity[keyof typeof PublicAnnouncementOutSeverity];
+
+
+export const PublicAnnouncementOutSeverity = {
+  info: 'info',
+  warning: 'warning',
+  critical: 'critical',
+} as const;
+
+export interface PublicAnnouncementOut {
+  id: number;
+  kind: PublicAnnouncementOutKind;
+  severity: PublicAnnouncementOutSeverity;
+  title: string;
+  /** Markdown: bold, italic, lists and links only. */
+  body: string;
+  cta_label: string | null;
+  cta_url: string | null;
+}
+
+export interface PublicAnnouncementsOut {
+  data: PublicAnnouncementOut[];
+}
+
 export interface RootOut {
   /** API display name. */
   title: string;
@@ -1169,6 +1318,17 @@ export const SubscriptionOutPlanStatus = {
   read_only: 'read_only',
 } as const;
 
+/**
+ * Platform-admin restriction on the company, independent of the plan. A suspended company cannot reach this endpoint, so a caller only ever sees `read_only` or null.
+ */
+export type SubscriptionOutRestriction = typeof SubscriptionOutRestriction[keyof typeof SubscriptionOutRestriction] | null;
+
+
+export const SubscriptionOutRestriction = {
+  read_only: 'read_only',
+  suspended: 'suspended',
+} as const;
+
 export interface SubscriptionOut {
   plan_type: SubscriptionOutPlanType;
   plan_status: SubscriptionOutPlanStatus;
@@ -1180,6 +1340,8 @@ export interface SubscriptionOut {
   /** Derived: active and expiring within 7 days. */
   expiring_soon: boolean;
   trial_started_at: string;
+  /** Platform-admin restriction on the company, independent of the plan. A suspended company cannot reach this endpoint, so a caller only ever sees `read_only` or null. */
+  restriction?: SubscriptionOutRestriction;
 }
 
 export interface TeamMembersOut {

@@ -1,28 +1,24 @@
 import { useState, type FormEvent } from 'react'
-import {
-  useAdminCompanySubscription,
-  useAdminSetSubscription,
-  useAdminSubscriptionEvents,
-} from '@stafy/hooks/useAdmin'
+import { useAdminCompanySubscription, useAdminSetSubscription, useAdminSubscriptionEvents } from '@stafy/hooks/useAdmin'
 import {
   AdminSubscriptionChangeInPlanType,
   type AdminSubscriptionChangeIn,
 } from '@stafy/api/generated/endpoints/index.schemas'
+import { ADMIN_CONTROL, AdminField } from '@stafy/components/admin/ui/AdminField'
+import { AdminSheet, AdminSheetSection } from '@stafy/components/admin/ui/AdminSheet'
+import { AdminTable } from '@stafy/components/admin/ui/AdminTable'
 import { EVENT_LABELS, STATUS_LABELS, formatPlanDate, planLabel } from '@stafy/utils/planLabels'
 
 type PlanChoice = AdminSubscriptionChangeIn['plan_type']
 
 const PLAN_CHOICES: PlanChoice[] = Object.values(AdminSubscriptionChangeInPlanType)
 
-const dateTimeFormatter = new Intl.DateTimeFormat('ro-RO', { dateStyle: 'short', timeStyle: 'short' })
+const dateTimeFormatter = new Intl.DateTimeFormat('ro-RO', {
+  dateStyle: 'short',
+  timeStyle: 'short',
+})
 
-interface AdminCompanyPlanPanelProps {
-  companyId: number
-  companyName: string
-  onClose: () => void
-}
-
-export function AdminCompanyPlanPanel({ companyId, companyName, onClose }: AdminCompanyPlanPanelProps) {
+export function AdminCompanyPlanPanel({ companyId }: { companyId: number }) {
   const { data: subscription } = useAdminCompanySubscription(companyId)
   const { data: events } = useAdminSubscriptionEvents(companyId)
   const setSubscription = useAdminSetSubscription(companyId)
@@ -51,80 +47,62 @@ export function AdminCompanyPlanPanel({ companyId, companyName, onClose }: Admin
     )
   }
 
+  const current = subscription
+    ? `${planLabel(subscription.plan_type)} · ${STATUS_LABELS[subscription.plan_status]} · ${subscription.seats_limit === 0 ? 'fără locuri pentru membri' : `${subscription.seats_used} / ${subscription.seats_limit ?? 'nelimitat'} locuri`}${subscription.plan_expires_at ? ` · expiră ${formatPlanDate(subscription.plan_expires_at)}` : ''}`
+    : undefined
+
   return (
-    <div className="flex flex-col gap-5 rounded-[var(--radius-md)] border border-[var(--color-line)] p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="text-[15px] font-semibold text-[var(--color-ink)]">{companyName}</h3>
-          {subscription && (
-            <p className="text-[13px] text-[var(--color-ink-muted)]">
-              {planLabel(subscription.plan_type)} · {STATUS_LABELS[subscription.plan_status]} ·{' '}
-              {subscription.seats_used} / {subscription.seats_limit ?? 'nelimitat'} locuri
-              {subscription.plan_expires_at && ` · expiră ${formatPlanDate(subscription.plan_expires_at)}`}
-            </p>
-          )}
-        </div>
-        <button type="button" className="btn btn-sm btn-ghost" onClick={onClose}>
-          Închide
-        </button>
-      </div>
-
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-1 text-[12px] text-[var(--color-ink-soft)]">
-            Plan
-            <select
-              className="select select-sm"
-              value={planType}
-              onChange={(event) => setPlanType(event.target.value as PlanChoice)}
-            >
-              {PLAN_CHOICES.map((plan) => (
-                <option key={plan} value={plan}>
-                  {planLabel(plan)}
-                </option>
-              ))}
-            </select>
-          </label>
-          {isPilot && (
-            <label className="flex flex-col gap-1 text-[12px] text-[var(--color-ink-soft)]">
-              Expiră pe
+    <>
+      <AdminSheet>
+        <AdminSheetSection title="Planul acum" caption={current}>
+          <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4">
+            <AdminField label="Alege planul">
+              <select
+                className={`select ${ADMIN_CONTROL}`}
+                value={planType}
+                onChange={(event) => setPlanType(event.target.value as PlanChoice)}
+              >
+                {PLAN_CHOICES.map((plan) => (
+                  <option key={plan} value={plan}>
+                    {planLabel(plan)}
+                  </option>
+                ))}
+              </select>
+            </AdminField>
+            {isPilot && (
+              <AdminField label="Expiră pe">
+                <input
+                  type="date"
+                  className={`input ${ADMIN_CONTROL}`}
+                  required
+                  value={expiryDate}
+                  onChange={(event) => setExpiryDate(event.target.value)}
+                />
+              </AdminField>
+            )}
+            <AdminField label="Notă (opțional)" className="min-w-[220px] flex-1">
               <input
-                type="date"
-                className="input input-sm"
-                required
-                value={expiryDate}
-                onChange={(event) => setExpiryDate(event.target.value)}
+                type="text"
+                className={`input w-full ${ADMIN_CONTROL}`}
+                maxLength={1000}
+                value={note}
+                onChange={(event) => setNote(event.target.value)}
               />
-            </label>
-          )}
-        </div>
-        <label className="flex flex-col gap-1 text-[12px] text-[var(--color-ink-soft)]">
-          Notă (opțional)
-          <input
-            type="text"
-            className="input input-sm w-full"
-            maxLength={1000}
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-          />
-        </label>
-        <div>
-          <button type="submit" className="btn btn-sm btn-primary" disabled={setSubscription.isPending}>
-            Aplică planul
-          </button>
-        </div>
-      </form>
+            </AdminField>
+            <button type="submit" className="btn btn-primary" disabled={setSubscription.isPending}>
+              Aplică planul
+            </button>
+          </form>
+        </AdminSheetSection>
 
-      <div className="flex flex-col gap-2">
-        <h4 className="text-[13px] font-semibold text-[var(--color-ink)]">Istoric</h4>
-        <div className="overflow-x-auto">
-          <table className="table table-sm">
+        <AdminSheetSection title="Istoric" flush>
+          <AdminTable>
             <thead>
               <tr>
                 <th>Data</th>
                 <th>Eveniment</th>
                 <th>Plan</th>
-                <th>Locuri</th>
+                <th className="num">Locuri</th>
                 <th>Expiră</th>
                 <th>Modificat de</th>
                 <th>Notă</th>
@@ -133,19 +111,21 @@ export function AdminCompanyPlanPanel({ companyId, companyName, onClose }: Admin
             <tbody>
               {events?.data.map((event) => (
                 <tr key={event.id}>
-                  <td className="whitespace-nowrap">{dateTimeFormatter.format(new Date(event.created_at))}</td>
+                  <td className="whitespace-nowrap tabular-nums">
+                    {dateTimeFormatter.format(new Date(event.created_at))}
+                  </td>
                   <td>{EVENT_LABELS[event.event_type] ?? event.event_type}</td>
                   <td>{planLabel(event.plan_type)}</td>
-                  <td>{event.seats_limit ?? '∞'}</td>
-                  <td>{event.expires_at ? formatPlanDate(event.expires_at) : '—'}</td>
+                  <td className="num">{event.seats_limit ?? '∞'}</td>
+                  <td className="tabular-nums">{event.expires_at ? formatPlanDate(event.expires_at) : '—'}</td>
                   <td>{event.actor}</td>
                   <td>{event.note ?? ''}</td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+          </AdminTable>
+        </AdminSheetSection>
+      </AdminSheet>
+    </>
   )
 }

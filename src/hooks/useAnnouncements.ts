@@ -17,6 +17,15 @@ export function useActiveAnnouncements() {
   })
 }
 
+/** Announcements flagged for the login page; no authentication, no dismissal on the server. */
+export function usePublicAnnouncements() {
+  return useQuery({
+    queryKey: ['announcements', 'public'],
+    queryFn: () => getAnnouncements().listPublicAnnouncements(),
+    staleTime: 5 * 60_000,
+  })
+}
+
 export function useDismissAnnouncement() {
   const queryClient = useQueryClient()
 

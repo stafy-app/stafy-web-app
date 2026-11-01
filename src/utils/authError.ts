@@ -17,8 +17,19 @@ export class OrphanRegistrationError extends Error {
 // (stafy-backend's AppHTTPException) to user-facing Romanian messages. Shared by
 // AuthProvider (login/register) and useSendPasswordResetEmail — both hit the same
 // Firebase error-code surface.
+export const ACCESS_BLOCKED_MESSAGES: Record<string, string> = {
+  user_blocked: 'Contul tău a fost blocat. Contactează echipa Stafy.',
+  company_suspended: 'Accesul companiei tale a fost suspendat. Contactează echipa Stafy.',
+}
+
 export function mapAuthError(error: unknown): string {
-  const err = error as { code?: string; response?: { data?: { detail?: string } }; message?: string }
+  const err = error as {
+    code?: string
+    response?: { data?: { code?: string; detail?: string } }
+    message?: string
+  }
+  const backendCode = err?.response?.data?.code
+  if (backendCode && ACCESS_BLOCKED_MESSAGES[backendCode]) return ACCESS_BLOCKED_MESSAGES[backendCode]
   switch (err?.code) {
     case 'auth/invalid-credential':
     case 'auth/wrong-password':

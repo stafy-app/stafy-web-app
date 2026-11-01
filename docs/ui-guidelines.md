@@ -14,6 +14,10 @@ Until a section exists here, the source of truth for design tokens is `src/App.c
 
 Login, register, complete-registration and onboarding share the `src/components/auth/` kit: warm canvas with two soft brand glows, a white `rounded-[24px]` card, soft filled inputs with the brand focus ring, and a full-width pill primary button. Login and register add a dark brand panel on wide screens. Details in `docs/modules/auth.md` UI / Layout.
 
+## Admin console
+
+The `/admin/*` console has its own calm look; the rules are in `docs/modules/admin-dashboard.md` UI / Layout. In short: a translucent grouped sidebar, a large page header on every page, one white `AdminSheet` per page or modal divided by hairlines (never cards in cards), `StatusDot` for state, `AdminTable` for every table (dense, one line per row, plain header over a darker rule), `AdminSegmented` for tabs and periods, one standard modal size. Secondary text is `ink-soft` (the layout re-points `--color-ink-muted` inside the console); `ink-muted` stays for placeholders and disabled states elsewhere. Admin-only restyling goes in admin components, never in the shared look the manager shell uses.
+
 ## UI copy
 
 All visible text is Romanian, short, and addressed to the reader as „tu” (second person singular), in the same tone as the landing site:

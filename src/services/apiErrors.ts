@@ -25,6 +25,8 @@ export function isValidationError(
  */
 const COMMON_ERROR_MESSAGES: Record<string, string> = {
   plan_read_only: 'Planul companiei este în modul doar citire. Alege un plan ca să poți face modificări.',
+  company_restricted:
+    'Compania este în modul doar citire, setat de echipa Stafy. Contactează-ne ca să putem face modificări.',
   seats_limit_reached: 'Ai atins limita de locuri a planului. Suspendă un membru sau schimbă planul.',
   seats_over_new_limit:
     'Ai mai mulți membri decât permite planul ales. Elimină sau suspendă membri înainte de schimbare.',

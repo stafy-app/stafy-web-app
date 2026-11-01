@@ -108,8 +108,8 @@ no route or sidebar item of its own — manager/admin read-only config-adjacent 
 distinct workflow. Platform-admin surfaces (stats, companies, cross-company audit, own account)
 live in a separate console under `/admin/*` — see
 [`docs/modules/admin-dashboard.md`](admin-dashboard.md); a platform admin never reaches `/settings`
-(`AppLayout` redirects them to `/admin`). `AuditSection`, `AccountSection` and `SecuritySection`
-are shared: the admin console renders the same components. Subscription is shown to owner and
+(`AppLayout` redirects them to `/admin`). The admin console has its own account and audit
+sections over the same hooks (`admin-dashboard.md`). Subscription is shown to owner and
 manager only — documented in [`docs/modules/subscription.md`](subscription.md).
 
 ---

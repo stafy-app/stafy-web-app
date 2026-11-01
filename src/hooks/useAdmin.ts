@@ -2,6 +2,8 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { getAdmin } from '@stafy/api/generated/endpoints/admin/admin'
 import type {
   AdminCompanyNotesIn,
+  AdminCompanyRestrictionIn,
+  AdminUserActionIn,
   AnnouncementIn,
   AnnouncementPatchInStatus,
   AdminSubscriptionChangeIn,
@@ -87,6 +89,38 @@ export function useAdminSetCompanyNotes(companyId: number) {
     },
     onError: (error) => {
       showToast(getCodedErrorMessage(error, 'Nu am putut salva nota.'), { tone: 'danger' })
+    },
+  })
+}
+
+export function useAdminSetCompanyRestriction(companyId: number) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: AdminCompanyRestrictionIn) => getAdmin().setAdminCompanyRestriction(companyId, data),
+    onSuccess: (detail) => {
+      queryClient.setQueryData(['admin', 'company', companyId], detail)
+      queryClient.invalidateQueries({ queryKey: ADMIN_COMPANIES_KEY })
+      showToast(detail.restriction ? 'Restricția a fost aplicată.' : 'Restricția a fost ridicată.')
+    },
+    onError: (error) => {
+      showToast(getCodedErrorMessage(error, 'Nu am putut schimba restricția.'), { tone: 'danger' })
+    },
+  })
+}
+
+export function useAdminSetUserBlocked(companyId: number) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ userId, blocked, data }: { userId: number; blocked: boolean; data: AdminUserActionIn }) =>
+      blocked ? getAdmin().blockAdminUser(userId, data) : getAdmin().unblockAdminUser(userId, data),
+    onSuccess: (_result, { blocked }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'company-members', companyId] })
+      showToast(blocked ? 'Contul a fost blocat.' : 'Contul a fost deblocat.')
+    },
+    onError: (error) => {
+      showToast(getCodedErrorMessage(error, 'Nu am putut schimba starea contului.'), { tone: 'danger' })
     },
   })
 }

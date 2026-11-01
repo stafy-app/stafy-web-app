@@ -3,6 +3,9 @@ import { Navigate } from '@tanstack/react-router'
 import { FullscreenSpinner } from '@stafy/components/layout/FullscreenSpinner'
 import { useAuth } from '@stafy/hooks/useAuth'
 import { useProfile } from '@stafy/hooks/useProfile'
+import { AccessBlockedScreen } from '@stafy/components/layout/AccessBlockedScreen'
+import { getApiError } from '@stafy/services/apiErrors'
+import { ACCESS_BLOCKED_MESSAGES } from '@stafy/utils/authError'
 import type { UserOut } from '@stafy/api/generated/endpoints/index.schemas'
 
 interface SessionGateProps {
@@ -30,6 +33,12 @@ export function SessionGate({ children }: SessionGateProps) {
   const profileStatus = (profileError as { response?: { status?: number } } | null)?.response?.status
   if (profileStatus === 404) {
     return <Navigate to="/complete-registration" />
+  }
+
+  // The backend refuses a blocked account or a suspended company with a dedicated 403 code.
+  const blockedCode = getApiError(profileError)?.code
+  if (blockedCode && blockedCode in ACCESS_BLOCKED_MESSAGES) {
+    return <AccessBlockedScreen message={ACCESS_BLOCKED_MESSAGES[blockedCode]} />
   }
 
   if (isProfileLoading || !profile) {

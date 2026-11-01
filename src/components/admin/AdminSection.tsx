@@ -1,7 +1,20 @@
 import { useState } from 'react'
-import { Building2, CalendarClock, Gauge, UserCog, UserX, Users, UsersRound } from 'lucide-react'
-import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { KpiCard } from '@stafy/components/dashboard/KpiCard'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
+import { AdminSheet, AdminSheetSection } from '@stafy/components/admin/ui/AdminSheet'
+import { AdminPageHeader } from '@stafy/components/admin/ui/AdminPageHeader'
+import { AdminSegmented } from '@stafy/components/admin/ui/AdminSegmented'
+import { AdminStatStrip } from '@stafy/components/admin/ui/AdminStatStrip'
 import {
   useAdminActivity,
   useAdminCompaniesSummary,
@@ -36,7 +49,7 @@ function ChartTooltip({ active, payload, label }: AxisTooltipProps) {
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2 shadow-[var(--shadow-md)]">
-      <div className="text-[11px] text-[var(--color-ink-muted)]">{label && dateFormatter.format(new Date(label))}</div>
+      <div className="text-[12px] text-[var(--color-ink-muted)]">{label && dateFormatter.format(new Date(label))}</div>
       {payload.map((entry) => (
         <div key={entry.name} className="text-[13px] font-semibold" style={{ color: entry.color }}>
           {entry.name}: {entry.value}
@@ -46,27 +59,50 @@ function ChartTooltip({ active, payload, label }: AxisTooltipProps) {
   )
 }
 
-function PeriodToggle<T extends string>({
-  value,
-  options,
-  onChange,
-}: {
-  value: T
-  options: { value: T; label: string }[]
-  onChange: (value: T) => void
-}) {
+const PLAN_COLORS: Record<string, string> = {
+  trial: 'var(--color-ink-muted)',
+  pilot: 'var(--color-info)',
+  solo: 'var(--color-success)',
+  small: 'var(--color-warning)',
+  standard: 'var(--color-primary)',
+  large: 'var(--color-night)',
+}
+
+/** Companies per plan as one stacked bar with a legend, instead of a six-row list. */
+function PlanBar({ plans }: { plans: { plan_type: string; count: number }[] }) {
+  const total = plans.reduce((sum, entry) => sum + entry.count, 0)
+
   return (
-    <div className="join">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          className={`btn btn-sm join-item ${value === option.value ? 'btn-primary' : 'btn-outline'}`}
-          onClick={() => onChange(option.value)}
-        >
-          {option.label}
-        </button>
-      ))}
+    <div className="flex flex-col gap-4">
+      <div className="flex h-3 overflow-hidden rounded-full bg-[var(--color-surface-2)]">
+        {plans
+          .filter((entry) => entry.count > 0)
+          .map((entry) => (
+            <div
+              key={entry.plan_type}
+              title={`${planLabel(entry.plan_type)}: ${entry.count}`}
+              className="h-full transition-[width] duration-500"
+              style={{ width: `${(entry.count / total) * 100}%`, background: PLAN_COLORS[entry.plan_type] }}
+            />
+          ))}
+      </div>
+      <ul className="grid grid-cols-2 gap-x-6 gap-y-2 text-[13px] sm:grid-cols-3 lg:grid-cols-6">
+        {plans.map((entry) => (
+          <li key={entry.plan_type} className="flex items-center gap-2">
+            <span
+              className="h-2.5 w-2.5 shrink-0 rounded-full"
+              style={{ background: PLAN_COLORS[entry.plan_type] }}
+              aria-hidden
+            />
+            <span className="text-[var(--color-ink-soft)]">{planLabel(entry.plan_type)}</span>
+            <span
+              className={`ml-auto font-semibold tabular-nums ${entry.count === 0 ? 'text-[var(--color-ink-muted)]' : 'text-[var(--color-ink)]'}`}
+            >
+              {entry.count}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
@@ -99,126 +135,151 @@ export function AdminSection() {
   const funnelMax = Math.max(1, ...funnelEntries.map((entry) => entry.count))
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">Admin</h2>
-        <p className="text-[13px] text-[var(--color-ink-muted)]">Statistici la nivel de platformă, pe toate companiile.</p>
-      </div>
+    <>
+      <AdminPageHeader title="Privire generală" subtitle="Cum stă platforma, pe toate companiile." />
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard
-          label="Companii"
-          icon={Building2}
-          value={companies?.total_companies ?? 0}
-          durationMs={600}
-          subtext={`${companies?.active ?? 0} active · ${companies?.read_only ?? 0} doar citire`}
-        />
-        <KpiCard
-          label="Expiră în 7 zile"
-          icon={CalendarClock}
-          value={companies?.expiring_soon ?? 0}
-          durationMs={600}
-          subtext="Companii active cu planul aproape de final"
-        />
-        <KpiCard
-          label="La limita de locuri"
-          icon={Gauge}
-          value={companies?.at_seat_limit ?? 0}
-          durationMs={600}
-          subtext="Toate locurile planului sunt ocupate"
-        />
-        <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
-          <div className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--color-ink-muted)]">
-            Pe planuri
-          </div>
-          <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-[13px]">
-            {(companies?.plans ?? []).map((entry) => (
-              <li key={entry.plan_type} className="flex justify-between">
-                <span className="text-[var(--color-ink-muted)]">{planLabel(entry.plan_type)}</span>
-                <span className="font-semibold text-[var(--color-ink)]">{entry.count}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      <AdminStatStrip
+        items={[
+          {
+            label: 'Companii',
+            value: companies?.total_companies ?? 0,
+            hint: `${companies?.active ?? 0} active, ${companies?.read_only ?? 0} doar citire`,
+          },
+          {
+            label: 'Utilizatori',
+            value: overview?.total_users ?? 0,
+            hint: `${overview?.total_managers ?? 0} manageri, ${overview?.total_employees ?? 0} angajați`,
+          },
+          {
+            label: 'Expiră în 7 zile',
+            value: companies?.expiring_soon ?? 0,
+            hint: 'Active, cu planul aproape de final',
+            tone: 'warning',
+          },
+          {
+            label: 'La limita de locuri',
+            value: companies?.at_seat_limit ?? 0,
+            hint: 'Toate locurile planului sunt ocupate',
+            tone: 'warning',
+          },
+          {
+            label: 'Angajați fără manager',
+            value: overview?.employees_without_manager ?? 0,
+            hint: 'Nu au acceptat nicio invitație',
+          },
+        ]}
+      />
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard label="Manageri" icon={UserCog} value={overview?.total_managers ?? 0} durationMs={600} />
-        <KpiCard label="Angajați" icon={Users} value={overview?.total_employees ?? 0} durationMs={600} />
-        <KpiCard label="Utilizatori" icon={UsersRound} value={overview?.total_users ?? 0} durationMs={600} />
-        <KpiCard
-          label="Fără manager"
-          icon={UserX}
-          value={overview?.employees_without_manager ?? 0}
-          durationMs={600}
-          subtext="Angajați care nu au acceptat nicio invitație"
-        />
-      </div>
+      <AdminSheet>
+        <AdminSheetSection title="Planuri" caption="Câte companii are fiecare plan.">
+          <PlanBar plans={companies?.plans ?? []} />
+        </AdminSheetSection>
 
-      <div className="rounded-[var(--radius-lg)] border border-[var(--color-line)] p-5">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-[14px] font-semibold text-[var(--color-ink)]">Înregistrări noi</h3>
-          <PeriodToggle
-            value={growthPeriod}
-            onChange={setGrowthPeriod}
-            options={[
-              { value: GetAdminGrowthPeriod.week, label: 'Săptămânal' },
-              { value: GetAdminGrowthPeriod.month, label: 'Lunar' },
-            ]}
-          />
-        </div>
-        <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={growthData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-line)" />
-            <XAxis dataKey="label" tickFormatter={(value: string) => dateFormatter.format(new Date(value))} fontSize={11} />
-            <YAxis allowDecimals={false} fontSize={11} />
-            <Tooltip content={<ChartTooltip />} />
-            <Line type="monotone" dataKey="new_managers" name="Manageri" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="new_employees" name="Angajați" stroke="#2a78d6" strokeWidth={2} dot={false} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+        <AdminSheetSection
+          title="Înregistrări noi"
+          action={
+            <AdminSegmented
+              label="Perioada înregistrărilor"
+              value={growthPeriod}
+              onChange={setGrowthPeriod}
+              options={[
+                { value: GetAdminGrowthPeriod.week, label: 'Săptămânal' },
+                { value: GetAdminGrowthPeriod.month, label: 'Lunar' },
+              ]}
+            />
+          }
+        >
+          <ResponsiveContainer width="100%" height={240}>
+            <LineChart data={growthData} margin={{ top: 12 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-line-soft)" vertical={false} />
+              <XAxis
+                dataKey="label"
+                tickFormatter={(value: string) => dateFormatter.format(new Date(value))}
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis allowDecimals={false} fontSize={12} tickLine={false} axisLine={false} />
+              <Tooltip content={<ChartTooltip />} />
+              <Legend
+                verticalAlign="top"
+                align="left"
+                iconType="circle"
+                iconSize={8}
+                wrapperStyle={{ fontSize: 13, paddingBottom: 8 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="new_managers"
+                name="Manageri"
+                stroke="var(--color-primary)"
+                strokeWidth={2.5}
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="new_employees"
+                name="Angajați"
+                stroke="var(--color-info)"
+                strokeWidth={2.5}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </AdminSheetSection>
 
-      <div className="rounded-[var(--radius-lg)] border border-[var(--color-line)] p-5">
-        <h3 className="mb-3 text-[14px] font-semibold text-[var(--color-ink)]">Invitații</h3>
-        <div className="flex flex-col gap-2">
-          {funnelEntries.map((entry) => (
-            <div key={entry.key} className="flex items-center gap-3">
-              <div className="w-24 flex-shrink-0 text-[12px] text-[var(--color-ink-muted)]">{entry.label}</div>
-              <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-[var(--color-surface-2)]">
-                <div
-                  className="h-full rounded-full bg-[var(--color-primary)]"
-                  style={{ width: `${(entry.count / funnelMax) * 100}%` }}
-                />
-              </div>
-              <div className="w-8 flex-shrink-0 text-right text-[13px] font-semibold text-[var(--color-ink)]">{entry.count}</div>
+        <div className="grid divide-y divide-[var(--color-line)] lg:grid-cols-2 lg:divide-x lg:divide-y-0">
+          <AdminSheetSection title="Invitații" caption="Câte au ajuns în fiecare stare.">
+            <div className="flex flex-col gap-3.5">
+              {funnelEntries.map((entry) => (
+                <div key={entry.key} className="flex items-center gap-3">
+                  <div className="w-28 flex-shrink-0 text-[13px] text-[var(--color-ink-soft)]">{entry.label}</div>
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--color-surface-2)]">
+                    <div
+                      className="h-full rounded-full bg-[var(--color-primary)] transition-[width] duration-500"
+                      style={{ width: `${(entry.count / funnelMax) * 100}%` }}
+                    />
+                  </div>
+                  <div className="w-8 flex-shrink-0 text-right text-[14px] font-semibold text-[var(--color-ink)] tabular-nums">
+                    {entry.count}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </AdminSheetSection>
 
-      <div className="rounded-[var(--radius-lg)] border border-[var(--color-line)] p-5">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-[14px] font-semibold text-[var(--color-ink)]">Activitate (pontaje)</h3>
-          <PeriodToggle
-            value={activityPeriod}
-            onChange={setActivityPeriod}
-            options={[
-              { value: GetAdminActivityPeriod.day, label: 'Zilnic' },
-              { value: GetAdminActivityPeriod.week, label: 'Săptămânal' },
-            ]}
-          />
+          <AdminSheetSection
+            title="Pontaje"
+            action={
+              <AdminSegmented
+                label="Perioada pontajelor"
+                value={activityPeriod}
+                onChange={setActivityPeriod}
+                options={[
+                  { value: GetAdminActivityPeriod.day, label: 'Zilnic' },
+                  { value: GetAdminActivityPeriod.week, label: 'Săptămânal' },
+                ]}
+              />
+            }
+          >
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={activityData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-line-soft)" vertical={false} />
+                <XAxis
+                  dataKey="label"
+                  tickFormatter={(value: string) => dateFormatter.format(new Date(value))}
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis allowDecimals={false} fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip content={<ChartTooltip />} />
+                <Bar dataKey="time_entries_count" name="Pontaje" fill="var(--color-primary)" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </AdminSheetSection>
         </div>
-        <ResponsiveContainer width="100%" height={220}>
-          <BarChart data={activityData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-line)" />
-            <XAxis dataKey="label" tickFormatter={(value: string) => dateFormatter.format(new Date(value))} fontSize={11} />
-            <YAxis allowDecimals={false} fontSize={11} />
-            <Tooltip content={<ChartTooltip />} />
-            <Bar dataKey="time_entries_count" name="Pontaje" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+      </AdminSheet>
+    </>
   )
 }

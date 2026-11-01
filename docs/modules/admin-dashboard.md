@@ -8,7 +8,7 @@ manager-facing app shell.
 ## Scope
 
 **In scope:** a dedicated route group (`/admin`, `/admin/companies`, `/admin/infra`,
-`/admin/audit`, `/admin/account`, plus `/admin/announcements`) with a dense, monospace-leaning layout; company-level KPIs
+`/admin/audit`, `/admin/account`, plus `/admin/announcements`) with a calm, grouped layout (see UI / Layout); company-level KPIs
 (total companies, active vs read-only, plans expiring within 7 days, companies at their seat limit,
 count per plan); the company detail panel (owner contact as a `mailto:` link, profile, internal note and tags, paged live member list with role and standing but never hours or pay); the company table with search, plan/status filters, sortable columns, pagination
 and the date of each company's last time entry (a date only - never hours or per-user activity);
@@ -101,35 +101,61 @@ All four stats are computed server-side, not client-side:
 | Route | Page | Body |
 |---|---|---|
 | `/admin` | `AdminOverviewPage` | `AdminSection` (the four stat panels) |
-| `/admin/companies` | `AdminCompaniesPage` | `AdminCompaniesSection` + `AdminCompanyPlanPanel` |
+| `/admin/companies` | `AdminCompaniesPage` | `AdminCompaniesSection`; a row opens `AdminCompanyModal` (tabs Prezentare, Membri, Plan, Acces) |
 | `/admin/announcements` | `AdminAnnouncementsPage` | `AdminAnnouncementsSection` (see `announcements.md`) |
-| `/admin/infra` | `AdminInfraPage` | `ProviderCard` per provider (see `infra.md`) |
-| `/admin/audit` | `AdminAuditPage` | `AuditSection` (shared with Settings) |
-| `/admin/account` | `AdminAccountPage` | `AccountSection` + `SecuritySection` (shared with Settings) |
+| `/admin/infra` | `AdminInfraPage` | `ProviderNav` + `ProviderDetail` (see `infra.md`) |
+| `/admin/audit` | `AdminAuditPage` | `AdminAuditSection` |
+| `/admin/account` | `AdminAccountPage` | `AdminAccountSection` |
 
-Navigation is the console sidebar (`AdminSidebar`); there are no modals. The admin components live
+Navigation is the console sidebar (`AdminSidebar`); the only modals are `AdminModal` (the company
+detail and plan, and the announcement form), closed with the X, the backdrop or Escape. The admin components live
 in `src/components/admin/`; the shared account/audit sections stay in `src/components/settings/`.
 
 ---
 
 ## UI / Layout
 
-- `AdminLayout` renders `AdminSidebar` plus the routed page; there is no top bar, no workspace
-  switcher and no bottom navigation. Below the `md` breakpoint the sidebar collapses into a
-  horizontal scroll strip above the page.
-- `AdminSidebar`: fixed-width rail, monospace labels and console title, icons from the `ICONS`
-  registry, the signed-in email and app version at the bottom, plus a sign-out button.
-- Each page body renders inside `AdminPanel`, the same surface card Settings gives its sections.
-- Overview: a first KPI row for companies (`KpiCard`: companies with an active/read-only subtext, expiring in 7 days, at seat limit, plus a per-plan count tile), then a 4-column KPI row (`KpiCard`, reused from the Dashboard page) — managers, employees,
-  total users, employees without a manager (with a one-line subtext explaining the count).
-- Growth: a bordered panel with a title, a two-option period toggle (DaisyUI `join`/`btn` group)
-  top-right, and a Recharts `LineChart` — two lines (managers, employees), theme-token colors.
-- Invitation funnel: a bordered panel with one horizontal bar per status — label, a track filled
-  proportionally to the largest bucket, and the raw count right-aligned.
-- Activity: same bordered-panel treatment as Growth, with a period toggle and a Recharts
-  `BarChart`.
-- Chart tooltips: a small shared component matching the token styling of `HistoryTab.tsx`'s
-  tooltips.
+- **Shell.** `AdminLayout` renders `AdminSidebar` plus the routed page in a column capped at `max-w-6xl`;
+  there is no top bar and no bottom navigation. Below the `md` breakpoint the sidebar collapses into a
+  horizontal scroll strip. The layout root re-points `--color-ink-muted` to `--color-ink-soft` for
+  everything inside the console (including the sections shared with Settings), because the muted slate
+  is below AA contrast on white. Secondary text is therefore `ink-soft`; body and table text is at
+  least 13px, 12px only for counters and hints.
+- **Sidebar.** A translucent rail (`--color-glass` with a backdrop blur, hairline edge), Inter 14px,
+  the brand and "Admin" at the top, a soft brand-tinted pill under the active item. Items are grouped:
+  Privire generală; Operare (Companii, Anunțuri); Platformă (Infrastructură, Audit); Cont at the bottom,
+  with the signed-in email, app version and sign-out under it.
+- **Page header.** Every page starts with `AdminPageHeader`: a 28px title, one calm sentence, and the
+  page's main action on the right. Sections do not repeat the title.
+- **One surface level.** A page or modal has one white surface, `AdminSheet`, split into
+  `AdminSheetSection`s by hairlines; there are no boxes inside boxes. A table with its toolbar is one
+  flush, untitled section. Radius `--radius-xl`, shadow `--shadow-card`, no borders.
+- **Tables.** `AdminTable` (+ `AdminEmptyRow`, `AdminLoading`, `AdminPager`) over the `.admin-table`
+  class: 13px text, one line per row, 8px vertical padding, a plain header (no fill) with 12px
+  semibold ink text over a darker rule (sticky only within its own scroll box, not the page), hairline row separators, tabular and right-aligned numbers. A
+  clickable row (`row-link`) takes a brand-tinted background on hover; a company row ends in a chevron. Every admin table,
+  including Audit (`AdminAuditSection`, the console's own table over the same `useAuditLogs` data),
+  uses it.
+- **Forms and facts.** `AdminField` (label, hint or error) with `ADMIN_CONTROL` (the soft filled control
+  style) for inputs; `AdminDetailList` (fixed label column, aligned values) for read-only data in modals.
+  The admin account page is the console's own form (`AdminAccountSection`), on the same hooks as Settings.
+- **Status.** `StatusDot` (a colored dot plus plain text) for plan, member, announcement state and
+  severity. The only filled box is the unreadable-service warning on the infrastructure page.
+- **Overview.** `AdminStatStrip`: one strip of five equal cells (companies, users, expiring, at seat limit,
+  employees without a manager), then one sheet with sections: plans as a stacked bar with a legend,
+  signups line chart (`AdminSegmented` period, legend), and invitations and time entries side by side.
+- **Company sheet.** `AdminModal` has one standard size (fixed height so switching tabs never jumps): a
+  white header with title, subtitle and an `AdminSegmented` tab bar, a flat white body that scrolls on its
+  own (the `AdminSheet` inside a modal draws no card, only hairlines between sections), and an optional
+  pinned footer for form buttons. Prezentare: profile (`AdminDetailList`)
+  and internal note; Membri: the roster (blocking opens a full-width reason row under the member); Plan:
+  grant form and history; Acces: the risky restrictions, each with a one-line explanation and a
+  mandatory reason.
+- **Infrastructure.** A service list on the left (sticky) and the selected service in full on the right: what it
+  is, its state, its figures as KPIs, its facts, and its rows as two-line entries grouped under titles. See
+  `infra.md`.
+- Charts use theme tokens, no vertical grid lines, no axis lines, 12px ticks. Chart tooltips are a small
+  shared component matching the token styling of `HistoryTab.tsx`'s tooltips.
 
 ---
 
@@ -140,6 +166,8 @@ in `src/components/admin/`; the shared account/audit sections stay in `src/compo
 | `/api/v1/admin/overview` | GET | Admin only. Returns manager/employee/total counts plus `employees_without_manager`. |
 | `/api/v1/admin/companies/summary` | GET | Admin only. Company totals, expiring, at seat limit and per-plan counts (owned by the subscriptions domain). |
 | `/api/v1/admin/companies/{id}`, `/members`, `/notes` | GET / GET / PUT | Admin only. Detail panel, its member list and the internal note and tags editor (see `subscription.md`). |
+| `/api/v1/admin/companies/{id}/restriction` | PUT | Admin only. Sets or lifts a company's read-only / suspended restriction; reason mandatory (owned by `stafy-backend/docs/modules/admin-actions.md`). |
+| `/api/v1/admin/users/{id}/block`, `/unblock` | POST | Admin only. Blocks or unblocks an account; reason mandatory. |
 | `/api/v1/admin/companies` | GET | Admin only. Paged company table with `q`, `plan_type`, `plan_status`, `sort`, `order`, `page`, `page_size` (see `subscription.md`). |
 | `/api/v1/admin/growth?period=week\|month` | GET | Admin only. One point per bucket: `period_start`, `new_managers`, `new_employees`. |
 | `/api/v1/admin/invitations-funnel` | GET | Admin only. Flat count per `TeamInvitation.status`. |
@@ -166,9 +194,10 @@ profile loaded — and hands the profile to a render function. Role-specific and
 stays in each layout. `AdminLayout` has no onboarding check: the admin account is provisioned by the
 seed script with its personal company already onboarded.
 
-**Account and security reuse the Settings sections.** The admin's own account lives under the
-console rather than under Settings, but renders the same `AccountSection` and `SecuritySection`
-components, so a change to either applies to both shells.
+**Account and audit are the console's own sections.** `AdminAccountSection` and `AdminAuditSection` use
+the console's form and table style over the same hooks as Settings (`useUpdateAccount`,
+`useSendPasswordResetEmail`, `useAuditLogs`) and the same `auditLogFormat` labels, so the managers'
+Settings sections stay untouched.
 
 **No admin-management UI.** The product currently has exactly one admin account, created directly
 in the database like every other `admin` row (see backend `stafy-backend/CLAUDE.md` — `admin` is
@@ -187,8 +216,7 @@ counts.
 
 | Item | Trigger |
 |---|---|
-| What's-new modal and markdown announcements | Banner announcements prove useful |
-| Admin actions on companies and users, including admin-initiated ownership transfer | The company detail panel is in daily use |
+| Revoking a user's Firebase tokens and admin-initiated ownership transfer | A block must also end the Firebase session itself, or a real transfer case appears |
 | Product and business statistics (activation funnel, at-risk companies, MRR) | Company member tree is done |
 | Admin role management UI | More than one admin account needs to exist |
 | Date-range filtering beyond the week/month and day/week toggles | Real need surfaces past the fixed periods |

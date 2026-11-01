@@ -72,7 +72,10 @@ re-checks and answers a conflict error if the two ever disagree.
    managers, pointing to Settings → Subscription.
 4. **Plan is read-only** — an error banner replaces the warning; the Subscription section explains
    that clocking in still works while other changes are blocked, and offers solo to the owner.
-5. **Any write hits a read-only plan** — the mutation's own toast shows the read-only message, and a
+5. **Company restricted by the platform admin** — an error banner for owner and manager says the
+   company is read-only by Stafy's decision; writes fail with `company_restricted`, and the same
+   cache refetch applies. Restrictions are set from the admin console (see `admin-dashboard.md`).
+6. **Any write hits a read-only plan** — the mutation's own toast shows the read-only message, and a
    global mutation-cache handler refetches the cached plan so the banner appears without a reload.
 6. **Admin opens Companies in the admin console** — table of companies with owner, plan, status, seats,
    expiry; selecting a row opens the panel.
@@ -101,8 +104,8 @@ other role.
   choices with inline confirm.
 - Banner: DaisyUI `alert` (`alert-warning` when expiring, `alert-error` when read-only), full width,
   no rounding, directly under the top bar.
-- Companies section: DaisyUI `table` with a selectable row; the plan panel is a bordered card below
-  it with the grant form on top and the history table under it.
+- Companies section: DaisyUI `table` with a selectable row; selecting it opens the company sheet
+  (`AdminCompanyModal`); its Plan tab holds the grant form, then the history table.
 - Colors and spacing come from the theme tokens in `src/App.css`, like the rest of Settings.
 
 ---
@@ -122,7 +125,7 @@ other role.
 | `/api/v1/admin/companies/{id}/subscription/events` | GET | `useAdminSubscriptionEvents` |
 
 All hooks are in `src/hooks/useSubscription.ts` (company side) and `src/hooks/useAdmin.ts` (admin
-side). Error codes `plan_read_only`, `seats_limit_reached`, `seats_over_new_limit` and
+side). Error codes `plan_read_only`, `company_restricted`, `seats_limit_reached`, `seats_over_new_limit` and
 `plan_change_not_allowed` map to Romanian messages in `src/services/apiErrors.ts`
 (`getCodedErrorMessage`, also consulted first by `getErrorMessage`).
 

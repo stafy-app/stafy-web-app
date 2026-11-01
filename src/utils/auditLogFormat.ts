@@ -16,12 +16,17 @@ export const ACTION_LABELS: Record<string, string> = {
   'user.suspended': 'Angajat suspendat',
   'user.reactivated': 'Angajat reactivat',
   'company.settings_updated': 'Date companie actualizate',
+  'company.onboarded': 'Companie configurată',
   'activity.created': 'Activitate creată',
   'activity.renamed': 'Activitate redenumită',
   'user.removed_from_company': 'Membru eliminat din companie',
   'company_job_title.created': 'Funcție creată',
   'company_job_title.renamed': 'Funcție redenumită',
   'company_job_title.deleted': 'Funcție ștearsă',
+  'company.restricted': 'Restricție aplicată companiei',
+  'company.restriction_lifted': 'Restricție ridicată',
+  'user.blocked': 'Cont blocat',
+  'user.unblocked': 'Cont deblocat',
 }
 
 function field(value: AuditLogOut['before'], key: string): string | undefined {
@@ -70,12 +75,8 @@ export function formatAuditDetail(entry: AuditLogOut): string {
     case 'user.reactivated':
       return ''
     case 'company.settings_updated': {
-      const changed = (['name', 'city', 'address'] as const).filter(
-        (key) => field(before, key) !== field(after, key),
-      )
-      return changed
-        .map((key) => `${field(before, key) ?? '—'} → ${field(after, key) ?? '—'}`)
-        .join(', ')
+      const changed = (['name', 'city', 'address'] as const).filter((key) => field(before, key) !== field(after, key))
+      return changed.map((key) => `${field(before, key) ?? '—'} → ${field(after, key) ?? '—'}`).join(', ')
     }
     case 'activity.created':
       return field(after, 'activity_name') ?? '—'
@@ -89,6 +90,12 @@ export function formatAuditDetail(entry: AuditLogOut): string {
       return `${field(before, 'label') ?? '—'} → ${field(after, 'label') ?? '—'}`
     case 'company_job_title.deleted':
       return field(before, 'label') ?? '—'
+    case 'company.restricted':
+      return `${field(after, 'restriction') ?? '—'} · Motiv: ${entry.reason ?? '—'}`
+    case 'company.restriction_lifted':
+    case 'user.blocked':
+    case 'user.unblocked':
+      return `Motiv: ${entry.reason ?? '—'}`
     default:
       return ''
   }

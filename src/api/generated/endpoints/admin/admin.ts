@@ -12,11 +12,13 @@ import type {
   AdminCompanyDetailOut,
   AdminCompanyMembersOut,
   AdminCompanyNotesIn,
+  AdminCompanyRestrictionIn,
   AdminCompanySubscriptionsListOut,
   AdminGrowthOut,
   AdminInvitationFunnelOut,
   AdminOverviewOut,
   AdminSubscriptionChangeIn,
+  AdminUserActionIn,
   AnnouncementIn,
   AnnouncementPatchIn,
   GetAdminActivityParams,
@@ -79,6 +81,34 @@ const getAdminActivity = (
       );
     }
   /**
+ * @summary Block an account from the API in every company; a reason is mandatory
+ */
+const blockAdminUser = (
+    userId: number,
+    adminUserActionIn: AdminUserActionIn,
+ ) => {
+      return api<void>(
+      {url: `/api/v1/admin/users/${userId}/block`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: adminUserActionIn
+    },
+      );
+    }
+  /**
+ * @summary Lift an account block; a reason is mandatory
+ */
+const unblockAdminUser = (
+    userId: number,
+    adminUserActionIn: AdminUserActionIn,
+ ) => {
+      return api<void>(
+      {url: `/api/v1/admin/users/${userId}/unblock`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: adminUserActionIn
+    },
+      );
+    }
+  /**
  * @summary Owned companies with plan, seat usage and last activity; searchable, sortable, paginated
  */
 const listAdminCompanies = (
@@ -136,6 +166,20 @@ const setAdminCompanyNotes = (
       {url: `/api/v1/admin/companies/${companyId}/notes`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: adminCompanyNotesIn
+    },
+      );
+    }
+  /**
+ * @summary Restrict a company to read-only, suspend it, or lift the restriction; a reason is mandatory
+ */
+const setAdminCompanyRestriction = (
+    companyId: number,
+    adminCompanyRestrictionIn: AdminCompanyRestrictionIn,
+ ) => {
+      return api<AdminCompanyDetailOut>(
+      {url: `/api/v1/admin/companies/${companyId}/restriction`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: adminCompanyRestrictionIn
     },
       );
     }
@@ -224,16 +268,19 @@ const deleteAdminAnnouncement = (
     },
       );
     }
-  return {getAdminOverview,getAdminGrowth,getAdminInvitationsFunnel,getAdminActivity,listAdminCompanies,getAdminCompaniesSummary,getAdminCompany,listAdminCompanyMembers,setAdminCompanyNotes,getAdminCompanySubscription,changeAdminCompanySubscription,listAdminCompanySubscriptionEvents,listAdminAnnouncements,createAdminAnnouncement,updateAdminAnnouncement,deleteAdminAnnouncement}};
+  return {getAdminOverview,getAdminGrowth,getAdminInvitationsFunnel,getAdminActivity,blockAdminUser,unblockAdminUser,listAdminCompanies,getAdminCompaniesSummary,getAdminCompany,listAdminCompanyMembers,setAdminCompanyNotes,setAdminCompanyRestriction,getAdminCompanySubscription,changeAdminCompanySubscription,listAdminCompanySubscriptionEvents,listAdminAnnouncements,createAdminAnnouncement,updateAdminAnnouncement,deleteAdminAnnouncement}};
 export type GetAdminOverviewResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminOverview']>>>
 export type GetAdminGrowthResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminGrowth']>>>
 export type GetAdminInvitationsFunnelResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminInvitationsFunnel']>>>
 export type GetAdminActivityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminActivity']>>>
+export type BlockAdminUserResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['blockAdminUser']>>>
+export type UnblockAdminUserResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['unblockAdminUser']>>>
 export type ListAdminCompaniesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['listAdminCompanies']>>>
 export type GetAdminCompaniesSummaryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminCompaniesSummary']>>>
 export type GetAdminCompanyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminCompany']>>>
 export type ListAdminCompanyMembersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['listAdminCompanyMembers']>>>
 export type SetAdminCompanyNotesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['setAdminCompanyNotes']>>>
+export type SetAdminCompanyRestrictionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['setAdminCompanyRestriction']>>>
 export type GetAdminCompanySubscriptionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminCompanySubscription']>>>
 export type ChangeAdminCompanySubscriptionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['changeAdminCompanySubscription']>>>
 export type ListAdminCompanySubscriptionEventsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['listAdminCompanySubscriptionEvents']>>>

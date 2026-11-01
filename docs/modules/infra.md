@@ -72,17 +72,24 @@ route). No modals.
 
 ## UI / Layout
 
-- A title row with the last-read time and a refresh button (spinning icon while a read is in
-  flight).
-- A two-column grid of `ProviderCard`s from `xl` up, one column below.
-- `ProviderCard`: header with the provider name, a health badge (`HealthBadge`) and the data age; a
-  one-line summary; a short secret-free error line when the provider could not be read; a metrics
-  grid; rows grouped by environment or section, each with a health dot, a linked title, a summary
-  line and a muted detail line; footer links with an outbound arrow.
-- A provider that is not configured renders dimmed with a hint that its credentials belong in the
-  backend; it never shows an error.
-- Health colours come from the theme's semantic tokens (success, warning, error, info, muted);
-  everything uses the monospace face of the rest of the console.
+- A page header with the last-read time and a refresh button (spinning icon while a read is in flight).
+- Two columns from `lg`: a left panel (`ProviderNav`, sticky) and the detail of the selected service on
+  the right (`ProviderDetail`); stacked below `lg`, where picking a service scrolls its detail into view.
+  Nothing scrolls horizontally: long text is truncated with its full text in a tooltip.
+- Left panel: a header line ("N of M work", the ones needing attention in red), then one row per service
+  with its name and a state dot plus phrase. Order: services that need attention (degraded, down,
+  unknown, or an error line set, even if the health says it works), then the healthy ones, then the
+  unconfigured. The first is selected until another is picked.
+- Detail, top to bottom: the name, state and data age with a link to the vendor; one sentence on what the
+  service does for Stafy (`description`); "Ce nu merge" with the read error when there is one; the
+  numeric metrics as a KPI strip (up to four cells per row); the other metrics (a version, an
+  environment, a consumption period) as one small muted line under the description; then one section per group, titled with its name and row count.
+- A row is two lines: a state dot and the title, and under it the state text and secondary detail (a
+  commit, a URL). On the right, the row's own figures (an uptime shows a thin bar colored by its
+  health) and when it last changed. Each group shows its first six rows and an "all (n)" toggle.
+- An unconfigured service is selectable and says what to set; it never shows an error.
+- Health colours come from the theme's semantic tokens (success, warning, error, neutral); text uses the
+  console's Inter face. Labels, states, summaries and group names come from the backend in Romanian; the technical reason in a read error (an HTTP status, an access hint) stays as the provider wrote it.
 
 ---
 

@@ -1,4 +1,11 @@
 import { useState, type FormEvent } from 'react'
+import { MoreHorizontal } from 'lucide-react'
+import { AdminModal } from '@stafy/components/admin/AdminModal'
+import { ADMIN_CONTROL, AdminField } from '@stafy/components/admin/ui/AdminField'
+import { AdminSheet, AdminSheetSection } from '@stafy/components/admin/ui/AdminSheet'
+import { AdminPageHeader } from '@stafy/components/admin/ui/AdminPageHeader'
+import { StatusDot, type StatusTone } from '@stafy/components/admin/ui/StatusDot'
+import { AdminEmptyRow, AdminLoading, AdminTable } from '@stafy/components/admin/ui/AdminTable'
 import {
   useAdminAnnouncements,
   useAdminDeleteAnnouncement,
@@ -7,6 +14,7 @@ import {
 } from '@stafy/hooks/useAdmin'
 import {
   AnnouncementInAudienceRolesItem,
+  AnnouncementInKind,
   AnnouncementInSeverity,
   AnnouncementInStatus,
   type AdminAnnouncementOut,
@@ -14,6 +22,13 @@ import {
 
 const TITLE_MAX = 100
 const BODY_MAX = 1000
+const CTA_LABEL_MAX = 40
+const CTA_URL_MAX = 500
+
+const KIND_LABELS: Record<string, string> = {
+  announcement: 'Anunț',
+  whats_new: 'Noutăți',
+}
 
 const SEVERITY_LABELS: Record<string, string> = {
   info: 'Informare',
@@ -21,10 +36,10 @@ const SEVERITY_LABELS: Record<string, string> = {
   critical: 'Critic',
 }
 
-const SEVERITY_BADGE: Record<string, string> = {
-  info: 'badge-info',
-  warning: 'badge-warning',
-  critical: 'badge-error',
+const SEVERITY_TONE: Record<string, StatusTone> = {
+  info: 'info',
+  warning: 'warning',
+  critical: 'error',
 }
 
 const STATE_LABELS: Record<string, string> = {
@@ -34,11 +49,11 @@ const STATE_LABELS: Record<string, string> = {
   ended: 'Încheiat',
 }
 
-const STATE_BADGE: Record<string, string> = {
-  draft: 'badge-ghost',
-  scheduled: 'badge-info',
-  live: 'badge-success',
-  ended: 'badge-neutral',
+const STATE_TONE: Record<string, StatusTone> = {
+  draft: 'neutral',
+  scheduled: 'info',
+  live: 'success',
+  ended: 'neutral',
 }
 
 const AUDIENCE_LABELS: Record<string, string> = {
@@ -47,7 +62,10 @@ const AUDIENCE_LABELS: Record<string, string> = {
   employee: 'Angajați',
 }
 
-const dateTimeFormatter = new Intl.DateTimeFormat('ro-RO', { dateStyle: 'short', timeStyle: 'short' })
+const dateTimeFormatter = new Intl.DateTimeFormat('ro-RO', {
+  dateStyle: 'short',
+  timeStyle: 'short',
+})
 
 /** ISO instant -> the `YYYY-MM-DDTHH:mm` value a datetime-local input expects, in local time. */
 function toLocalInput(iso: string | null): string {
@@ -62,13 +80,17 @@ function windowLabel(announcement: AdminAnnouncementOut): string {
   return `${from} → ${to}`
 }
 
-interface AnnouncementFormProps {
+interface AnnouncementEditorProps {
   editing: AdminAnnouncementOut | null
   onDone: () => void
 }
 
-function AnnouncementForm({ editing, onDone }: AnnouncementFormProps) {
+function AnnouncementEditor({ editing, onDone }: AnnouncementEditorProps) {
   const save = useAdminSaveAnnouncement()
+  const [kind, setKind] = useState<AnnouncementInKind>(editing?.kind ?? AnnouncementInKind.announcement)
+  const [ctaLabel, setCtaLabel] = useState(editing?.cta_label ?? '')
+  const [ctaUrl, setCtaUrl] = useState(editing?.cta_url ?? '')
+  const [showOnLogin, setShowOnLogin] = useState(editing?.show_on_login ?? false)
   const [severity, setSeverity] = useState<AnnouncementInSeverity>(editing?.severity ?? AnnouncementInSeverity.info)
   const [title, setTitle] = useState(editing?.title ?? '')
   const [body, setBody] = useState(editing?.body ?? '')
@@ -80,7 +102,15 @@ function AnnouncementForm({ editing, onDone }: AnnouncementFormProps) {
   const [status, setStatus] = useState<AnnouncementInStatus>(editing?.status ?? AnnouncementInStatus.draft)
 
   const windowInvalid = !!startsAt && !!endsAt && new Date(endsAt) <= new Date(startsAt)
-  const canSubmit = title.trim().length > 0 && body.trim().length > 0 && audience.length > 0 && !windowInvalid
+  const ctaUrlValid = !ctaUrl.trim() || /^(https:\/\/|\/(?!\/))\S+$/.test(ctaUrl.trim())
+  const ctaIncomplete = !!ctaLabel.trim() !== !!ctaUrl.trim()
+  const canSubmit =
+    title.trim().length > 0 &&
+    body.trim().length > 0 &&
+    audience.length > 0 &&
+    !windowInvalid &&
+    ctaUrlValid &&
+    !ctaIncomplete
 
   function toggleAudience(role: AnnouncementInAudienceRolesItem) {
     setAudience((current) => (current.includes(role) ? current.filter((item) => item !== role) : [...current, role]))
@@ -92,6 +122,10 @@ function AnnouncementForm({ editing, onDone }: AnnouncementFormProps) {
       {
         id: editing?.id ?? null,
         data: {
+          kind,
+          cta_label: ctaLabel.trim() || null,
+          cta_url: ctaUrl.trim() || null,
+          show_on_login: showOnLogin,
           severity,
           title: title.trim(),
           body: body.trim(),
@@ -106,115 +140,188 @@ function AnnouncementForm({ editing, onDone }: AnnouncementFormProps) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-3 rounded-[var(--radius-md)] border border-[var(--color-line)] p-5"
-    >
-      <h3 className="text-[14px] font-semibold text-[var(--color-ink)]">
-        {editing ? 'Editează anunțul' : 'Anunț nou'}
-      </h3>
-
-      <div className="flex flex-wrap gap-3">
-        <label className="flex flex-col gap-1 text-[12px] text-[var(--color-ink-muted)]">
-          Severitate
-          <select
-            className="select select-sm"
-            value={severity}
-            onChange={(event) => setSeverity(event.target.value as AnnouncementInSeverity)}
-          >
-            {Object.values(AnnouncementInSeverity).map((value) => (
-              <option key={value} value={value}>
-                {SEVERITY_LABELS[value]}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1 text-[12px] text-[var(--color-ink-muted)]">
-          Stare
-          <select
-            className="select select-sm"
-            value={status}
-            onChange={(event) => setStatus(event.target.value as AnnouncementInStatus)}
-          >
-            <option value={AnnouncementInStatus.draft}>Ciornă</option>
-            <option value={AnnouncementInStatus.published}>Publicat</option>
-          </select>
-        </label>
-        <label className="flex flex-col gap-1 text-[12px] text-[var(--color-ink-muted)]">
-          Începe (opțional)
-          <input
-            type="datetime-local"
-            className="input input-sm"
-            value={startsAt}
-            onChange={(event) => setStartsAt(event.target.value)}
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-[12px] text-[var(--color-ink-muted)]">
-          Se termină (opțional)
-          <input
-            type="datetime-local"
-            className="input input-sm"
-            value={endsAt}
-            onChange={(event) => setEndsAt(event.target.value)}
-          />
-        </label>
-      </div>
-      {windowInvalid && <p className="text-[12px] text-[var(--color-error)]">Sfârșitul trebuie să fie după început.</p>}
-
-      <fieldset className="flex flex-wrap items-center gap-4 text-[13px]">
-        <legend className="mb-1 text-[12px] text-[var(--color-ink-muted)]">Cine îl vede</legend>
-        {Object.values(AnnouncementInAudienceRolesItem).map((role) => (
-          <label key={role} className="flex cursor-pointer items-center gap-2">
-            <input
-              type="checkbox"
-              className="checkbox checkbox-sm"
-              checked={audience.includes(role)}
-              onChange={() => toggleAudience(role)}
-            />
-            {AUDIENCE_LABELS[role]}
-          </label>
-        ))}
-      </fieldset>
-
-      <label className="flex flex-col gap-1 text-[12px] text-[var(--color-ink-muted)]">
-        Titlu
-        <input
-          type="text"
-          className="input input-sm w-full"
-          maxLength={TITLE_MAX}
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-        />
-        <span className="self-end">
-          {title.length} / {TITLE_MAX}
-        </span>
-      </label>
-
-      <label className="flex flex-col gap-1 text-[12px] text-[var(--color-ink-muted)]">
-        Descriere (text simplu)
-        <textarea
-          className="textarea textarea-sm w-full"
-          rows={5}
-          maxLength={BODY_MAX}
-          value={body}
-          onChange={(event) => setBody(event.target.value)}
-        />
-        <span className="self-end">
-          {body.length} / {BODY_MAX}
-        </span>
-      </label>
-
-      <div className="flex gap-2">
-        <button type="submit" className="btn btn-sm btn-primary" disabled={!canSubmit || save.isPending}>
-          {editing ? 'Salvează' : 'Creează'}
-        </button>
-        {editing && (
-          <button type="button" className="btn btn-sm btn-ghost" onClick={onDone}>
+    <AdminModal
+      title={editing ? 'Editează anunțul' : 'Anunț nou'}
+      subtitle="Apare ca fereastră peste aplicație, câte unul, cele grave întâi."
+      onClose={onDone}
+      footer={
+        <>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={onDone}>
             Renunță
           </button>
-        )}
-      </div>
-    </form>
+          <button
+            type="submit"
+            form="announcement-form"
+            className="btn btn-primary btn-sm"
+            disabled={!canSubmit || save.isPending}
+          >
+            {editing ? 'Salvează' : 'Creează'}
+          </button>
+        </>
+      }
+    >
+      <form id="announcement-form" onSubmit={handleSubmit}>
+        <AdminSheet>
+          <AdminSheetSection title="Conținut">
+            <div className="flex flex-col gap-4">
+              <AdminField label="Titlu">
+                <input
+                  type="text"
+                  className={`input w-full ${ADMIN_CONTROL}`}
+                  maxLength={TITLE_MAX}
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                />
+                <span className="self-end text-[12px] tabular-nums">
+                  {title.length} / {TITLE_MAX}
+                </span>
+              </AdminField>
+              <AdminField label="Descriere">
+                <textarea
+                  className={`textarea w-full ${ADMIN_CONTROL}`}
+                  rows={5}
+                  maxLength={BODY_MAX}
+                  value={body}
+                  onChange={(event) => setBody(event.target.value)}
+                />
+                <span className="flex justify-between text-[12px]">
+                  <span>Poți folosi **îngroșat**, *cursiv*, liste cu - și [text](https://…).</span>
+                  <span className="tabular-nums">
+                    {body.length} / {BODY_MAX}
+                  </span>
+                </span>
+              </AdminField>
+              <div className="flex flex-wrap gap-4">
+                <AdminField label="Tip">
+                  <select
+                    className={`select ${ADMIN_CONTROL}`}
+                    value={kind}
+                    onChange={(event) => setKind(event.target.value as AnnouncementInKind)}
+                  >
+                    {Object.values(AnnouncementInKind).map((value) => (
+                      <option key={value} value={value}>
+                        {KIND_LABELS[value]}
+                      </option>
+                    ))}
+                  </select>
+                </AdminField>
+                <AdminField label="Severitate">
+                  <select
+                    className={`select ${ADMIN_CONTROL}`}
+                    value={severity}
+                    onChange={(event) => setSeverity(event.target.value as AnnouncementInSeverity)}
+                  >
+                    {Object.values(AnnouncementInSeverity).map((value) => (
+                      <option key={value} value={value}>
+                        {SEVERITY_LABELS[value]}
+                      </option>
+                    ))}
+                  </select>
+                </AdminField>
+              </div>
+            </div>
+          </AdminSheetSection>
+
+          <AdminSheetSection title="Afișare" caption="Cine îl vede și unde.">
+            <div className="flex flex-col gap-4">
+              <fieldset className="flex flex-wrap items-center gap-5 text-[14px]">
+                <legend className="mb-2 text-[13px] text-[var(--color-ink-soft)]">Cine îl vede</legend>
+                {Object.values(AnnouncementInAudienceRolesItem).map((role) => (
+                  <label key={role} className="flex cursor-pointer items-center gap-2">
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-sm"
+                      checked={audience.includes(role)}
+                      onChange={() => toggleAudience(role)}
+                    />
+                    {AUDIENCE_LABELS[role]}
+                  </label>
+                ))}
+              </fieldset>
+              <label className="flex cursor-pointer items-start gap-2 text-[14px]">
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-sm mt-0.5"
+                  checked={showOnLogin}
+                  onChange={(event) => setShowOnLogin(event.target.checked)}
+                />
+                <span>
+                  Arată și pe pagina de autentificare
+                  <span className="block text-[13px] text-[var(--color-ink-soft)]">
+                    Îl vede oricine, și fără cont, indiferent de public.
+                  </span>
+                </span>
+              </label>
+            </div>
+          </AdminSheetSection>
+
+          <AdminSheetSection title="Buton" caption="Opțional. Completează ambele câmpuri sau niciunul.">
+            <div className="flex flex-wrap gap-4">
+              <AdminField label="Text buton">
+                <input
+                  type="text"
+                  className={`input ${ADMIN_CONTROL}`}
+                  maxLength={CTA_LABEL_MAX}
+                  value={ctaLabel}
+                  onChange={(event) => setCtaLabel(event.target.value)}
+                />
+              </AdminField>
+              <AdminField label="Link (https://… sau o cale din aplicație, ex. /team)" className="min-w-[260px] flex-1">
+                <input
+                  type="text"
+                  className={`input w-full ${ADMIN_CONTROL}`}
+                  maxLength={CTA_URL_MAX}
+                  value={ctaUrl}
+                  onChange={(event) => setCtaUrl(event.target.value)}
+                />
+              </AdminField>
+            </div>
+            {!ctaUrlValid && (
+              <p className="mt-2 text-[13px] text-[var(--color-error)]">Linkul trebuie să înceapă cu https:// sau /.</p>
+            )}
+            {ctaIncomplete && (
+              <p className="mt-2 text-[13px] text-[var(--color-error)]">
+                Completează și textul, și linkul butonului, sau pe niciunul.
+              </p>
+            )}
+          </AdminSheetSection>
+
+          <AdminSheetSection title="Programare" caption="Ciorna nu se vede nimănui. Intervalul e opțional.">
+            <div className="flex flex-wrap gap-4">
+              <AdminField label="Stare">
+                <select
+                  className={`select ${ADMIN_CONTROL}`}
+                  value={status}
+                  onChange={(event) => setStatus(event.target.value as AnnouncementInStatus)}
+                >
+                  <option value={AnnouncementInStatus.draft}>Ciornă</option>
+                  <option value={AnnouncementInStatus.published}>Publicat</option>
+                </select>
+              </AdminField>
+              <AdminField label="Începe">
+                <input
+                  type="datetime-local"
+                  className={`input ${ADMIN_CONTROL}`}
+                  value={startsAt}
+                  onChange={(event) => setStartsAt(event.target.value)}
+                />
+              </AdminField>
+              <AdminField label="Se termină">
+                <input
+                  type="datetime-local"
+                  className={`input ${ADMIN_CONTROL}`}
+                  value={endsAt}
+                  onChange={(event) => setEndsAt(event.target.value)}
+                />
+              </AdminField>
+            </div>
+            {windowInvalid && (
+              <p className="mt-2 text-[13px] text-[var(--color-error)]">Sfârșitul trebuie să fie după început.</p>
+            )}
+          </AdminSheetSection>
+        </AdminSheet>
+      </form>
+    </AdminModal>
   )
 }
 
@@ -223,115 +330,156 @@ export function AdminAnnouncementsSection() {
   const setStatus = useAdminSetAnnouncementStatus()
   const remove = useAdminDeleteAnnouncement()
   const [editing, setEditing] = useState<AdminAnnouncementOut | null>(null)
-  const [formKey, setFormKey] = useState(0)
+  const [formOpen, setFormOpen] = useState(false)
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
 
   const announcements = data?.data ?? []
 
+  function openForm(announcement: AdminAnnouncementOut | null) {
+    setEditing(announcement)
+    setFormOpen(true)
+  }
+
   function finishForm() {
+    setFormOpen(false)
     setEditing(null)
-    setFormKey((key) => key + 1)
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">Anunțuri</h2>
-        <p className="text-[13px] text-[var(--color-ink-muted)]">
-          Ferestre afișate peste aplicație utilizatorilor din publicul ales, câte una, cele grave întâi. Severitatea
-          apare doar ca accent. „Am înțeles” ascunde anunțul definitiv; cele critice nu pot fi ascunse definitiv și
-          reapar la reîncărcarea paginii.
-        </p>
-      </div>
+    <>
+      <AdminPageHeader
+        title="Anunțuri"
+        subtitle="Mesaje către utilizatori, afișate ca fereastră peste aplicație. „Am înțeles” le ascunde definitiv; cele critice reapar la reîncărcare."
+        action={
+          <button type="button" className="btn btn-primary btn-sm" onClick={() => openForm(null)}>
+            Anunț nou
+          </button>
+        }
+      />
 
-      <AnnouncementForm key={`${editing?.id ?? 'new'}-${formKey}`} editing={editing} onDone={finishForm} />
+      {formOpen && <AnnouncementEditor key={editing?.id ?? 'new'} editing={editing} onDone={finishForm} />}
 
-      {isLoading ? (
-        <span className="loading loading-spinner loading-sm" />
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="table table-sm">
-            <thead>
-              <tr>
-                <th>Stare</th>
-                <th>Severitate</th>
-                <th>Titlu</th>
-                <th>Public</th>
-                <th>Interval</th>
-                <th>Ascunse de</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {announcements.length === 0 && (
+      <AdminSheet>
+        <AdminSheetSection flush>
+          {isLoading ? (
+            <AdminLoading />
+          ) : (
+            <AdminTable>
+              <thead>
                 <tr>
-                  <td colSpan={7} className="text-center text-[var(--color-ink-muted)]">
-                    Niciun anunț încă.
-                  </td>
+                  <th>Stare</th>
+                  <th>Anunț</th>
+                  <th>Public</th>
+                  <th>Interval</th>
+                  <th className="num">Ascunse de</th>
+                  <th aria-hidden />
                 </tr>
-              )}
-              {announcements.map((announcement) => (
-                <tr key={announcement.id}>
-                  <td>
-                    <span className={`badge badge-sm badge-soft ${STATE_BADGE[announcement.state]}`}>
-                      {STATE_LABELS[announcement.state]}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`badge badge-sm badge-soft ${SEVERITY_BADGE[announcement.severity]}`}>
-                      {SEVERITY_LABELS[announcement.severity]}
-                    </span>
-                  </td>
-                  <td className="max-w-[320px] truncate" title={announcement.body}>
-                    {announcement.title}
-                  </td>
-                  <td>{announcement.audience_roles.map((role) => AUDIENCE_LABELS[role]).join(', ')}</td>
-                  <td className="whitespace-nowrap text-[12px]">{windowLabel(announcement)}</td>
-                  <td>{announcement.dismissed_count}</td>
-                  <td className="whitespace-nowrap">
-                    <div className="flex gap-1">
-                      <button type="button" className="btn btn-xs btn-ghost" onClick={() => setEditing(announcement)}>
-                        Editează
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-xs btn-ghost"
-                        disabled={setStatus.isPending}
-                        onClick={() =>
-                          setStatus.mutate({
-                            id: announcement.id,
-                            status: announcement.status === 'published' ? 'draft' : 'published',
-                          })
-                        }
-                      >
-                        {announcement.status === 'published' ? 'Retrage' : 'Publică'}
-                      </button>
-                      {confirmDeleteId === announcement.id ? (
-                        <button
-                          type="button"
-                          className="btn btn-xs btn-error"
-                          disabled={remove.isPending}
-                          onClick={() => remove.mutate(announcement.id, { onSettled: () => setConfirmDeleteId(null) })}
-                        >
-                          Confirmă ștergerea
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          className="btn btn-xs btn-ghost text-[var(--color-error)]"
-                          onClick={() => setConfirmDeleteId(announcement.id)}
-                        >
-                          Șterge
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+              </thead>
+              <tbody>
+                {announcements.length === 0 && (
+                  <AdminEmptyRow colSpan={6}>Niciun anunț încă. Apasă „Anunț nou” ca să scrii primul.</AdminEmptyRow>
+                )}
+                {announcements.map((announcement) => (
+                  <tr key={announcement.id} className="row-link" onClick={() => openForm(announcement)}>
+                    <td>
+                      <StatusDot tone={STATE_TONE[announcement.state]}>{STATE_LABELS[announcement.state]}</StatusDot>
+                    </td>
+                    <td className="max-w-[340px]">
+                      <div className="truncate font-medium text-[var(--color-ink)]" title={announcement.body}>
+                        {announcement.title}
+                      </div>
+                      <div className="flex items-center gap-3 text-[12px] text-[var(--color-ink-soft)]">
+                        <span>{KIND_LABELS[announcement.kind]}</span>
+                        <StatusDot tone={SEVERITY_TONE[announcement.severity]}>
+                          {SEVERITY_LABELS[announcement.severity]}
+                        </StatusDot>
+                        {announcement.show_on_login && <span>Și pe login</span>}
+                      </div>
+                    </td>
+                    <td>{announcement.audience_roles.map((role) => AUDIENCE_LABELS[role]).join(', ')}</td>
+                    <td className="whitespace-nowrap text-[12px] text-[var(--color-ink-soft)]">
+                      {windowLabel(announcement)}
+                    </td>
+                    <td className="num">{announcement.dismissed_count}</td>
+                    <td className="whitespace-nowrap" onClick={(event) => event.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-1">
+                        {confirmDeleteId === announcement.id ? (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn-xs btn-error"
+                              disabled={remove.isPending}
+                              onClick={() =>
+                                remove.mutate(announcement.id, {
+                                  onSettled: () => setConfirmDeleteId(null),
+                                })
+                              }
+                            >
+                              Confirmă ștergerea
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-xs btn-ghost"
+                              onClick={() => setConfirmDeleteId(null)}
+                            >
+                              Renunță
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn-xs btn-outline"
+                              disabled={setStatus.isPending}
+                              onClick={() =>
+                                setStatus.mutate({
+                                  id: announcement.id,
+                                  status: announcement.status === 'published' ? 'draft' : 'published',
+                                })
+                              }
+                            >
+                              {announcement.status === 'published' ? 'Retrage' : 'Publică'}
+                            </button>
+                            <div className="dropdown dropdown-end">
+                              <button
+                                type="button"
+                                tabIndex={0}
+                                className="btn btn-xs btn-ghost btn-square"
+                                aria-label="Mai multe acțiuni"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </button>
+                              <ul
+                                tabIndex={0}
+                                className="dropdown-content menu z-10 w-40 rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-1 shadow-[var(--shadow-pop)]"
+                              >
+                                <li>
+                                  <button type="button" onClick={() => openForm(announcement)}>
+                                    Editează
+                                  </button>
+                                </li>
+                                <li>
+                                  <button
+                                    type="button"
+                                    className="text-[var(--color-error)]"
+                                    onClick={() => setConfirmDeleteId(announcement.id)}
+                                  >
+                                    Șterge
+                                  </button>
+                                </li>
+                              </ul>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </AdminTable>
+          )}
+        </AdminSheetSection>
+      </AdminSheet>
+    </>
   )
 }

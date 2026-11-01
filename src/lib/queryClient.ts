@@ -8,7 +8,8 @@ export const queryClient = new QueryClient({
   // just be noise.
   mutationCache: new MutationCache({
     onError: (error) => {
-      if (getApiError(error)?.code === 'plan_read_only') {
+      const code = getApiError(error)?.code
+      if (code === 'plan_read_only' || code === 'company_restricted') {
         void queryClient.invalidateQueries({ queryKey: ['subscription', 'me'] })
       }
     },
