@@ -36,3 +36,10 @@ export function healthTone(health: string | null | undefined): StatusTone {
 export function isFigure(metric: ProviderMetric): boolean {
   return /^\d/.test(metric.value)
 }
+
+/**
+ * Providers that exist only as figures in the strip above the service list, not as services of their own: they
+ * describe the app as a whole (code, emails, expiry dates). Other figures in the strip (uptime, errors, database)
+ * are read from real services, which stay in the list.
+ */
+export const KPI_PROVIDER_KEYS = ['github', 'resend', 'expiry'] as const

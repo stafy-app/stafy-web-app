@@ -83,9 +83,9 @@ confirmation is inline.
 
 ## UI / Layout
 
-- A narrow centered DaisyUI modal with a neutral card. Severity is only an accent: a tinted icon circle
-  and a dot beside the severity label. Several announcements queue, most severe first, with a position
-  counter.
+- A wide (`max-w-xl`) DaisyUI modal on a white surface: a header in a flat severity tint (no gradient; white icon tile, severity label with dot, left-aligned title, close button), a body that scrolls (thin scrollbar) only when the text
+  exceeds 85vh, and a pinned row with the actions. Severity is only an accent. Several announcements
+  queue, most severe first, with a position counter.
 - The admin page is a dense table (state badge, severity badge, truncated message,
   audience, window, how many users hid it, row actions).
 - A what's-new announcement uses a sparkle icon and the brand accent instead of the severity colors. The

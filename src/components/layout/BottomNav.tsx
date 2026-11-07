@@ -1,5 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Clock, History, Home, Tags, User, Users, Mail, Download, Settings } from 'lucide-react'
+import { Clock, History, Home, Tags, User, Users, Mail, Download, Settings, ShieldCheck } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useProfile } from '@stafy/hooks/useProfile'
 
@@ -25,6 +25,9 @@ const PERSONAL_NAV_ITEMS: NavItem[] = [
   { to: '/me/profile', label: 'Profil', icon: User },
 ]
 
+// Platform admins get the way to the console as one extra item.
+const ADMIN_NAV_ITEM: NavItem = { to: '/admin', label: 'Admin', icon: ShieldCheck }
+
 function isActivePath(itemTo: string, pathname: string) {
   if (itemTo === '/' || itemTo === '/me') return pathname === itemTo
   return pathname === itemTo || pathname.startsWith(`${itemTo}/`)
@@ -37,11 +40,13 @@ export function BottomNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const { data: profile } = useProfile()
   const isEmployee = profile?.role === 'employee'
-  const navItems = isEmployee
+  const isAdmin = profile?.role === 'admin'
+  const baseItems = isEmployee
     ? PERSONAL_NAV_ITEMS
     : pathname === '/me' || pathname.startsWith('/me/')
       ? PERSONAL_NAV_ITEMS
       : COMPANY_NAV_ITEMS
+  const navItems = isAdmin ? [...baseItems, ADMIN_NAV_ITEM] : baseItems
 
   return (
     <nav

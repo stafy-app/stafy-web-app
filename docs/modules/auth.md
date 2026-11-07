@@ -189,7 +189,7 @@ _complete-registration  (CompleteRegistrationLayout — signed-in only, no profi
 └── /complete-registration   (see Flow 6)
 
 _app  (AppLayout — signed-in + onboarded; employees confined to /me*)
-├── /            (Dashboard, manager only — employees redirect to /me, platform admins to /admin)
+├── /            (Dashboard, manager only — employees redirect to /me; platform admins use it like an owner)
 ├── /team, /team/$employeeId, /invitations, /reports, /settings (manager only — employees redirect to /me)
 └── /me, /me/attendance, /me/history, /me/rates (company roles — the personal shell, see personal-workspace.md)
 

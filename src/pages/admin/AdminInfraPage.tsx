@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react'
 import { ICONS } from '@stafy/lib/icons'
+import { InfraKpiStrip } from '@stafy/components/admin/infra/InfraKpiStrip'
 import { ProviderDetail } from '@stafy/components/admin/infra/ProviderDetail'
 import { ProviderNav } from '@stafy/components/admin/infra/ProviderNav'
-import { needsAttention } from '@stafy/components/admin/infra/providerHealth'
+import { KPI_PROVIDER_KEYS, needsAttention } from '@stafy/components/admin/infra/providerHealth'
 import { AdminPageHeader } from '@stafy/components/admin/ui/AdminPageHeader'
 import { useAdminInfra, useRefreshAdminInfra } from '@stafy/hooks/useAdminInfra'
 import { getApiError } from '@stafy/services/apiErrors'
@@ -13,8 +14,11 @@ export default function AdminInfraPage() {
   const busy = isFetching || refresh.isPending
   const providers = data?.providers ?? []
 
-  const configured = providers.filter((provider) => provider.health !== 'unconfigured')
-  const unconfigured = providers.filter((provider) => provider.health === 'unconfigured')
+  // App-wide figures (code, emails, expiry dates) go in the strip above; the list is only real services.
+  const isKpi = (key: string) => (KPI_PROVIDER_KEYS as readonly string[]).includes(key)
+  const services = providers.filter((provider) => !isKpi(provider.key))
+  const configured = services.filter((provider) => provider.health !== 'unconfigured')
+  const unconfigured = services.filter((provider) => provider.health === 'unconfigured')
   // Services that need a look come first, then the healthy ones, then the unconfigured, each in the backend's order.
   const ordered = [
     ...configured.filter((provider) => needsAttention(provider)),
@@ -25,7 +29,7 @@ export default function AdminInfraPage() {
 
   // The first one is open until another is picked.
   const [picked, setPicked] = useState<string | null>(null)
-  const selected = ordered.find((provider) => provider.key === picked) ?? ordered[0]
+  const selected = providers.find((provider) => provider.key === picked) ?? ordered[0]
   const detailRef = useRef<HTMLDivElement>(null)
 
   function select(key: string) {
@@ -69,16 +73,19 @@ export default function AdminInfraPage() {
       {isLoading ? (
         <p className="text-[14px] text-[var(--color-ink-soft)]">Se încarcă…</p>
       ) : (
-        <div className="grid items-start gap-6 lg:grid-cols-[250px_minmax(0,1fr)]">
-          <ProviderNav
-            providers={ordered}
-            selectedKey={selected?.key}
-            onSelect={select}
-            working={configured.length - attention}
-            attention={attention}
-          />
-          <div ref={detailRef} className="min-w-0 scroll-mt-6">
-            {selected && <ProviderDetail key={selected.key} provider={selected} />}
+        <div className="flex flex-col gap-6">
+          <InfraKpiStrip providers={providers} selectedKey={selected?.key} onSelect={select} />
+          <div className="grid items-start gap-6 lg:grid-cols-[250px_minmax(0,1fr)]">
+            <ProviderNav
+              providers={ordered}
+              selectedKey={selected?.key}
+              onSelect={select}
+              working={configured.length - attention}
+              attention={attention}
+            />
+            <div ref={detailRef} className="min-w-0 scroll-mt-6">
+              {selected && <ProviderDetail key={selected.key} provider={selected} />}
+            </div>
           </div>
         </div>
       )}

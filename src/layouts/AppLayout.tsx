@@ -15,13 +15,10 @@ export function AppLayout() {
   return (
     <SessionGate>
       {(profile) => {
-        // Platform admins work in their own shell (AdminLayout, /admin/*). Every
-        // route here is a company-scoped endpoint gated by company role, which a
-        // platform admin has no special access to — bounce instead of 403-ing.
-        // See stafy-web-app/docs/modules/admin-dashboard.md.
-        if (profile.role === 'admin') {
-          return <Navigate to="/admin" />
-        }
+        // A platform admin has no special access to any company (no backend bypass), but
+        // is the owner of their own personal company, so both shells work for them like
+        // for any owner; the console (AdminLayout, /admin/*) is reached from the
+        // sidebar's "Admin" button. See stafy-web-app/docs/modules/admin-dashboard.md.
 
         // Employees use the /me personal shell (same pages managers use for self
         // time-tracking). Company routes (/, /team, /invitations, /reports, /settings)

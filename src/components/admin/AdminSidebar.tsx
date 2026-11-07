@@ -33,7 +33,8 @@ const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
   },
 ]
 
-const ACCOUNT_ITEM: AdminNavItem = { to: '/admin/account', label: 'Cont', icon: 'user' }
+const APP_ITEM: AdminNavItem = { to: '/me', label: 'Aplicația', icon: 'home' }
+const ACCOUNT_ITEM: AdminNavItem ={ to: '/admin/account', label: 'Cont', icon: 'user' }
 
 function isActivePath(itemTo: string, pathname: string) {
   if (itemTo === '/admin') return pathname === itemTo
@@ -97,6 +98,7 @@ export function AdminSidebar() {
           </div>
         ))}
         <div className="flex md:mt-auto md:flex-col">
+          <NavLink item={APP_ITEM} pathname={pathname} />
           <NavLink item={ACCOUNT_ITEM} pathname={pathname} />
         </div>
       </nav>

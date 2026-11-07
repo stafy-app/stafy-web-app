@@ -47,31 +47,36 @@ export function AnnouncementModal() {
 
   return (
     <div className="modal modal-open modal-middle" role="dialog" aria-modal="true" aria-labelledby="announcement-title">
-      <div className="modal-box w-11/12 max-w-sm rounded-[var(--radius-md)] p-7 text-center">
-        <button
-          type="button"
-          className="btn btn-ghost btn-sm btn-circle absolute right-3 top-3"
-          aria-label="Închide"
-          onClick={closeForNow}
-        >
-          <X className="h-4 w-4" />
-        </button>
-
-        <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${severity.soft}`}>
-          <Icon className={`h-5 w-5 ${severity.tone}`} />
+      <div className="modal-box flex max-h-[85vh] w-11/12 max-w-xl flex-col overflow-hidden rounded-[var(--radius-lg)] p-0 shadow-[var(--shadow-pop)]">
+        <div className={`relative flex items-start gap-4 px-6 pb-5 pt-6 sm:px-8 sm:pt-7 ${severity.soft}`}>
+          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)]`}>
+            <Icon className={`h-6 w-6 ${severity.tone}`} />
+          </div>
+          <div className="min-w-0 flex-1 pr-8">
+            <p className="mb-1 flex items-center gap-2 text-[12px] font-medium uppercase tracking-wide text-[var(--color-ink-soft)]">
+              <span className={`inline-block h-2 w-2 rounded-full ${severity.dot}`} />
+              {severity.label}
+              {queue.length > 1 && <span className="normal-case tracking-normal text-[var(--color-ink-muted)]">· 1 din {queue.length}</span>}
+            </p>
+            <h3 id="announcement-title" className="text-[20px] font-semibold leading-snug text-[var(--color-ink)]">
+              {current.title}
+            </h3>
+          </div>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm btn-circle absolute right-4 top-4"
+            aria-label="Închide"
+            onClick={closeForNow}
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
 
-        <p className="mb-1 flex items-center justify-center gap-2 text-[12px] text-[var(--color-ink-muted)]">
-          <span className={`inline-block h-2 w-2 rounded-full ${severity.dot}`} />
-          {severity.label}
-          {queue.length > 1 && <span>· 1 din {queue.length}</span>}
-        </p>
-        <h3 id="announcement-title" className="text-[18px] font-semibold text-[var(--color-ink)]">
-          {current.title}
-        </h3>
-        <AnnouncementMarkdown className="mt-2 text-[14px] text-[var(--color-ink-muted)]">{current.body}</AnnouncementMarkdown>
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 [scrollbar-color:var(--color-line)_transparent] [scrollbar-width:thin] sm:px-8">
+          <AnnouncementMarkdown className="text-[15px] leading-relaxed text-[var(--color-ink-soft)]">{current.body}</AnnouncementMarkdown>
+        </div>
 
-        <div className="modal-action flex-wrap justify-center">
+        <div className="flex flex-wrap items-center justify-end gap-2 px-6 pb-6 pt-3 sm:px-8">
           {current.cta_label && current.cta_url && (
             <a
               className="btn btn-primary btn-sm"

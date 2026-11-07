@@ -1,7 +1,7 @@
 # Infra
 
 The admin console's infrastructure page: one card per platform service (the backend itself, Render,
-Vercel, Neon, UptimeRobot, Sentry), read-only, at `/admin/infra`. The data and the rules behind it
+Vercel, Neon, UptimeRobot, Sentry, GitHub, Resend, expiry dates), read-only, at `/admin/infra`. The data and the rules behind it
 are in `stafy-backend/docs/modules/infra.md`.
 
 ## Scope
@@ -73,6 +73,7 @@ route). No modals.
 ## UI / Layout
 
 - A page header with the last-read time and a refresh button (spinning icon while a read is in flight).
+- **App-wide strip** above the list (`InfraKpiStrip`; six compact cells in one row from `xl`, three per row from `md`, two below): six figures about the whole app, each with an info icon (tooltip) saying what it means: code and tests (repositories in order, `github`), emails delivered of sent in 24 h (`resend`), days to the nearest certificate or domain expiry (`expiry`), uptime over 30 days (`uptimerobot`), errors in 24 h with the unresolved count (`sentry`), and the Neon compute share of the plan (or the storage used when no limits are set). Each cell is a figure, a hint and a state dot (a dash when not configured or not readable); picking one opens its provider's detail in the panel below. `github`, `resend` and `expiry` (`KPI_PROVIDER_KEYS` in `providerHealth.ts`) appear only in the strip and are left out of the list and its "N of M work" count; the other three are real services and stay in the list too. Which metric feeds a cell is a frontend lookup by the backend's metric label.
 - Two columns from `lg`: a left panel (`ProviderNav`, sticky) and the detail of the selected service on
   the right (`ProviderDetail`); stacked below `lg`, where picking a service scrolls its detail into view.
   Nothing scrolls horizontally: long text is truncated with its full text in a tooltip.

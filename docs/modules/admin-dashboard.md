@@ -181,12 +181,15 @@ also admits `manager` scoped to their own company. See `stafy-backend/CLAUDE.md`
 
 ## Special Aspects
 
-**The console is its own shell, gated by `AdminLayout`, and `AppLayout` bounces admins out.** Every
-company-scoped route in the manager shell is gated by company role on the backend, and a platform
-admin has no special access to any company's operational data — an admin there would only see 403s.
-`AppLayout` therefore redirects any `role === 'admin'` caller to `/admin`, and `AdminLayout`
-redirects any non-admin to `/`, where `AppLayout` routes them to their own shell. `_admin` is a
-sibling of `_app` in the route tree: nesting it under `_app` would make the bounce loop.
+**The console is its own shell, gated by `AdminLayout`; the app shells are open to admins.** The
+backend gives a platform admin no access to any company's data, but the admin is the `owner` of their
+own personal company (`seed_admin` guarantees it is their active one), so the company shell and the
+`/me` shell both work for them like for any owner, with the Companie/Personal switcher. `AdminLayout`
+redirects any non-admin to `/`. `_admin` is a sibling of `_app` in the route tree.
+
+**Moving between the shells.** An admin sees an "Admin" button in `Sidebar` (below the nav) and
+`BottomNav` (an extra item on phones) that goes to `/admin`; `AdminSidebar` has an "Aplicația" link to
+`/me`. Neither is rendered for any other role. After login an admin lands on `/` (the company shell).
 
 **Both shells share one session gate.** `SessionGate` (`src/components/layout/SessionGate.tsx`)
 holds the checks every authenticated shell needs — auth resolved, signed in, backend row exists,
