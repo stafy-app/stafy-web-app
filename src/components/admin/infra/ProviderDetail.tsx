@@ -20,8 +20,9 @@ const BAR_TONE: Record<string, string> = {
 }
 
 function Figures({ metrics }: { metrics: ProviderMetric[] }) {
-  // Up to four cells per row, equal width; fewer figures simply fill the row.
-  const columns = Math.min(metrics.length, 4)
+  // Up to four cells per row, equal width; fewer figures simply fill the row. Five or more use
+  // three columns when that fills every row (six = two rows of three), otherwise four.
+  const columns = metrics.length <= 4 ? metrics.length : metrics.length % 3 === 0 ? 3 : 4
   return (
     <div
       className="grid divide-x divide-y divide-[var(--color-line)] border-b border-[var(--color-line)] [&>*]:border-[var(--color-line)]"

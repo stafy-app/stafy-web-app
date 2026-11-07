@@ -1,7 +1,7 @@
 # Infra
 
 The admin console's infrastructure page: one card per platform service (the backend itself, Render,
-Vercel, Neon, UptimeRobot, Sentry, GitHub, Resend, expiry dates), read-only, at `/admin/infra`. The data and the rules behind it
+Vercel, Neon, UptimeRobot, Sentry, GitHub, Resend, database backups, expiry dates), read-only, at `/admin/infra`. The data and the rules behind it
 are in `stafy-backend/docs/modules/infra.md`.
 
 ## Scope
