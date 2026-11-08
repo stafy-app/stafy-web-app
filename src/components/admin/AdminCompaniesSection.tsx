@@ -16,6 +16,8 @@ import { PLAN_LABELS, STATUS_LABELS, formatPlanDate, planLabel } from '@stafy/ut
 
 const PAGE_SIZE = 25
 
+const ROLE_LABELS = { owner: 'owner', manager: 'manager', employee: 'angajat' } as const
+
 const COLUMNS: { label: string; sort?: ListAdminCompaniesSort; numeric?: boolean }[] = [
   { label: 'Companie', sort: ListAdminCompaniesSort.name },
   { label: 'Owner' },
@@ -85,8 +87,8 @@ export function AdminCompaniesSection() {
             <input
               type="search"
               className="input w-72 rounded-[var(--radius-lg)] bg-[var(--color-surface-2)]"
-              placeholder="Caută companie, owner sau email"
-              aria-label="Caută companie, owner sau email"
+              placeholder="Caută companie, persoană sau email"
+              aria-label="Caută companie, persoană sau email"
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
             />
@@ -165,6 +167,13 @@ export function AdminCompaniesSection() {
                         <span className="shrink-0">{company.owner_name}</span>
                         <span className="truncate text-[12px] text-[var(--color-ink-soft)]">{company.owner_email}</span>
                       </div>
+                      {(company.matched_members ?? [])
+                        .filter((member) => member.company_role !== 'owner')
+                        .map((member) => (
+                          <div key={member.email} className="truncate text-[12px] text-[var(--color-ink-soft)]">
+                            Găsit: {member.name} · {member.email} ({ROLE_LABELS[member.company_role]})
+                          </div>
+                        ))}
                     </td>
                     <td>{planLabel(company.plan_type)}</td>
                     <td>

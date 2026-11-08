@@ -1,7 +1,10 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 import { MoreHorizontal } from 'lucide-react'
 import { AdminModal } from '@stafy/components/admin/AdminModal'
 import { ADMIN_CONTROL, AdminField } from '@stafy/components/admin/ui/AdminField'
+import { LoginAnnouncementAlert } from '@stafy/components/auth/LoginAnnouncements'
+import { AnnouncementCard } from '@stafy/components/shared/AnnouncementCard'
+import { AdminSegmented } from '@stafy/components/admin/ui/AdminSegmented'
 import { AdminSheet, AdminSheetSection } from '@stafy/components/admin/ui/AdminSheet'
 import { AdminPageHeader } from '@stafy/components/admin/ui/AdminPageHeader'
 import { StatusDot, type StatusTone } from '@stafy/components/admin/ui/StatusDot'
@@ -100,6 +103,7 @@ function AnnouncementEditor({ editing, onDone }: AnnouncementEditorProps) {
   const [startsAt, setStartsAt] = useState(toLocalInput(editing?.starts_at ?? null))
   const [endsAt, setEndsAt] = useState(toLocalInput(editing?.ends_at ?? null))
   const [status, setStatus] = useState<AnnouncementInStatus>(editing?.status ?? AnnouncementInStatus.draft)
+  const [previewMode, setPreviewMode] = useState<'app' | 'login'>('app')
 
   const windowInvalid = !!startsAt && !!endsAt && new Date(endsAt) <= new Date(startsAt)
   const ctaUrlValid = !ctaUrl.trim() || /^(https:\/\/|\/(?!\/))\S+$/.test(ctaUrl.trim())
@@ -141,6 +145,7 @@ function AnnouncementEditor({ editing, onDone }: AnnouncementEditorProps) {
 
   return (
     <AdminModal
+      wide
       title={editing ? 'Editează anunțul' : 'Anunț nou'}
       subtitle="Apare ca fereastră peste aplicație, câte unul, cele grave întâi."
       onClose={onDone}
@@ -160,7 +165,7 @@ function AnnouncementEditor({ editing, onDone }: AnnouncementEditorProps) {
         </>
       }
     >
-      <form id="announcement-form" onSubmit={handleSubmit}>
+      <form id="announcement-form" onSubmit={handleSubmit} className="grid min-h-full lg:grid-cols-[minmax(0,1fr)_420px]">
         <AdminSheet>
           <AdminSheetSection title="Conținut">
             <div className="flex flex-col gap-4">
@@ -179,46 +184,53 @@ function AnnouncementEditor({ editing, onDone }: AnnouncementEditorProps) {
               <AdminField label="Descriere">
                 <textarea
                   className={`textarea w-full ${ADMIN_CONTROL}`}
-                  rows={5}
+                  rows={6}
                   maxLength={BODY_MAX}
                   value={body}
                   onChange={(event) => setBody(event.target.value)}
                 />
-                <span className="flex justify-between text-[12px]">
+                <span className="flex justify-between gap-3 text-[12px]">
                   <span>Poți folosi **îngroșat**, *cursiv*, liste cu - și [text](https://…).</span>
-                  <span className="tabular-nums">
+                  <span className="shrink-0 tabular-nums">
                     {body.length} / {BODY_MAX}
                   </span>
                 </span>
               </AdminField>
-              <div className="flex flex-wrap gap-4">
-                <AdminField label="Tip">
-                  <select
-                    className={`select ${ADMIN_CONTROL}`}
-                    value={kind}
-                    onChange={(event) => setKind(event.target.value as AnnouncementInKind)}
-                  >
-                    {Object.values(AnnouncementInKind).map((value) => (
-                      <option key={value} value={value}>
-                        {KIND_LABELS[value]}
-                      </option>
-                    ))}
-                  </select>
-                </AdminField>
-                <AdminField label="Severitate">
-                  <select
-                    className={`select ${ADMIN_CONTROL}`}
-                    value={severity}
-                    onChange={(event) => setSeverity(event.target.value as AnnouncementInSeverity)}
-                  >
-                    {Object.values(AnnouncementInSeverity).map((value) => (
-                      <option key={value} value={value}>
-                        {SEVERITY_LABELS[value]}
-                      </option>
-                    ))}
-                  </select>
-                </AdminField>
-              </div>
+            </div>
+          </AdminSheetSection>
+
+          <AdminSheetSection title="Setări">
+            <div className="flex flex-wrap gap-x-6 gap-y-4">
+              <LabeledControl label="Tip">
+                <AdminSegmented
+                  label="Tip"
+                  value={kind}
+                  onChange={setKind}
+                  options={Object.values(AnnouncementInKind).map((value) => ({ value, label: KIND_LABELS[value] }))}
+                />
+              </LabeledControl>
+              <LabeledControl label="Severitate">
+                <AdminSegmented
+                  label="Severitate"
+                  value={severity}
+                  onChange={setSeverity}
+                  options={Object.values(AnnouncementInSeverity).map((value) => ({
+                    value,
+                    label: SEVERITY_LABELS[value],
+                  }))}
+                />
+              </LabeledControl>
+              <LabeledControl label="Stare">
+                <AdminSegmented
+                  label="Stare"
+                  value={status}
+                  onChange={setStatus}
+                  options={[
+                    { value: AnnouncementInStatus.draft, label: 'Ciornă' },
+                    { value: AnnouncementInStatus.published, label: 'Publicat' },
+                  ]}
+                />
+              </LabeledControl>
             </div>
           </AdminSheetSection>
 
@@ -266,7 +278,7 @@ function AnnouncementEditor({ editing, onDone }: AnnouncementEditorProps) {
                   onChange={(event) => setCtaLabel(event.target.value)}
                 />
               </AdminField>
-              <AdminField label="Link (https://… sau o cale din aplicație, ex. /team)" className="min-w-[260px] flex-1">
+              <AdminField label="Link (https://… sau o cale din aplicație, ex. /team)" className="min-w-[220px] flex-1">
                 <input
                   type="text"
                   className={`input w-full ${ADMIN_CONTROL}`}
@@ -286,18 +298,8 @@ function AnnouncementEditor({ editing, onDone }: AnnouncementEditorProps) {
             )}
           </AdminSheetSection>
 
-          <AdminSheetSection title="Programare" caption="Ciorna nu se vede nimănui. Intervalul e opțional.">
+          <AdminSheetSection title="Programare" caption="Intervalul e opțional. O ciornă nu se vede nimănui.">
             <div className="flex flex-wrap gap-4">
-              <AdminField label="Stare">
-                <select
-                  className={`select ${ADMIN_CONTROL}`}
-                  value={status}
-                  onChange={(event) => setStatus(event.target.value as AnnouncementInStatus)}
-                >
-                  <option value={AnnouncementInStatus.draft}>Ciornă</option>
-                  <option value={AnnouncementInStatus.published}>Publicat</option>
-                </select>
-              </AdminField>
               <AdminField label="Începe">
                 <input
                   type="datetime-local"
@@ -320,8 +322,68 @@ function AnnouncementEditor({ editing, onDone }: AnnouncementEditorProps) {
             )}
           </AdminSheetSection>
         </AdminSheet>
+
+        <aside className="border-t border-[var(--color-line)] bg-[var(--color-surface-2)] p-5 lg:border-l lg:border-t-0">
+          <div className="lg:sticky lg:top-5">
+            <h2 className="text-[15px] font-semibold tracking-tight text-[var(--color-ink)]">Previzualizare</h2>
+            <p className="mb-3 text-[13px] text-[var(--color-ink-soft)]">Așa îl văd utilizatorii, pe măsură ce scrii.</p>
+            <div className="mb-4">
+              <AdminSegmented
+                label="Unde se vede"
+                value={previewMode}
+                onChange={setPreviewMode}
+                options={[
+                  { value: 'app', label: 'În aplicație' },
+                  { value: 'login', label: 'Pe login' },
+                ]}
+              />
+            </div>
+            {previewMode === 'app' ? (
+              <div className="rounded-[var(--radius-lg)] bg-black/20 p-4">
+                <AnnouncementCard
+                  preview
+                  kind={kind}
+                  severity={severity}
+                  title={title.trim()}
+                  body={body}
+                  ctaLabel={ctaLabel.trim() || null}
+                  ctaUrl={ctaUrl.trim() || null}
+                  dismissible={severity !== AnnouncementInSeverity.critical}
+                />
+              </div>
+            ) : (
+              <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-xs)]">
+                <LoginAnnouncementAlert
+                  preview
+                  severity={severity}
+                  title={title.trim() || 'Titlul anunțului'}
+                  body={body.trim() || 'Descrierea apare aici.'}
+                  ctaLabel={ctaLabel.trim() || null}
+                  ctaUrl={ctaUrl.trim() || null}
+                />
+                <p className="mt-3 text-[12px] text-[var(--color-ink-muted)]">
+                  Deasupra formularului de autentificare. Tipul nu contează aici.
+                </p>
+              </div>
+            )}
+            {!showOnLogin && previewMode === 'login' && (
+              <p className="mt-3 text-[13px] text-[var(--color-warning)]">
+                Acum nu apare pe login. Bifează „Arată și pe pagina de autentificare”.
+              </p>
+            )}
+          </div>
+        </aside>
       </form>
     </AdminModal>
+  )
+}
+
+function LabeledControl({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[13px] font-medium text-[var(--color-ink-soft)]">{label}</span>
+      {children}
+    </div>
   )
 }
 

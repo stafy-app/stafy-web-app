@@ -9,10 +9,10 @@ platform admin writes and manages those announcements. The data and rules live i
 **In scope:** `AnnouncementModal` in the company shell and the personal shell (markdown body, optional
 call-to-action button, a distinct look for what's-new announcements), per-user dismissal of non-critical
 announcements, `LoginAnnouncements` above the login form for announcements flagged for the login page, and the
-admin page `/admin/announcements` with a create/edit form and a table of every announcement with its kind,
-state and dismissal count.
+admin page `/admin/announcements` with a create/edit form (live preview beside it) and a table of every
+announcement with its kind, state and dismissal count.
 
-**Out of scope (this release):** previewing before publishing, bulk actions, images in the modal, remembering
+**Out of scope (this release):** bulk actions, images in the modal, remembering
 a closed login-page announcement across reloads.
 
 ---
@@ -72,18 +72,18 @@ N/A - `state`, `dismissible` and `dismissed_count` arrive computed from the back
 
 | Where | Component |
 |---|---|
-| Company shell and personal shell, over the whole page | `AnnouncementModal` (`src/components/layout/`) |
+| Company shell and personal shell, over the whole page | `AnnouncementModal` (`src/components/layout/`), wrapping the shared `AnnouncementCard` (`src/components/shared/`) |
 | Login page, above the form | `LoginAnnouncements` (`src/components/auth/`) |
 | `/admin/announcements` (console nav item) | `AdminAnnouncementsPage` -> `AdminAnnouncementsSection` |
 
-The create/edit form opens in `AdminModal` (the standard sheet: one surface with the sections Conținut, Afișare, Buton and Programare, and the actions pinned in its footer). A row opens the editor on click; Publică or Retrage stays on the row, Editează and Șterge (with an inline confirmation) sit in the row's overflow menu from the new-announcement button or a row's edit action; the delete
+The create/edit form opens in a wide `AdminModal` with two columns. Left: one surface with the sections Conținut, Setări (Tip, Severitate and Stare as segmented controls), Afișare, Buton and Programare. Right (from `lg` up, sticky): "Previzualizare" with a segmented "În aplicație" / "Pe login" switch. "În aplicație" is the same `AnnouncementCard` users see, rendered inert (`preview`) from the unsaved form values (markdown body, button, critical-vs-dismissible footer) on a dimmed backdrop like the real modal. "Pe login" is `LoginAnnouncementAlert` (exported by `LoginAnnouncements.tsx`, the same alert the login page renders), with a hint when "Arată și pe pagina de autentificare" is off. Actions are pinned in the modal footer. A row opens the editor on click; Publică or Retrage stays on the row, Editează and Șterge (with an inline confirmation) sit in the row's overflow menu from the new-announcement button or a row's edit action; the delete
 confirmation is inline.
 
 ---
 
 ## UI / Layout
 
-- A wide (`max-w-xl`) DaisyUI modal on a white surface: a header in a flat severity tint (no gradient; white icon tile, severity label with dot, left-aligned title, close button), a body that scrolls (thin scrollbar) only when the text
+- `AnnouncementCard` in a `max-w-xl` DaisyUI modal, on a white surface: a header in a flat severity tint (no gradient; white icon tile, severity label with dot, left-aligned title, close button), a body that scrolls (thin scrollbar) only when the text
   exceeds 85vh, and a pinned row with the actions. Severity is only an accent. Several announcements
   queue, most severe first, with a position counter.
 - The admin page is a dense table (state badge, severity badge, truncated message,

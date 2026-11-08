@@ -10,7 +10,7 @@ manager-facing app shell.
 **In scope:** a dedicated route group (`/admin`, `/admin/companies`, `/admin/infra`,
 `/admin/audit`, `/admin/account`, plus `/admin/announcements`) with a calm, grouped layout (see UI / Layout); company-level KPIs
 (total companies, active vs read-only, plans expiring within 7 days, companies at their seat limit,
-count per plan); the company detail panel (owner contact as a `mailto:` link, profile, internal note and tags, paged live member list with role and standing but never hours or pay); the company table with search, plan/status filters, sortable columns, pagination
+count per plan); the company detail panel (owner contact as a `mailto:` link, profile, internal note and tags, paged live member list with role and standing but never hours or pay); the company table with search (company, or name/email of the owner or any live member; a matched non-owner shows as a "Găsit" line under the owner), plan/status filters, sortable columns, pagination
 and the date of each company's last time entry (a date only - never hours or per-user activity);
 total manager/employee/user counts; count
 of employees who never joined a real manager's company (`company_id` still equal to

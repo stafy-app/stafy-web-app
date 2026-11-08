@@ -232,6 +232,21 @@ export const AdminCompanyDetailOutRestriction = {
   suspended: 'suspended',
 } as const;
 
+export type AdminMatchedMemberOutCompanyRole = typeof AdminMatchedMemberOutCompanyRole[keyof typeof AdminMatchedMemberOutCompanyRole];
+
+
+export const AdminMatchedMemberOutCompanyRole = {
+  owner: 'owner',
+  manager: 'manager',
+  employee: 'employee',
+} as const;
+
+export interface AdminMatchedMemberOut {
+  name: string;
+  email: string;
+  company_role: AdminMatchedMemberOutCompanyRole;
+}
+
 export interface AdminCompanyDetailOut {
   company_id: number;
   company_name: string;
@@ -246,6 +261,8 @@ export interface AdminCompanyDetailOut {
   last_activity_at: string | null;
   /** Platform-admin restriction; null when none. */
   restriction: AdminCompanyDetailOutRestriction;
+  /** Live members of this company whose name or email matched the search `q`; empty without a search. */
+  matched_members?: AdminMatchedMemberOut[];
   city: string | null;
   address: string | null;
   timezone: string;
@@ -361,6 +378,8 @@ export interface AdminCompanySubscriptionOut {
   last_activity_at: string | null;
   /** Platform-admin restriction; null when none. */
   restriction: AdminCompanySubscriptionOutRestriction;
+  /** Live members of this company whose name or email matched the search `q`; empty without a search. */
+  matched_members?: AdminMatchedMemberOut[];
 }
 
 export interface AdminCompanySubscriptionsListOut {

@@ -10,6 +10,8 @@ interface AdminModalProps {
   /** Right-aligned action row pinned to the bottom (a form's buttons). */
   footer?: ReactNode
   onClose: () => void
+  /** Wider sheet for editors with a side panel (e.g. a live preview). */
+  wide?: boolean
   children: ReactNode
 }
 
@@ -17,7 +19,7 @@ interface AdminModalProps {
  * Modal for the admin console's edit surfaces: a fixed header, a flat white body (no cards, sections divided by
  * hairlines) that scrolls on its own, an optional pinned footer. Closes on the X, the backdrop and Escape.
  */
-export function AdminModal({ title, subtitle, toolbar, footer, onClose, children }: AdminModalProps) {
+export function AdminModal({ title, subtitle, toolbar, footer, onClose, wide = false, children }: AdminModalProps) {
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') onClose()
@@ -28,7 +30,9 @@ export function AdminModal({ title, subtitle, toolbar, footer, onClose, children
 
   return (
     <div className="modal modal-open modal-middle" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="modal-box flex h-[min(680px,88vh)] w-11/12 max-w-4xl flex-col gap-0 overflow-hidden rounded-[var(--radius-xl)] bg-[var(--color-surface)] p-0 shadow-[var(--shadow-pop)]">
+      <div
+        className={`modal-box flex h-[min(680px,88vh)] w-11/12 ${wide ? 'max-w-6xl' : 'max-w-4xl'} flex-col gap-0 overflow-hidden rounded-[var(--radius-xl)] bg-[var(--color-surface)] p-0 shadow-[var(--shadow-pop)]`}
+      >
         <div className="flex flex-col gap-4 bg-[var(--color-surface)] px-6 pb-4 pt-5 shadow-[0_1px_0_var(--color-hairline)]">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
