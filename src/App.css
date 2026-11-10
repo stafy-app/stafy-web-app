@@ -25,6 +25,7 @@
   --color-primary-soft: #ffeedd;
   --color-primary-soft-strong: #ffe0c2;
   --color-primary-ring: rgba(255, 107, 0, 0.32);
+  --color-primary-text: #b85000; /* primary-coloured text on a light/soft surface */
 
   /* secondary = slate (no separate brand secondary defined) */
   --color-secondary: #475569;
@@ -82,6 +83,79 @@
   --noise: 0;
 }
 
+/* Dark counterpart of "stafy": same token names, same brand orange; neutrals flip to slate-900/800.
+   Picked via data-theme on <html> (src/lib/theme.ts); prefersdark covers the no-JS case. */
+@plugin "daisyui/theme" {
+  name: "stafy-dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #1e293b;
+  --color-base-200: #0f172a;
+  --color-base-300: #334155;
+  --color-base-content: #e2e8f0;
+
+  --color-primary: #ff6b00;
+  --color-primary-content: #ffffff;
+  --color-primary-hover: #e66100;
+  --color-primary-active: #b85000;
+  --color-primary-soft: #3b2412;
+  --color-primary-soft-strong: #54301a;
+  --color-primary-ring: rgba(255, 107, 0, 0.4);
+  --color-primary-text: #ffa35c;
+
+  --color-secondary: #94a3b8;
+  --color-secondary-content: #0f172a;
+
+  --color-accent: #ff6b00;
+  --color-accent-content: #ffffff;
+
+  --color-neutral: #334155;
+  --color-neutral-content: #f1f5f9;
+
+  --color-info: #3b82f6;
+  --color-info-content: #ffffff;
+  --color-info-soft: #172c4d;
+
+  --color-success: #22c55e;
+  --color-success-content: #052e16;
+  --color-success-soft: #123524;
+
+  --color-warning: #eab308;
+  --color-warning-content: #1e293b;
+  --color-warning-text: #facc15;
+  --color-warning-soft: #3a3210;
+
+  --color-error: #ef4444;
+  --color-error-content: #ffffff;
+  --color-error-soft: #4a1d22;
+
+  --color-ink: #e2e8f0;
+  --color-ink-soft: #a8b4c6;
+  --color-ink-muted: #8493a8;
+  --color-line: #334155;
+  --color-line-soft: #2a374a;
+  --color-surface: #1e293b;
+  --color-surface-2: #273449;
+  --color-page: #0f172a;
+  --color-warm: #0b1220;
+  --color-night: #1b2434;
+  --color-night-deep: #141b28;
+
+  --color-glass: rgba(15, 23, 42, 0.72);
+  --color-hairline: rgba(226, 232, 240, 0.1);
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
 @layer base {
   :root {
     --font-sans: 'Inter', system-ui, sans-serif;
@@ -111,6 +185,17 @@
     --text-body-sm: 0.875rem;
     --text-caption: 0.75rem;
     --text-eyebrow: 0.6875rem;
+  }
+
+  /* Shadows are black-based on dark surfaces; the slate-tinted light ones would vanish. */
+  :root[data-theme='stafy-dark'] {
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
+    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.4);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.25), 0 6px 20px rgba(0, 0, 0, 0.25);
+    --shadow-pop: 0 24px 60px rgba(0, 0, 0, 0.5);
+    --shadow-aside: 18px 0 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
   body {

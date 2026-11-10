@@ -67,7 +67,7 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
   return (
     <div className="animate-fade-slide-in rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
       <div className="flex flex-wrap items-center gap-5">
-        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[20px] font-bold text-[var(--color-primary-active)]">
+        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[20px] font-bold text-[var(--color-primary-text)]">
           {getInitials(user.first_name, user.last_name)}
         </div>
 
@@ -75,7 +75,7 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
           <div className="flex flex-wrap items-center gap-2">
             <div className="text-[22px] font-bold text-[var(--color-ink)]">{fullName}</div>
             {isCoordinator && (
-              <span className="inline-flex items-center rounded-full bg-[var(--color-primary-soft)] px-2 py-0.5 text-[11px] font-medium text-[var(--color-primary-active)]">
+              <span className="inline-flex items-center rounded-full bg-[var(--color-primary-soft)] px-2 py-0.5 text-[11px] font-medium text-[var(--color-primary-text)]">
                 Manager
               </span>
             )}

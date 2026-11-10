@@ -28,6 +28,9 @@ import {
   CreditCard,
   Server,
   Home,
+  Sun,
+  Moon,
+  Monitor,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -61,6 +64,9 @@ export const ICONS = {
   server: Server,
   megaphone: Megaphone,
   home: Home,
+  sun: Sun,
+  moon: Moon,
+  monitor: Monitor,
 } satisfies Record<string, LucideIcon>
 
 export type IconName = keyof typeof ICONS

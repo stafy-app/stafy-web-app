@@ -45,7 +45,7 @@ export function SettingsNav({ active, onChange }: SettingsNavProps) {
             onClick={() => onChange(section.key)}
             className={`flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2.5 text-left text-[14px] font-medium transition-colors ${
               isActive
-                ? 'bg-[var(--color-primary-soft)] font-semibold text-[var(--color-primary-active)]'
+                ? 'bg-[var(--color-primary-soft)] font-semibold text-[var(--color-primary-text)]'
                 : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-surface-2)]'
             }`}
           >

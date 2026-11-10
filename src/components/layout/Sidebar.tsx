@@ -54,7 +54,7 @@ function WorkspaceSwitcher({
           onClick={() => onChange('company')}
           className={`flex cursor-pointer items-center justify-center rounded-[var(--radius-sm)] py-1.5 ${
             mode === 'company'
-              ? 'bg-[var(--color-surface)] text-[var(--color-primary-active)] shadow-[var(--shadow-xs)]'
+              ? 'bg-[var(--color-surface)] text-[var(--color-primary-text)] shadow-[var(--shadow-xs)]'
               : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-soft)]'
           }`}
         >
@@ -67,7 +67,7 @@ function WorkspaceSwitcher({
           onClick={() => onChange('personal')}
           className={`flex cursor-pointer items-center justify-center rounded-[var(--radius-sm)] py-1.5 ${
             mode === 'personal'
-              ? 'bg-[var(--color-surface)] text-[var(--color-primary-active)] shadow-[var(--shadow-xs)]'
+              ? 'bg-[var(--color-surface)] text-[var(--color-primary-text)] shadow-[var(--shadow-xs)]'
               : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-soft)]'
           }`}
         >
@@ -91,7 +91,7 @@ function WorkspaceSwitcher({
           onClick={() => onChange(value)}
           className={`cursor-pointer rounded-[var(--radius-sm)] px-2 py-1.5 text-[12px] font-semibold transition-colors ${
             mode === value
-              ? 'bg-[var(--color-surface)] text-[var(--color-primary-active)] shadow-[var(--shadow-xs)]'
+              ? 'bg-[var(--color-surface)] text-[var(--color-primary-text)] shadow-[var(--shadow-xs)]'
               : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-soft)]'
           }`}
         >
@@ -211,7 +211,7 @@ export function Sidebar() {
                 collapsed ? 'justify-center gap-0 px-0 py-[11px]' : 'gap-2.5 px-3 py-2.5'
               } ${
                 active
-                  ? 'bg-[var(--color-primary-soft)] font-semibold text-[var(--color-primary-active)]'
+                  ? 'bg-[var(--color-primary-soft)] font-semibold text-[var(--color-primary-text)]'
                   : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-surface-2)]'
               }`}
             >
@@ -256,7 +256,7 @@ export function Sidebar() {
             collapsed ? 'justify-center gap-0' : 'gap-2.5'
           }`}
         >
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[12px] font-bold text-[var(--color-primary-active)]">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[12px] font-bold text-[var(--color-primary-text)]">
             {initials}
           </div>
           <div

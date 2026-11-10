@@ -57,7 +57,7 @@ export function TopEmployeesTable({ employees, totalEmployeeCount }: TopEmployee
               >
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[12px] font-bold text-[var(--color-primary-active)]">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[12px] font-bold text-[var(--color-primary-text)]">
                       {getInitials(user.first_name, user.last_name)}
                     </div>
                     <div className="min-w-0">

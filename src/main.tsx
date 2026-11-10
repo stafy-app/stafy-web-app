@@ -5,6 +5,9 @@ import * as Sentry from '@sentry/react'
 import './index.css'
 import App from './App.tsx'
 import { queryClient } from './lib/queryClient'
+import { initTheme } from './lib/theme'
+
+initTheme()
 
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({

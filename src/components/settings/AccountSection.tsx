@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useProfile } from '@stafy/hooks/useProfile'
 import { useUpdateAccount } from '@stafy/hooks/useAccountSettings'
+import { ThemeSwitch } from '@stafy/components/layout/ThemeToggle'
 import { showToast } from '@stafy/lib/toast'
 import type { UserOut } from '@stafy/api/generated/endpoints/index.schemas'
 
@@ -66,6 +67,11 @@ function AccountForm({ profile }: { profile: UserOut }) {
       <fieldset className="fieldset">
         <legend className="fieldset-legend">Funcție</legend>
         <input type="text" value={profile.job_title ?? ''} disabled className="input w-full" />
+      </fieldset>
+
+      <fieldset className="fieldset">
+        <legend className="fieldset-legend">Aspect</legend>
+        <ThemeSwitch />
       </fieldset>
 
       <div className="flex justify-end">

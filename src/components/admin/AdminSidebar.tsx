@@ -3,6 +3,7 @@ import { LogOut } from 'lucide-react'
 import { ICONS, type IconName } from '@stafy/lib/icons'
 import { useAuth } from '@stafy/hooks/useAuth'
 import { useProfile } from '@stafy/hooks/useProfile'
+import { ThemeToggleButton } from '@stafy/components/layout/ThemeToggle'
 
 interface AdminNavItem {
   to: string
@@ -49,7 +50,7 @@ function NavLink({ item, pathname }: { item: AdminNavItem; pathname: string }) {
       to={item.to}
       className={`flex flex-shrink-0 items-center gap-2.5 rounded-[var(--radius-lg)] px-3 py-2 text-[14px] font-medium no-underline transition-colors duration-200 ${
         active
-          ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary-active)]'
+          ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary-text)]'
           : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-ink)]'
       }`}
     >
@@ -73,15 +74,18 @@ export function AdminSidebar() {
           <span className="text-[18px] font-semibold tracking-tight text-[var(--color-ink)]">Stafy</span>
           <span className="text-[13px] font-medium text-[var(--color-primary)]">Admin</span>
         </div>
-        <button
-          type="button"
-          onClick={() => logout()}
-          aria-label="Deconectare"
-          title="Deconectare"
-          className="cursor-pointer text-[var(--color-ink-soft)] transition-colors hover:text-[var(--color-error)] md:hidden"
-        >
-          <LogOut className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          <ThemeToggleButton />
+          <button
+            type="button"
+            onClick={() => logout()}
+            aria-label="Deconectare"
+            title="Deconectare"
+            className="cursor-pointer p-2 text-[var(--color-ink-soft)] transition-colors hover:text-[var(--color-error)] md:hidden"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       <nav className="flex gap-1 overflow-x-auto px-3 pb-2 md:flex-1 md:flex-col md:gap-5 md:overflow-visible md:pb-0">

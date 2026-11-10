@@ -5,6 +5,7 @@ import { useSendPasswordResetEmail } from '@stafy/hooks/useSendPasswordResetEmai
 import { ADMIN_CONTROL, AdminField } from '@stafy/components/admin/ui/AdminField'
 import { AdminPageHeader } from '@stafy/components/admin/ui/AdminPageHeader'
 import { AdminSheet, AdminSheetSection } from '@stafy/components/admin/ui/AdminSheet'
+import { ThemeSwitch } from '@stafy/components/layout/ThemeToggle'
 import { showToast } from '@stafy/lib/toast'
 import type { UserOut } from '@stafy/api/generated/endpoints/index.schemas'
 
@@ -101,6 +102,9 @@ export function AdminAccountSection() {
         <AdminSheet>
           <AdminSheetSection title="Date personale">
             <ProfileForm key={profile.id} profile={profile} />
+          </AdminSheetSection>
+          <AdminSheetSection title="Aspect">
+            <ThemeSwitch />
           </AdminSheetSection>
           <AdminSheetSection title="Parolă">
             <PasswordReset profile={profile} />

@@ -10,6 +10,15 @@ Until a section exists here, the source of truth for design tokens is `src/App.c
 - **Typography**: Inter, scale from `--text-eyebrow` (11px) to `--text-display` (44px)
 - **Shadows**: `--shadow-xs` through `--shadow-pop`, plus `--shadow-focus` tied to `--color-primary-ring`
 
+## Dark mode
+
+Two DaisyUI themes in `src/App.css`: `"stafy"` (light) and `"stafy-dark"`, defining the same tokens, so a component styled with tokens (`bg-base-*`, `var(--color-surface)`, `var(--color-ink)`, ...) is correct in both with no `dark:` variants. Rules:
+
+- Never `bg-white`, `text-black` or a raw hex for a surface or text. Translucent overlays use `color-mix(in srgb, var(--color-surface) N%, transparent)`.
+- Primary-coloured text on a soft surface is `var(--color-primary-text)`; `--color-primary-active` is the pressed-button fill only.
+- The theme is `data-theme` on `<html>`; a preference of `light`, `dark` or `system` (default) lives in `localStorage` (`stafy-theme`). Switch: icon button in `Topbar` and `AdminSidebar`, three-way picker in Account settings and the admin account page.
+- Intentionally light in both themes: the payroll PDF and its preview frame (`ReportDocument`, `ReportsPage`), and the dark `AuthAside` panel.
+
 ## Signed-out screens
 
 Login, register, complete-registration and onboarding share the `src/components/auth/` kit: warm canvas with two soft brand glows, a white `rounded-[24px]` card, soft filled inputs with the brand focus ring, and a full-width pill primary button. Login and register add a dark brand panel on wide screens. Details in `docs/modules/auth.md` UI / Layout.
