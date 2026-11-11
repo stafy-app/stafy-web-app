@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { AuthCard } from '@stafy/components/auth/AuthCard'
 import { AuthError } from '@stafy/components/auth/AuthError'
 import { AuthField } from '@stafy/components/auth/AuthField'
+import { LegalConsentCheckbox } from '@stafy/components/auth/LegalConsentCheckbox'
 import { AUTH_LINK, AUTH_SUBMIT } from '@stafy/components/auth/authStyles'
 import { useAuth } from '@stafy/hooks/useAuth'
 
@@ -11,6 +12,7 @@ export default function CompleteRegistrationPage() {
   const navigate = useNavigate()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -65,6 +67,8 @@ export default function CompleteRegistrationPage() {
             placeholder="Numele tău"
           />
         </div>
+
+        <LegalConsentCheckbox checked={acceptedTerms} onChange={setAcceptedTerms} />
 
         <button type="submit" disabled={isSubmitting} className={AUTH_SUBMIT}>
           {isSubmitting ? <span className="loading loading-spinner loading-sm" /> : 'Continuă'}

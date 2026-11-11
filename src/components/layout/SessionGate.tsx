@@ -4,6 +4,7 @@ import { FullscreenSpinner } from '@stafy/components/layout/FullscreenSpinner'
 import { useAuth } from '@stafy/hooks/useAuth'
 import { useProfile } from '@stafy/hooks/useProfile'
 import { AccessBlockedScreen } from '@stafy/components/layout/AccessBlockedScreen'
+import { LegalAcceptanceScreen } from '@stafy/components/layout/LegalAcceptanceScreen'
 import { getApiError } from '@stafy/services/apiErrors'
 import { ACCESS_BLOCKED_MESSAGES } from '@stafy/utils/authError'
 import type { UserOut } from '@stafy/api/generated/endpoints/index.schemas'
@@ -43,6 +44,10 @@ export function SessionGate({ children }: SessionGateProps) {
 
   if (isProfileLoading || !profile) {
     return <FullscreenSpinner />
+  }
+
+  if (profile.needs_legal_acceptance) {
+    return <LegalAcceptanceScreen />
   }
 
   return <>{children(profile)}</>

@@ -14,6 +14,8 @@ import type {
   GetEmployeeMonthlyHistoryParams,
   GetEmployeeSummaryParams,
   HourlyRateOut,
+  LegalAcceptanceIn,
+  LegalAcceptanceOut,
   ListEmployeeHourlyRatesParams,
   ListEmployeeTimeEntriesParams,
   OnboardingIn,
@@ -47,6 +49,19 @@ const completeOnboarding = (
       {url: `/api/v1/users/me/onboarding`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: onboardingIn
+    },
+      );
+    }
+  /**
+ * @summary Accept the current Terms and acknowledge the current Privacy notice
+ */
+const acceptLegalTerms = (
+    legalAcceptanceIn: LegalAcceptanceIn,
+ ) => {
+      return api<LegalAcceptanceOut>(
+      {url: `/api/v1/users/me/legal-acceptance`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: legalAcceptanceIn
     },
       );
     }
@@ -175,9 +190,10 @@ const getProfile = (
     },
       );
     }
-  return {listUsers,completeOnboarding,getEmployeeSummary,listEmployeeTimeEntries,listEmployeeHourlyRates,setEmployeeHourlyRate,getEmployeeMonthlyHistory,updateEmployeeJobTitle,suspendEmployee,reactivateEmployee,removeMember,getProfile}};
+  return {listUsers,completeOnboarding,acceptLegalTerms,getEmployeeSummary,listEmployeeTimeEntries,listEmployeeHourlyRates,setEmployeeHourlyRate,getEmployeeMonthlyHistory,updateEmployeeJobTitle,suspendEmployee,reactivateEmployee,removeMember,getProfile}};
 export type ListUsersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listUsers']>>>
 export type CompleteOnboardingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['completeOnboarding']>>>
+export type AcceptLegalTermsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['acceptLegalTerms']>>>
 export type GetEmployeeSummaryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getEmployeeSummary']>>>
 export type ListEmployeeTimeEntriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listEmployeeTimeEntries']>>>
 export type ListEmployeeHourlyRatesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listEmployeeHourlyRates']>>>

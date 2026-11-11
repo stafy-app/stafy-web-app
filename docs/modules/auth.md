@@ -112,9 +112,9 @@ vs. `stafy-mobile`).
 ## User Flows
 
 ### Flow 1: Register
-1. `/register` → `RegisterPage.tsx`, a single-step form: first name, last name, email, password, then submit. No role choice is presented.
+1. `/register` → `RegisterPage.tsx`, a single-step form: first name, last name, email, password, the required, unticked `LegalConsentCheckbox` (accept the Terms + read the Privacy notice, both linking to stafy.ro, `src/utils/legalLinks.ts`), then submit. No role choice is presented. `CompleteRegistrationPage` carries the same checkbox.
 2. `createUserWithEmailAndPassword(auth, email, password)` (`AuthProvider.tsx`).
-3. `getAuth().registerUser({ first_name, last_name, role })` — `role` is always `'manager'`, hardcoded in `RegisterPage`.
+3. `getAuth().registerUser({ first_name, last_name, role, accept_terms: true })` — `role` is always `'owner'`, hardcoded in `RegisterPage`; `accept_terms` is always `true` because the form can't submit without the checkbox.
 4. On success, `AuthProvider` sets `firebaseUser`. The new manager has `onboarding_completed=false`, so `OnboardingLayout`'s gate sends them to `/onboarding` — no navigation logic in `RegisterPage` itself.
 5. On backend failure after step 2 succeeded: Firebase account is left in place (no rollback, same as mobile) — distinct error message, no auto-retry.
 
@@ -240,7 +240,8 @@ state across all three gates — `bg-[var(--color-page)]` + a DaisyUI `loading l
 
 ## Data Access
 
-- `POST /api/v1/auth/register` — `{first_name, last_name, role}`, Bearer Firebase ID token → `UserOut`. This app always sends `role: 'owner'`, hardcoded in both `RegisterPage` and `CompleteRegistrationPage` — see Flow 1/Flow 6. Also the endpoint Flow 6 (`completeRegistration()`) calls, reusing the token from the already-signed-in session instead of one just minted by `createUserWithEmailAndPassword` — same request shape either way, the backend can't tell the two calls apart.
+- `POST /api/v1/users/me/legal-acceptance` — `{accept_terms: true}` → current Terms/Privacy versions + timestamp. Called by `LegalAcceptanceScreen`, which `SessionGate` renders instead of the app while `GET /profile` reports `needs_legal_acceptance: true` (accounts created before acceptance existed, or after a version bump in stafy-backend's `stafy/core/legal.py`).
+- `POST /api/v1/auth/register` — `{first_name, last_name, role, accept_terms: true}`, Bearer Firebase ID token → `UserOut`. This app always sends `role: 'owner'`, hardcoded in both `RegisterPage` and `CompleteRegistrationPage` — see Flow 1/Flow 6. Also the endpoint Flow 6 (`completeRegistration()`) calls, reusing the token from the already-signed-in session instead of one just minted by `createUserWithEmailAndPassword` — same request shape either way, the backend can't tell the two calls apart.
 - `POST /api/v1/auth/login` — Bearer token only → `UserOut`.
 - `GET /api/v1/profile` — `UserOut` (now includes `job_title`, `onboarding_completed`).
 - `PATCH /api/v1/users/me/onboarding` — `require_company_role(min="owner")` (a platform admin also passes; a non-owner manager gets a 403 — the company already belongs to its owner). Body: `OnboardingIn {organization_name, city, address, job_title}` (all required strings). → `UserOut`. Backed by `UserRepository.complete_onboarding()` — one atomic commit across `companies` + `users`, following the same exception as `create_firebase_user`/`create_activity_with_rate_for_user` (see `stafy-backend/CLAUDE.md`).

@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { AuthCard } from '@stafy/components/auth/AuthCard'
 import { AuthError } from '@stafy/components/auth/AuthError'
 import { AuthField } from '@stafy/components/auth/AuthField'
+import { LegalConsentCheckbox } from '@stafy/components/auth/LegalConsentCheckbox'
 import { AUTH_LINK, AUTH_SUBMIT } from '@stafy/components/auth/authStyles'
 import { useAuth } from '@stafy/hooks/useAuth'
 
@@ -12,6 +13,7 @@ export default function RegisterPage() {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -76,6 +78,9 @@ export default function RegisterPage() {
           placeholder="Minim 6 caractere"
           delay={170}
         />
+        <div className="animate-fade-slide-in" style={{ animationDelay: '190ms' }}>
+          <LegalConsentCheckbox checked={acceptedTerms} onChange={setAcceptedTerms} />
+        </div>
         <button
           type="submit"
           disabled={isSubmitting}

@@ -22,8 +22,7 @@ export function PlanStatusBanner() {
   if (subscription.plan_status === 'read_only') {
     return (
       <div role="alert" className="alert alert-error rounded-none text-sm">
-        Planul companiei a expirat. Echipa poate ponta în continuare, dar alte modificări nu se mai pot face
-        până alegi un plan din Setări → Abonament.
+        Planul companiei a expirat. Echipa poate ponta în continuare, dar alte modificări nu se mai pot face. Scrie-ne și îți prelungim accesul gratuit.
       </div>
     )
   }
@@ -31,7 +30,7 @@ export function PlanStatusBanner() {
   if (subscription.expiring_soon && subscription.plan_expires_at) {
     return (
       <div role="alert" className="alert alert-warning rounded-none text-sm">
-        Planul companiei expiră pe {formatPlanDate(subscription.plan_expires_at)}. Deschide Setări → Abonament.
+        Planul companiei expiră pe {formatPlanDate(subscription.plan_expires_at)}. Scrie-ne dacă vrei să îl prelungim, gratuit.
       </div>
     )
   }

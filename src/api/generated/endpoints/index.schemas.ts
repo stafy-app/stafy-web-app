@@ -621,6 +621,8 @@ export interface UserOut {
   created_at?: string | null;
   /** Whether the account is active. */
   is_active?: boolean | null;
+  /** True when the user has not accepted the current Terms and Privacy notice versions (stafy/core/legal.py); the client then asks for acceptance via POST /users/me/legal-acceptance. Only populated by GET /profile. */
+  needs_legal_acceptance?: boolean | null;
 }
 
 export interface CompanyTopEmployeeOut {
@@ -1190,6 +1192,21 @@ export interface InvitationsListOut {
   data: InvitationOut[];
 }
 
+export const LegalAcceptanceInValue = {
+  /** Must be true: the user accepts the Terms and acknowledges the Privacy notice, in their current versions. */
+  accept_terms: true,
+} as const;
+export type LegalAcceptanceIn = typeof LegalAcceptanceInValue;
+
+export interface LegalAcceptanceOut {
+  /** Accepted Terms version. */
+  terms_version: string;
+  /** Acknowledged Privacy notice version. */
+  privacy_version: string;
+  /** Acceptance timestamp, UTC. */
+  legal_accepted_at: string;
+}
+
 export interface OnboardingIn {
   /**
      * Company/organization name.
@@ -1452,6 +1469,8 @@ export interface UserRegisterIn {
      * @pattern ^(employee|manager|owner)$
      */
   role: string;
+  /** Must be true: the registrant accepts the Terms and acknowledges the Privacy notice; the current versions and time are stored on the user. */
+  accept_terms: true;
 }
 
 export interface UsersListOut {
