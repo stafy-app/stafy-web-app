@@ -759,7 +759,7 @@ export interface ContactIn {
      * @maxLength 2000
      */
   message: string;
-  /** Must be true: the sender agrees to be contacted about this request. */
+  /** Must be true: the sender acknowledges the Privacy notice and that their data is used to answer this request (an acknowledgement, not GDPR consent: the legal basis is art. 6(1)(b), steps taken at the sender's request). */
   consent: true;
   /** Honeypot. Real users never fill it (the form hides it); a non-empty value is treated as a bot and silently dropped. */
   website?: string | null;

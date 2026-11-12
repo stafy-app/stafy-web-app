@@ -14,6 +14,8 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     dsn: import.meta.env.VITE_SENTRY_DSN,
     environment: import.meta.env.VITE_SENTRY_ENVIRONMENT ?? import.meta.env.MODE,
     tracesSampleRate: 0,
+    // Explicit, not the SDK default: no IP addresses, cookies or user data attached to events.
+    sendDefaultPii: false,
   })
 }
 
