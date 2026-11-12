@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { ProviderItem, ProviderMetric, ProviderStatus } from '@stafy/api/generated/endpoints/index.schemas'
 import { AdminSheet, AdminSheetSection } from '@stafy/components/admin/ui/AdminSheet'
 import { StatusDot } from '@stafy/components/admin/ui/StatusDot'
@@ -24,12 +24,17 @@ function Figures({ metrics }: { metrics: ProviderMetric[] }) {
   // three columns when that fills every row (six = two rows of three), otherwise four.
   const columns = metrics.length <= 4 ? metrics.length : metrics.length % 3 === 0 ? 3 : 4
   return (
+    // Two columns below `md` (a lone last cell spans both). Each cell draws its own right and bottom hairline as a
+    // 1px shadow; the outer edge is clipped by overflow-hidden, so an unfilled last row stays plain white.
     <div
-      className="grid divide-x divide-y divide-[var(--color-line)] border-b border-[var(--color-line)] [&>*]:border-[var(--color-line)]"
-      style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+      className="grid grid-cols-2 overflow-hidden border-b border-[var(--color-line)] max-md:[&>*:last-child:nth-child(odd)]:col-span-2 md:grid-cols-[repeat(var(--figure-cols),minmax(0,1fr))]"
+      style={{ '--figure-cols': columns } as CSSProperties}
     >
       {metrics.map((metric) => (
-        <div key={metric.label} className="min-w-0 px-5 py-4">
+        <div
+          key={metric.label}
+          className="min-w-0 px-4 py-4 shadow-[1px_0_0_var(--color-line),0_1px_0_var(--color-line)] sm:px-5"
+        >
           <div className="truncate text-[13px] text-[var(--color-ink-soft)]" title={metric.label}>
             {metric.label}
           </div>
@@ -82,8 +87,9 @@ function ItemRow({ item }: { item: ProviderItem }) {
   const sub = [item.summary, item.detail].filter(Boolean).join(' · ')
 
   return (
-    <li className="flex items-center gap-4 border-b border-[var(--color-line-soft)] px-5 py-3 last:border-b-0">
-      <div className="min-w-0 flex-1">
+    // Below `sm` the figures and the time wrap under the name instead of squeezing it.
+    <li className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-[var(--color-line-soft)] px-4 py-3 last:border-b-0 sm:flex-nowrap sm:px-5">
+      <div className="min-w-0 flex-1 max-sm:basis-full">
         <div className="flex items-center gap-2">
           <StatusDot tone={healthTone(item.health)}>
             <span className="sr-only">{healthLabel(item.health)}</span>
@@ -102,7 +108,9 @@ function ItemRow({ item }: { item: ProviderItem }) {
         <RowFigure key={metric.label} metric={metric} />
       ))}
       {item.at && (
-        <div className="w-[104px] shrink-0 text-right text-[12px] text-[var(--color-ink-soft)]">{timeAgo(item.at)}</div>
+        <div className="shrink-0 text-[12px] text-[var(--color-ink-soft)] max-sm:ml-auto sm:w-[104px] sm:text-right">
+          {timeAgo(item.at)}
+        </div>
       )}
     </li>
   )
@@ -167,7 +175,7 @@ export function ProviderDetail({ provider }: { provider: ProviderStatus }) {
               <span>Citit {timeAgo(provider.fetched_at)}</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {links.map((link) => (
               <a
                 key={link.url}

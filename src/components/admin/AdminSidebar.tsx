@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { LogOut } from 'lucide-react'
 import { ICONS, type IconName } from '@stafy/lib/icons'
@@ -48,6 +49,7 @@ function NavLink({ item, pathname }: { item: AdminNavItem; pathname: string }) {
   return (
     <Link
       to={item.to}
+      data-active={active || undefined}
       className={`flex flex-shrink-0 items-center gap-2.5 rounded-[var(--radius-lg)] px-3 py-2 text-[14px] font-medium no-underline transition-colors duration-200 ${
         active
           ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary-text)]'
@@ -66,6 +68,14 @@ export function AdminSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const { logout } = useAuth()
   const { data: profile } = useProfile()
+  const navRef = useRef<HTMLElement>(null)
+
+  // Below md the nav is a horizontal strip: keep the active item in view (e.g. Audit, past the right edge).
+  useEffect(() => {
+    const nav = navRef.current
+    if (!nav || nav.scrollWidth <= nav.clientWidth) return
+    nav.querySelector('[data-active]')?.scrollIntoView({ block: 'nearest', inline: 'center' })
+  }, [pathname])
 
   return (
     <aside className="flex flex-shrink-0 flex-col border-b border-[var(--color-hairline)] bg-[var(--color-glass)] backdrop-blur-xl md:sticky md:top-0 md:h-screen md:w-[236px] md:border-b-0 md:border-r">
@@ -88,9 +98,10 @@ export function AdminSidebar() {
         </div>
       </div>
 
-      <nav className="flex gap-1 overflow-x-auto px-3 pb-2 md:flex-1 md:flex-col md:gap-5 md:overflow-visible md:pb-0">
+      <nav ref={navRef} className="flex gap-1 overflow-x-auto px-3 pb-2 md:flex-1 md:flex-col md:gap-5 md:overflow-visible md:pb-0">
         {ADMIN_NAV_GROUPS.map((group, index) => (
-          <div key={group.title ?? index} className="flex gap-1 md:flex-col">
+          // shrink-0: in the phone strip a group must keep its full width, or its links spill over the next group.
+          <div key={group.title ?? index} className="flex shrink-0 gap-1 md:flex-col">
             {group.title && (
               <div className="hidden px-3 pb-1 text-[12px] font-medium text-[var(--color-ink-soft)] md:block">
                 {group.title}
@@ -101,7 +112,7 @@ export function AdminSidebar() {
             ))}
           </div>
         ))}
-        <div className="flex md:mt-auto md:flex-col">
+        <div className="flex shrink-0 gap-1 md:mt-auto md:flex-col">
           <NavLink item={APP_ITEM} pathname={pathname} />
           <NavLink item={ACCOUNT_ITEM} pathname={pathname} />
         </div>

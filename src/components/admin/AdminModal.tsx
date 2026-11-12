@@ -18,6 +18,7 @@ interface AdminModalProps {
 /**
  * Modal for the admin console's edit surfaces: a fixed header, a flat white body (no cards, sections divided by
  * hairlines) that scrolls on its own, an optional pinned footer. Closes on the X, the backdrop and Escape.
+ * Full screen below `sm` (phones), a centered sheet from `sm` up.
  */
 export function AdminModal({ title, subtitle, toolbar, footer, onClose, wide = false, children }: AdminModalProps) {
   useEffect(() => {
@@ -31,9 +32,9 @@ export function AdminModal({ title, subtitle, toolbar, footer, onClose, wide = f
   return (
     <div className="modal modal-open modal-middle" role="dialog" aria-modal="true" aria-label={title}>
       <div
-        className={`modal-box flex h-[min(680px,88vh)] w-11/12 ${wide ? 'max-w-6xl' : 'max-w-4xl'} flex-col gap-0 overflow-hidden rounded-[var(--radius-xl)] bg-[var(--color-surface)] p-0 shadow-[var(--shadow-pop)]`}
+        className={`modal-box flex h-dvh max-h-none w-full max-w-none flex-col gap-0 overflow-hidden rounded-none bg-[var(--color-surface)] p-0 shadow-[var(--shadow-pop)] sm:h-[min(680px,88vh)] sm:w-11/12 sm:rounded-[var(--radius-xl)] ${wide ? 'sm:max-w-6xl' : 'sm:max-w-4xl'}`}
       >
-        <div className="flex flex-col gap-4 bg-[var(--color-surface)] px-6 pb-4 pt-5 shadow-[0_1px_0_var(--color-hairline)]">
+        <div className="flex flex-col gap-4 bg-[var(--color-surface)] px-4 pb-4 pt-4 shadow-[0_1px_0_var(--color-hairline)] sm:px-6 sm:pt-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h3 className="truncate text-[20px] font-semibold tracking-tight text-[var(--color-ink)]">{title}</h3>
@@ -49,7 +50,7 @@ export function AdminModal({ title, subtitle, toolbar, footer, onClose, wide = f
           <FlatSurfaceContext.Provider value>{children}</FlatSurfaceContext.Provider>
         </div>
         {footer && (
-          <div className="flex items-center justify-end gap-2 bg-[var(--color-surface)] px-6 py-3 shadow-[0_-1px_0_var(--color-hairline)]">
+          <div className="flex flex-wrap items-center justify-end gap-2 bg-[var(--color-surface)] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-1px_0_var(--color-hairline)] sm:px-6 sm:pb-3">
             {footer}
           </div>
         )}

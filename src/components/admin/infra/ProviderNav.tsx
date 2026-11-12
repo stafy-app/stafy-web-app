@@ -27,7 +27,8 @@ export function ProviderNav({ providers, selectedKey, onSelect, working, attenti
           {attention > 0 && <span className="text-[var(--color-error)]">, {attention} necesită atenție</span>}
         </div>
       </div>
-      <ul className="p-1.5">
+      {/* Two columns on phones and tablets, so the list doesn't push the detail a screen down. */}
+      <ul className="grid grid-cols-2 gap-0.5 p-1.5 sm:grid-cols-3 lg:block">
         {providers.map((provider) => {
           const state = providerState(provider)
           const active = provider.key === selectedKey

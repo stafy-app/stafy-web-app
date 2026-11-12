@@ -18,15 +18,19 @@ const PAGE_SIZE = 25
 
 const ROLE_LABELS = { owner: 'owner', manager: 'manager', employee: 'angajat' } as const
 
-const COLUMNS: { label: string; sort?: ListAdminCompaniesSort; numeric?: boolean }[] = [
+// `wide`: shown from `sm` up only. On a phone a row is company (owner under it), plan and state; the rest is one
+// tap away in the company modal.
+const COLUMNS: { label: string; sort?: ListAdminCompaniesSort; numeric?: boolean; wide?: boolean }[] = [
   { label: 'Companie', sort: ListAdminCompaniesSort.name },
-  { label: 'Owner' },
+  { label: 'Owner', wide: true },
   { label: 'Plan', sort: ListAdminCompaniesSort.plan },
   { label: 'Stare' },
-  { label: 'Locuri', sort: ListAdminCompaniesSort.seats, numeric: true },
-  { label: 'Expiră', sort: ListAdminCompaniesSort.expires },
-  { label: 'Ultima activitate', sort: ListAdminCompaniesSort.last_activity },
+  { label: 'Locuri', sort: ListAdminCompaniesSort.seats, numeric: true, wide: true },
+  { label: 'Expiră', sort: ListAdminCompaniesSort.expires, wide: true },
+  { label: 'Ultima activitate', sort: ListAdminCompaniesSort.last_activity, wide: true },
 ]
+
+const WIDE = 'max-sm:hidden'
 
 export function AdminCompaniesSection() {
   const [searchInput, setSearchInput] = useState('')
@@ -86,14 +90,14 @@ export function AdminCompaniesSection() {
           <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-line)] p-3">
             <input
               type="search"
-              className="input w-72 rounded-[var(--radius-lg)] bg-[var(--color-surface-2)]"
+              className="input w-full rounded-[var(--radius-lg)] bg-[var(--color-surface-2)] sm:w-72"
               placeholder="Caută companie, persoană sau email"
               aria-label="Caută companie, persoană sau email"
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
             />
             <select
-              className="select rounded-[var(--radius-lg)] bg-[var(--color-surface-2)]"
+              className="select min-w-0 flex-1 rounded-[var(--radius-lg)] bg-[var(--color-surface-2)] sm:flex-none"
               aria-label="Filtrează după plan"
               value={planType}
               onChange={(event) => {
@@ -109,7 +113,7 @@ export function AdminCompaniesSection() {
               ))}
             </select>
             <select
-              className="select rounded-[var(--radius-lg)] bg-[var(--color-surface-2)]"
+              className="select min-w-0 flex-1 rounded-[var(--radius-lg)] bg-[var(--color-surface-2)] sm:flex-none"
               aria-label="Filtrează după stare"
               value={planStatus}
               onChange={(event) => {
@@ -135,7 +139,10 @@ export function AdminCompaniesSection() {
               <thead>
                 <tr>
                   {COLUMNS.map((column) => (
-                    <th key={column.label} className={column.numeric ? 'num' : undefined}>
+                    <th
+                      key={column.label}
+                      className={[column.numeric && 'num', column.wide && WIDE].filter(Boolean).join(' ') || undefined}
+                    >
                       {column.sort ? (
                         <button
                           type="button"
@@ -161,8 +168,13 @@ export function AdminCompaniesSection() {
                 )}
                 {companies.map((company) => (
                   <tr key={company.company_id} className="row-link" onClick={() => setSelectedId(company.company_id)}>
-                    <td className="font-medium text-[var(--color-ink)]">{company.company_name}</td>
-                    <td className="max-w-[300px]">
+                    <td className="font-medium text-[var(--color-ink)]">
+                      {company.company_name}
+                      <div className="max-w-[45vw] truncate text-[12px] font-normal text-[var(--color-ink-soft)] sm:hidden">
+                        {company.owner_name}
+                      </div>
+                    </td>
+                    <td className={`max-w-[300px] ${WIDE}`}>
                       <div className="flex items-baseline gap-2">
                         <span className="shrink-0">{company.owner_name}</span>
                         <span className="truncate text-[12px] text-[var(--color-ink-soft)]">{company.owner_email}</span>
@@ -177,7 +189,7 @@ export function AdminCompaniesSection() {
                     </td>
                     <td>{planLabel(company.plan_type)}</td>
                     <td>
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                         <StatusDot tone={company.plan_status === 'read_only' ? 'error' : 'success'}>
                           {STATUS_LABELS[company.plan_status]}
                         </StatusDot>
@@ -188,13 +200,13 @@ export function AdminCompaniesSection() {
                         )}
                       </div>
                     </td>
-                    <td className="num">
+                    <td className={`num ${WIDE}`}>
                       {company.seats_limit === 0 ? '—' : `${company.seats_used} / ${company.seats_limit ?? '∞'}`}
                     </td>
-                    <td className="tabular-nums">
+                    <td className={`tabular-nums ${WIDE}`}>
                       {company.plan_expires_at ? formatPlanDate(company.plan_expires_at) : '—'}
                     </td>
-                    <td className="tabular-nums">
+                    <td className={`tabular-nums ${WIDE}`}>
                       {company.last_activity_at ? formatPlanDate(company.last_activity_at) : '—'}
                     </td>
                     <td className="w-8 text-[var(--color-ink-muted)]">

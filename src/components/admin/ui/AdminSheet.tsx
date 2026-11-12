@@ -31,15 +31,15 @@ export function AdminSheetSection({ title, caption, action, flush = false, child
   return (
     <section className="min-w-0">
       {(title || action) && (
-        <div className="flex min-h-9 items-center justify-between gap-3 px-5 pt-4">
-          <div>
+        <div className="flex min-h-9 flex-wrap items-center justify-between gap-3 px-4 pt-4 sm:px-5">
+          <div className="min-w-0">
             {title && <h2 className="text-[15px] font-semibold tracking-tight text-[var(--color-ink)]">{title}</h2>}
             {caption && <p className="text-[13px] text-[var(--color-ink-soft)]">{caption}</p>}
           </div>
           {action}
         </div>
       )}
-      <div className={flush ? (title || action ? 'pt-3' : '') : `px-5 pb-5 ${title || action ? 'pt-3' : 'pt-5'}`}>
+      <div className={flush ? (title || action ? 'pt-3' : '') : `px-4 pb-5 sm:px-5 ${title || action ? 'pt-3' : 'pt-5'}`}>
         {children}
       </div>
     </section>

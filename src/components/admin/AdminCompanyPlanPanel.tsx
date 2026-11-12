@@ -55,10 +55,11 @@ export function AdminCompanyPlanPanel({ companyId }: { companyId: number }) {
     <>
       <AdminSheet>
         <AdminSheetSection title="Planul acum" caption={current}>
-          <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4">
+          {/* One field per row on phones, a single wrapping row from sm up. */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
             <AdminField label="Alege planul">
               <select
-                className={`select ${ADMIN_CONTROL}`}
+                className={`select max-sm:w-full ${ADMIN_CONTROL}`}
                 value={planType}
                 onChange={(event) => setPlanType(event.target.value as PlanChoice)}
               >
@@ -73,14 +74,14 @@ export function AdminCompanyPlanPanel({ companyId }: { companyId: number }) {
               <AdminField label="Expiră pe">
                 <input
                   type="date"
-                  className={`input ${ADMIN_CONTROL}`}
+                  className={`input max-sm:w-full ${ADMIN_CONTROL}`}
                   required
                   value={expiryDate}
                   onChange={(event) => setExpiryDate(event.target.value)}
                 />
               </AdminField>
             )}
-            <AdminField label="Notă (opțional)" className="min-w-[220px] flex-1">
+            <AdminField label="Notă (opțional)" className="sm:min-w-[220px] sm:flex-1">
               <input
                 type="text"
                 className={`input w-full ${ADMIN_CONTROL}`}
@@ -102,9 +103,9 @@ export function AdminCompanyPlanPanel({ companyId }: { companyId: number }) {
                 <th>Data</th>
                 <th>Eveniment</th>
                 <th>Plan</th>
-                <th className="num">Locuri</th>
-                <th>Expiră</th>
-                <th>Modificat de</th>
+                <th className="num max-sm:hidden">Locuri</th>
+                <th className="max-sm:hidden">Expiră</th>
+                <th className="max-sm:hidden">Modificat de</th>
                 <th>Notă</th>
               </tr>
             </thead>
@@ -116,9 +117,11 @@ export function AdminCompanyPlanPanel({ companyId }: { companyId: number }) {
                   </td>
                   <td>{EVENT_LABELS[event.event_type] ?? event.event_type}</td>
                   <td>{planLabel(event.plan_type)}</td>
-                  <td className="num">{event.seats_limit ?? '∞'}</td>
-                  <td className="tabular-nums">{event.expires_at ? formatPlanDate(event.expires_at) : '—'}</td>
-                  <td>{event.actor}</td>
+                  <td className="num max-sm:hidden">{event.seats_limit ?? '∞'}</td>
+                  <td className="tabular-nums max-sm:hidden">
+                    {event.expires_at ? formatPlanDate(event.expires_at) : '—'}
+                  </td>
+                  <td className="max-sm:hidden">{event.actor}</td>
                   <td>{event.note ?? ''}</td>
                 </tr>
               ))}

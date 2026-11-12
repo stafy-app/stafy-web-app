@@ -20,7 +20,7 @@ export function AdminLayout() {
           <div className="flex min-h-screen flex-col [--color-ink-muted:var(--color-ink-soft)] md:flex-row">
             <AdminSidebar />
             <main className="min-w-0 flex-1 px-4 py-6 sm:px-8 sm:py-9">
-              <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
+              <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 sm:gap-8">
                 <Outlet />
               </div>
             </main>

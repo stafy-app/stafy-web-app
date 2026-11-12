@@ -181,9 +181,9 @@ export function CompanyMembersTab({ companyId }: { companyId: number }) {
             <tr>
               <th>Nume</th>
               <th>Rol</th>
-              <th>Funcție</th>
+              <th className="max-sm:hidden">Funcție</th>
               <th>Stare</th>
-              <th>Din</th>
+              <th className="max-sm:hidden">Din</th>
               <th aria-hidden />
             </tr>
           </thead>
@@ -192,22 +192,25 @@ export function CompanyMembersTab({ companyId }: { companyId: number }) {
               <Fragment key={member.user_id}>
                 <tr>
                   <td className="max-w-[300px]">
-                    <div className="flex items-baseline gap-2">
+                    {/* Email under the name on phones, beside it from sm up. */}
+                    <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2">
                       <span className="shrink-0 font-medium text-[var(--color-ink)]">{member.name}</span>
-                      <span className="truncate text-[12px] text-[var(--color-ink-soft)]">{member.email}</span>
+                      <span className="max-w-[40vw] truncate text-[12px] text-[var(--color-ink-soft)] sm:max-w-none">
+                        {member.email}
+                      </span>
                     </div>
                   </td>
                   <td>{ROLE_LABELS[member.company_role] ?? member.company_role}</td>
-                  <td>{member.job_title ?? '—'}</td>
+                  <td className="max-sm:hidden">{member.job_title ?? '—'}</td>
                   <td>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                       <StatusDot tone={member.is_active ? 'success' : 'warning'}>
                         {member.is_active ? 'Activ' : 'Suspendat'}
                       </StatusDot>
                       {member.blocked && <StatusDot tone="error">Cont blocat</StatusDot>}
                     </div>
                   </td>
-                  <td className="tabular-nums">{formatPlanDate(member.joined_at)}</td>
+                  <td className="tabular-nums max-sm:hidden">{formatPlanDate(member.joined_at)}</td>
                   <td className="text-right">
                     <button
                       type="button"
@@ -234,13 +237,13 @@ export function CompanyMembersTab({ companyId }: { companyId: number }) {
                           )
                         }}
                       >
-                        <span className="text-[13px] text-[var(--color-ink)]">
+                        <span className="text-[13px] text-[var(--color-ink)] max-sm:basis-full">
                           {target.blocked
                             ? `${member.name} nu va mai putea folosi Stafy în nicio companie.`
                             : `${member.name} va putea folosi din nou Stafy.`}
                         </span>
                         <input
-                          className="input input-sm min-w-[240px] flex-1 rounded-[var(--radius-lg)]"
+                          className="input input-sm min-w-0 flex-1 rounded-[var(--radius-lg)] max-sm:basis-full sm:min-w-[240px]"
                           autoFocus
                           maxLength={500}
                           aria-label="Motiv"

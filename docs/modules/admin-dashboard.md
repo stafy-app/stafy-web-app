@@ -117,7 +117,7 @@ in `src/components/admin/`; the shared account/audit sections stay in `src/compo
 
 - **Shell.** `AdminLayout` renders `AdminSidebar` plus the routed page in a column capped at `max-w-6xl`;
   there is no top bar and no bottom navigation. Below the `md` breakpoint the sidebar collapses into a
-  horizontal scroll strip. The layout root re-points `--color-ink-muted` to `--color-ink-soft` for
+  horizontal scroll strip that scrolls the active item into view. The layout root re-points `--color-ink-muted` to `--color-ink-soft` for
   everything inside the console (including the sections shared with Settings), because the muted slate
   is below AA contrast on white. Secondary text is therefore `ink-soft`; body and table text is at
   least 13px, 12px only for counters and hints.
@@ -138,6 +138,15 @@ in `src/components/admin/`; the shared account/audit sections stay in `src/compo
   uses it.
 - **Forms and facts.** `AdminField` (label, hint or error) with `ADMIN_CONTROL` (the soft filled control
   style) for inputs; `AdminDetailList` (fixed label column, aligned values) for read-only data in modals.
+- **Phones.** The primitives carry the small-screen behavior, so pages need no breakpoint logic of their own:
+  `AdminModal` is full screen below `sm` (footer clear of the home indicator); `AdminStatStrip` and the infra
+  figures are two columns below `md` (a lone last cell spans both); `AdminDetailList` puts the label above the
+  value below `sm`; `AdminSegmented` (the company modal's tabs included) spans the full width with equal,
+  taller options below `sm`; sheet sections use 16px side padding. Tables keep horizontal scroll, except
+  Companii, which below `sm` shows only company (owner under it), plan and state (the rest is in the company
+  modal), and the company modal's Membri (no Funcție/Din; email under the name) and Plan history (no
+  Locuri/Expiră/Modificat de). The Plan form stacks one field per row below `sm`. The infra service list is a 2/3-column grid
+  below `lg`, and a service's rows wrap their figures under the name below `sm`.
   The admin account page is the console's own form (`AdminAccountSection`), on the same hooks as Settings.
 - **Status.** `StatusDot` (a colored dot plus plain text) for plan, member, announcement state and
   severity. The only filled box is the unreadable-service warning on the infrastructure page.

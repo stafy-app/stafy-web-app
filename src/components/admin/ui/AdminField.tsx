@@ -31,12 +31,18 @@ interface DetailItem {
   value: ReactNode
 }
 
-/** Read-only facts as a two-column list: fixed-width labels, aligned values. The standard way to show data in a modal. */
+/**
+ * Read-only facts as a two-column list: fixed-width labels, aligned values. The standard way to show data in a modal.
+ * Below `sm` the label sits above its value.
+ */
 export function AdminDetailList({ items }: { items: DetailItem[] }) {
   return (
     <dl className="divide-y divide-[var(--color-line)] text-[14px]">
       {items.map((item) => (
-        <div key={item.label} className="grid grid-cols-[160px_1fr] gap-4 py-2.5 first:pt-0 last:pb-0">
+        <div
+          key={item.label}
+          className="grid grid-cols-1 gap-0.5 py-2.5 first:pt-0 last:pb-0 sm:grid-cols-[160px_1fr] sm:gap-4"
+        >
           <dt className="text-[13px] text-[var(--color-ink-soft)]">{item.label}</dt>
           <dd className="min-w-0 text-[var(--color-ink)]">{item.value}</dd>
         </div>
