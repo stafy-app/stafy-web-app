@@ -31,7 +31,7 @@ export default function MyDashboardPage() {
   return (
     <div className="mx-auto flex max-w-[1280px] flex-col gap-4 sm:gap-5">
       {!hasRates && (
-        <div className="animate-fade-slide-in rounded-[var(--radius-lg)] border border-[var(--color-warning)]/30 bg-[var(--color-warning)]/10 p-4 shadow-[var(--shadow-sm)] sm:p-5">
+        <div className="animate-fade-slide-in rounded-[var(--radius-lg)] bg-[var(--color-warning)]/10 p-4 shadow-[var(--shadow-sm)] sm:p-5">
           <div className="text-[14px] font-semibold text-[var(--color-ink)]">
             Nu ai niciun tarif configurat încă
           </div>

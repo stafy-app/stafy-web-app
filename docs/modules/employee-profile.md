@@ -96,7 +96,7 @@ synced to the URL.
    current month's time entries as a CSV download, suspends/reactivates the employee, or removes
    them from the company after an inline confirmation (each with a toast confirming the result;
    a removal returns the manager to the Team page).
-7. Manager views the History tab → 3 KPI cards (total hours, total pay, average hours/month) above
+7. Manager views the History tab → 3 KPI cards (total hours, total pay, average hours/month, each captioned "ultimele 5 luni") above
    the last 5 months rendered as two small charts (hours, pay) with a synced hover crosshair.
 
 ---
@@ -160,7 +160,7 @@ No modals — job-title edit and rate edit are both inline, not dialogs.
 
 ### History tab
 
-- 3 `KpiCard`s (total hours, total pay, average hours/month), same component the Dashboard KPI
+- 3 `KpiCard`s (total hours, total pay, average hours/month, summed over the 5-month window and captioned "ultimele 5 luni"; `HistoryTab` without a `selectedMonth` prop), same component the Dashboard KPI
   strip uses, above the chart card — a summary-first layout, not a caption below the visual.
 - **Two single-axis charts, not one dual-axis chart** — see Special Aspects for why. Left: hours,
   `Area` (orange, ~10% fill opacity, 2px line). Right: estimated pay, `Line` (blue, 2px). Both

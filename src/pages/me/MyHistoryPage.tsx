@@ -21,7 +21,18 @@ export default function MyHistoryPage() {
     <div className="mx-auto flex max-w-[1280px] flex-col gap-4 sm:gap-5">
       <AttendancePeriodHeader employeeId={employeeId} data={attendanceData} showBonusCard={false} />
 
-      <HistoryTab employeeId={employeeId} />
+      {/* KPI cards follow the month picked above (issue #34): totals from the month's report,
+          which useAttendanceMonth already fetches, so no extra request. */}
+      <HistoryTab
+        employeeId={employeeId}
+        selectedMonth={{
+          year: attendanceData.period.year,
+          month: attendanceData.period.month,
+          totalHours: attendanceData.report?.total_hours ?? 0,
+          totalPay: parseFloat(attendanceData.report?.total_pay ?? '0'),
+          workedDays: attendanceData.workedDays,
+        }}
+      />
 
       <AttendanceEntriesTable data={attendanceData} allowDelete />
     </div>
