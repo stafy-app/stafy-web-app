@@ -112,7 +112,7 @@ vs. `stafy-mobile`).
 ## User Flows
 
 ### Flow 1: Register
-1. `/register` → `RegisterPage.tsx`, a single-step form: first name, last name, email, password, the required, unticked `LegalConsentCheckbox` (accept the Terms + read the Privacy notice, both linking to stafy.ro, `src/utils/legalLinks.ts`), then submit. No role choice is presented. `CompleteRegistrationPage` carries the same checkbox.
+1. `/register` → `RegisterPage.tsx`, a single-step form: first name, last name, email, password, the required, unticked `LegalConsentCheckbox` (accept the Terms + read the Privacy notice, both linking to stafy.ro, `src/utils/legalLinks.ts`), then submit. No role choice is presented. `?email=` (the invitation email's "Creează-ți contul" button, validated by `registerRoute`'s `validateSearch`) pre-fills the email field, still editable. `CompleteRegistrationPage` carries the same checkbox.
 2. `createUserWithEmailAndPassword(auth, email, password)` (`AuthProvider.tsx`).
 3. `getAuth().registerUser({ first_name, last_name, role, accept_terms: true })` — `role` is always `'owner'`, hardcoded in `RegisterPage`; `accept_terms` is always `true` because the form can't submit without the checkbox.
 4. On success, `AuthProvider` sets `firebaseUser`. The new manager has `onboarding_completed=false`, so `OnboardingLayout`'s gate sends them to `/onboarding` — no navigation logic in `RegisterPage` itself.

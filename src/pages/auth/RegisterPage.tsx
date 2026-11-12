@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useSearch } from '@tanstack/react-router'
 import { AuthCard } from '@stafy/components/auth/AuthCard'
 import { AuthError } from '@stafy/components/auth/AuthError'
 import { AuthField } from '@stafy/components/auth/AuthField'
@@ -11,7 +11,9 @@ export default function RegisterPage() {
   const { register } = useAuth()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
+  // Pre-filled from the invitation email's link (`/register?email=…`); still editable.
+  const { email: invitedEmail } = useSearch({ from: '/_auth/register' })
+  const [email, setEmail] = useState(() => invitedEmail ?? '')
   const [password, setPassword] = useState('')
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [error, setError] = useState<string | null>(null)

@@ -8,6 +8,7 @@ import type {
   UserActivityCreate,
 } from '@stafy/api/generated/endpoints/index.schemas'
 import { showToast } from '@stafy/lib/toast'
+import { getApiError, getCodedErrorMessage } from '@stafy/services/apiErrors'
 
 export function useMyDashboard() {
   return useQuery({
@@ -53,8 +54,12 @@ export function useUpdateTimeEntry() {
       queryClient.invalidateQueries({ queryKey: ['company-dashboard'] })
       showToast('Pontaj corectat.')
     },
-    onError: () => {
-      showToast('Nu am putut corecta pontajul.', { tone: 'danger' })
+    onError: (error) => {
+      const message =
+        getApiError(error)?.code === 'time_entry_overlap'
+          ? 'Noul interval se suprapune cu un alt pontaj al acestei persoane. Alege alt interval.'
+          : getCodedErrorMessage(error, 'Nu am putut corecta pontajul.')
+      showToast(message, { tone: 'danger' })
     },
   })
 }

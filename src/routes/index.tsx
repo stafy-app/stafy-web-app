@@ -162,6 +162,11 @@ const loginRoute = createRoute({
 const registerRoute = createRoute({
   path: '/register',
   getParentRoute: () => authLayoutRoute,
+  // `?email=` comes from the invitation email's button (stafy-backend invitation template) and
+  // pre-fills the form, so the account is created with the invited address.
+  validateSearch: (search: Record<string, unknown>): { email?: string } => ({
+    email: typeof search.email === 'string' ? search.email : undefined,
+  }),
   component: RegisterPage,
 })
 

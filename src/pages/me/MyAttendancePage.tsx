@@ -11,6 +11,8 @@ const ron = new Intl.NumberFormat('ro-RO', { minimumFractionDigits: 2, maximumFr
 const ERROR_MESSAGES_RO: Record<string, string> = {
   not_found: 'Activitatea aleasă nu mai e disponibilă. Alege din nou.',
   entry_already_exists: 'Ai deja un pontaj pe exact acest interval.',
+  time_entry_overlap:
+    'Ai deja un pontaj care se suprapune cu acest interval. Verifică Istoricul și corectează sau șterge pontajul existent.',
 }
 
 interface BackendErrorData {
