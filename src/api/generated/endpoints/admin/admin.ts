@@ -6,13 +6,25 @@
  */
 import type {
   AdminActivityOut,
+  AdminAnnouncementOut,
+  AdminAnnouncementsOut,
+  AdminCompaniesSummaryOut,
+  AdminCompanyDetailOut,
+  AdminCompanyMembersOut,
+  AdminCompanyNotesIn,
+  AdminCompanyRestrictionIn,
   AdminCompanySubscriptionsListOut,
   AdminGrowthOut,
   AdminInvitationFunnelOut,
   AdminOverviewOut,
   AdminSubscriptionChangeIn,
+  AdminUserActionIn,
+  AnnouncementIn,
+  AnnouncementPatchIn,
   GetAdminActivityParams,
   GetAdminGrowthParams,
+  ListAdminCompaniesParams,
+  ListAdminCompanyMembersParams,
   SubscriptionEventsListOut,
   SubscriptionOut
 } from '../index.schemas';
@@ -69,13 +81,105 @@ const getAdminActivity = (
       );
     }
   /**
- * @summary Every owned company with its plan and seat usage
+ * @summary Block an account from the API in every company; a reason is mandatory
+ */
+const blockAdminUser = (
+    userId: number,
+    adminUserActionIn: AdminUserActionIn,
+ ) => {
+      return api<void>(
+      {url: `/api/v1/admin/users/${userId}/block`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: adminUserActionIn
+    },
+      );
+    }
+  /**
+ * @summary Lift an account block; a reason is mandatory
+ */
+const unblockAdminUser = (
+    userId: number,
+    adminUserActionIn: AdminUserActionIn,
+ ) => {
+      return api<void>(
+      {url: `/api/v1/admin/users/${userId}/unblock`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: adminUserActionIn
+    },
+      );
+    }
+  /**
+ * @summary Owned companies with plan, seat usage and last activity; searchable, sortable, paginated
  */
 const listAdminCompanies = (
-
+    params?: ListAdminCompaniesParams,
  ) => {
       return api<AdminCompanySubscriptionsListOut>(
-      {url: `/api/v1/admin/companies`, method: 'GET'
+      {url: `/api/v1/admin/companies`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Company counts by plan and state, expiring and at-seat-limit totals
+ */
+const getAdminCompaniesSummary = (
+
+ ) => {
+      return api<AdminCompaniesSummaryOut>(
+      {url: `/api/v1/admin/companies/summary`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary One company's profile, owner contact, plan state, last activity, note and tags
+ */
+const getAdminCompany = (
+    companyId: number,
+ ) => {
+      return api<AdminCompanyDetailOut>(
+      {url: `/api/v1/admin/companies/${companyId}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary A company's live members: identity, role and standing only
+ */
+const listAdminCompanyMembers = (
+    companyId: number,
+    params?: ListAdminCompanyMembersParams,
+ ) => {
+      return api<AdminCompanyMembersOut>(
+      {url: `/api/v1/admin/companies/${companyId}/members`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Replace the company's internal admin note and tags
+ */
+const setAdminCompanyNotes = (
+    companyId: number,
+    adminCompanyNotesIn: AdminCompanyNotesIn,
+ ) => {
+      return api<AdminCompanyDetailOut>(
+      {url: `/api/v1/admin/companies/${companyId}/notes`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: adminCompanyNotesIn
+    },
+      );
+    }
+  /**
+ * @summary Restrict a company to read-only, suspend it, or lift the restriction; a reason is mandatory
+ */
+const setAdminCompanyRestriction = (
+    companyId: number,
+    adminCompanyRestrictionIn: AdminCompanyRestrictionIn,
+ ) => {
+      return api<AdminCompanyDetailOut>(
+      {url: `/api/v1/admin/companies/${companyId}/restriction`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: adminCompanyRestrictionIn
     },
       );
     }
@@ -115,12 +219,72 @@ const listAdminCompanySubscriptionEvents = (
     },
       );
     }
-  return {getAdminOverview,getAdminGrowth,getAdminInvitationsFunnel,getAdminActivity,listAdminCompanies,getAdminCompanySubscription,changeAdminCompanySubscription,listAdminCompanySubscriptionEvents}};
+  /**
+ * @summary Every announcement, newest first, with derived state and dismissal counts
+ */
+const listAdminAnnouncements = (
+
+ ) => {
+      return api<AdminAnnouncementsOut>(
+      {url: `/api/v1/admin/announcements`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Create a banner (draft or published)
+ */
+const createAdminAnnouncement = (
+    announcementIn: AnnouncementIn,
+ ) => {
+      return api<AdminAnnouncementOut>(
+      {url: `/api/v1/admin/announcements`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: announcementIn
+    },
+      );
+    }
+  /**
+ * @summary Edit a banner; only the fields sent change
+ */
+const updateAdminAnnouncement = (
+    announcementId: number,
+    announcementPatchIn: AnnouncementPatchIn,
+ ) => {
+      return api<AdminAnnouncementOut>(
+      {url: `/api/v1/admin/announcements/${announcementId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: announcementPatchIn
+    },
+      );
+    }
+  /**
+ * @summary Delete a banner and its dismissals
+ */
+const deleteAdminAnnouncement = (
+    announcementId: number,
+ ) => {
+      return api<void>(
+      {url: `/api/v1/admin/announcements/${announcementId}`, method: 'DELETE'
+    },
+      );
+    }
+  return {getAdminOverview,getAdminGrowth,getAdminInvitationsFunnel,getAdminActivity,blockAdminUser,unblockAdminUser,listAdminCompanies,getAdminCompaniesSummary,getAdminCompany,listAdminCompanyMembers,setAdminCompanyNotes,setAdminCompanyRestriction,getAdminCompanySubscription,changeAdminCompanySubscription,listAdminCompanySubscriptionEvents,listAdminAnnouncements,createAdminAnnouncement,updateAdminAnnouncement,deleteAdminAnnouncement}};
 export type GetAdminOverviewResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminOverview']>>>
 export type GetAdminGrowthResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminGrowth']>>>
 export type GetAdminInvitationsFunnelResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminInvitationsFunnel']>>>
 export type GetAdminActivityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminActivity']>>>
+export type BlockAdminUserResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['blockAdminUser']>>>
+export type UnblockAdminUserResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['unblockAdminUser']>>>
 export type ListAdminCompaniesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['listAdminCompanies']>>>
+export type GetAdminCompaniesSummaryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminCompaniesSummary']>>>
+export type GetAdminCompanyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminCompany']>>>
+export type ListAdminCompanyMembersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['listAdminCompanyMembers']>>>
+export type SetAdminCompanyNotesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['setAdminCompanyNotes']>>>
+export type SetAdminCompanyRestrictionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['setAdminCompanyRestriction']>>>
 export type GetAdminCompanySubscriptionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getAdminCompanySubscription']>>>
 export type ChangeAdminCompanySubscriptionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['changeAdminCompanySubscription']>>>
 export type ListAdminCompanySubscriptionEventsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['listAdminCompanySubscriptionEvents']>>>
+export type ListAdminAnnouncementsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['listAdminAnnouncements']>>>
+export type CreateAdminAnnouncementResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['createAdminAnnouncement']>>>
+export type UpdateAdminAnnouncementResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['updateAdminAnnouncement']>>>
+export type DeleteAdminAnnouncementResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['deleteAdminAnnouncement']>>>

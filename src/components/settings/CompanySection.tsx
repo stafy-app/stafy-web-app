@@ -36,7 +36,7 @@ function CompanyForm({ isOwnCompany, company }: { isOwnCompany: boolean; company
         <p className="text-[13px] text-[var(--color-ink-muted)]">
           {isOwnCompany
             ? 'Datele companiei tale.'
-            : 'Faci parte dintr-o companie administrată de alt manager — doar acesta îi poate modifica datele.'}
+            : 'Faci parte din compania altcuiva. Doar owner-ul ei îi poate schimba datele.'}
         </p>
       </div>
 
@@ -52,7 +52,7 @@ function CompanyForm({ isOwnCompany, company }: { isOwnCompany: boolean; company
         />
       </fieldset>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <fieldset className="fieldset">
           <legend className="fieldset-legend">Oraș</legend>
           <input

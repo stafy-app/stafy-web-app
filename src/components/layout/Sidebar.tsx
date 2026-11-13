@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
-import { Clock, History, Home, Users, Mail, Download, Settings, Tags, User, ChevronLeft, LogOut } from 'lucide-react'
+import { Clock, History, Home, Users, Mail, Download, Settings, Tags, User, ChevronLeft, LogOut, ShieldCheck } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import logoMark from '@stafy/assets/stafy_logo.svg'
 import { useAuth } from '@stafy/hooks/useAuth'
@@ -54,7 +54,7 @@ function WorkspaceSwitcher({
           onClick={() => onChange('company')}
           className={`flex cursor-pointer items-center justify-center rounded-[var(--radius-sm)] py-1.5 ${
             mode === 'company'
-              ? 'bg-[var(--color-surface)] text-[var(--color-primary-active)] shadow-[var(--shadow-xs)]'
+              ? 'bg-[var(--color-surface)] text-[var(--color-primary-text)] shadow-[var(--shadow-xs)]'
               : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-soft)]'
           }`}
         >
@@ -67,7 +67,7 @@ function WorkspaceSwitcher({
           onClick={() => onChange('personal')}
           className={`flex cursor-pointer items-center justify-center rounded-[var(--radius-sm)] py-1.5 ${
             mode === 'personal'
-              ? 'bg-[var(--color-surface)] text-[var(--color-primary-active)] shadow-[var(--shadow-xs)]'
+              ? 'bg-[var(--color-surface)] text-[var(--color-primary-text)] shadow-[var(--shadow-xs)]'
               : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-soft)]'
           }`}
         >
@@ -91,7 +91,7 @@ function WorkspaceSwitcher({
           onClick={() => onChange(value)}
           className={`cursor-pointer rounded-[var(--radius-sm)] px-2 py-1.5 text-[12px] font-semibold transition-colors ${
             mode === value
-              ? 'bg-[var(--color-surface)] text-[var(--color-primary-active)] shadow-[var(--shadow-xs)]'
+              ? 'bg-[var(--color-surface)] text-[var(--color-primary-text)] shadow-[var(--shadow-xs)]'
               : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-soft)]'
           }`}
         >
@@ -118,7 +118,9 @@ export function Sidebar() {
   // Any company-level manager (owner or a second/coordinator manager) gets the
   // workspace switcher — both have their own personal time-tracking shell
   // alongside the company one, per docs/modules/personal-workspace.md.
-  const showSwitcher = isCompanyManager(profile?.role)
+  // A platform admin owns their personal company, so they get the switcher too.
+  const isAdmin = profile?.role === 'admin'
+  const showSwitcher = isCompanyManager(profile?.role) || isAdmin
   const isEmployee = profile?.role === 'employee'
   // Employees have no company shell: always the personal nav, no switcher.
   // (AppLayout already redirects them off any company route, so pathname here
@@ -209,7 +211,7 @@ export function Sidebar() {
                 collapsed ? 'justify-center gap-0 px-0 py-[11px]' : 'gap-2.5 px-3 py-2.5'
               } ${
                 active
-                  ? 'bg-[var(--color-primary-soft)] font-semibold text-[var(--color-primary-active)]'
+                  ? 'bg-[var(--color-primary-soft)] font-semibold text-[var(--color-primary-text)]'
                   : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-surface-2)]'
               }`}
             >
@@ -228,13 +230,33 @@ export function Sidebar() {
         })}
       </nav>
 
+      {isAdmin && (
+        <Link
+          to="/admin"
+          aria-label="Admin"
+          title="Admin"
+          className={`mt-3 flex items-center rounded-[var(--radius-md)] border border-[var(--color-line)] text-[14px] font-medium text-[var(--color-ink-soft)] no-underline transition-[color,background-color,padding,gap] duration-[220ms] ease-[var(--ease-out)] hover:bg-[var(--color-surface-2)] ${
+            collapsed ? 'justify-center gap-0 px-0 py-[11px]' : 'gap-2.5 px-3 py-2.5'
+          }`}
+        >
+          <ShieldCheck className="h-[18px] w-[18px] flex-shrink-0 text-[var(--color-primary)]" />
+          <span
+            className={`overflow-hidden text-ellipsis whitespace-nowrap transition-[max-width,opacity] duration-[220ms] ease-[var(--ease-out)] ${
+              collapsed ? 'max-w-0 opacity-0' : 'max-w-[140px] opacity-100'
+            }`}
+          >
+            Admin
+          </span>
+        </Link>
+      )}
+
       <div className="mt-auto flex flex-col gap-2.5 border-t border-[var(--color-line)] pt-4">
         <div
           className={`flex items-center overflow-hidden transition-[gap] duration-[220ms] ease-[var(--ease-out)] ${
             collapsed ? 'justify-center gap-0' : 'gap-2.5'
           }`}
         >
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[12px] font-bold text-[var(--color-primary-active)]">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[12px] font-bold text-[var(--color-primary-text)]">
             {initials}
           </div>
           <div

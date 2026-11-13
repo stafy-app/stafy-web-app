@@ -9,7 +9,7 @@ function csvField(value: string): string {
 }
 
 export function exportTeamCsv(members: CompanyTopEmployeeOut[], year: number, month: number) {
-  const header = ['nume', 'email', 'status', 'ore', 'delta', 'sumă (RON)', 'activități']
+  const header = ['nume', 'email', 'status', 'ore', 'delta', 'sumă brută (RON)', 'activități']
   const rows = members.map((member) => [
     `${member.user.first_name ?? ''} ${member.user.last_name ?? ''}`.trim(),
     member.user.email ?? '',
@@ -30,5 +30,5 @@ export function exportTeamCsv(members: CompanyTopEmployeeOut[], year: number, mo
   link.click()
 
   URL.revokeObjectURL(url)
-  showToast('Export CSV finalizat.')
+  showToast('Fișierul CSV a fost descărcat.')
 }

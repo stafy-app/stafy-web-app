@@ -8,7 +8,7 @@ import { EmployeeCard } from '@stafy/components/team/EmployeeCard'
 import { ICONS } from '@stafy/lib/icons'
 
 export default function TeamPage() {
-  useTopBar({ title: 'Echipă', subtitle: 'Roster complet al companiei' })
+  useTopBar({ title: 'Echipă', subtitle: 'Toți angajații companiei' })
   const navigate = useNavigate()
 
   const { year, month } = getCurrentPeriod()
@@ -29,13 +29,13 @@ export default function TeamPage() {
   return (
     <div className="mx-auto flex max-w-[1280px] flex-col">
       <div className="mb-[18px] flex flex-wrap items-center justify-between gap-3">
-        <div className="flex w-[340px] items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2">
+        <div className="flex w-full items-center sm:w-[340px] gap-2 rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2">
           <ICONS.search className="h-4 w-4 flex-shrink-0 text-[var(--color-ink-muted)]" />
           <input
             type="text"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Caută angajat după nume sau email…"
+            placeholder="Caută după nume sau email…"
             className="w-full bg-transparent text-[13px] text-[var(--color-ink)] outline-none placeholder:text-[var(--color-ink-muted)]"
           />
         </div>
@@ -47,7 +47,7 @@ export default function TeamPage() {
             onClick={() => exportTeamCsv(data?.data ?? [], year, month)}
           >
             <ICONS.download className="h-4 w-4" />
-            Export CSV
+            Descarcă CSV
           </button>
           <button
             type="button"
@@ -65,7 +65,7 @@ export default function TeamPage() {
           <div className="text-[13px] text-[var(--color-ink-muted)]">
             {search
               ? `Niciun angajat nu se potrivește cu „${search}”.`
-              : 'Nu există angajați în companie.'}
+              : 'Nu ai încă pe nimeni în echipă.'}
           </div>
         </div>
       ) : (

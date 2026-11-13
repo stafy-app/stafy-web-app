@@ -24,11 +24,13 @@ export function isValidationError(
  * consulted first so a mutation with a generic fallback never hides "the plan is read-only".
  */
 const COMMON_ERROR_MESSAGES: Record<string, string> = {
-  plan_read_only: 'Planul companiei este în modul doar citire. Alege un plan ca să poți face modificări.',
+  plan_read_only: 'Planul companiei este în modul doar citire. Scrie-ne și îți prelungim accesul gratuit.',
+  company_restricted:
+    'Compania este în modul doar citire, setat de echipa Stafy. Contactează-ne ca să putem face modificări.',
   seats_limit_reached: 'Ai atins limita de locuri a planului. Suspendă un membru sau schimbă planul.',
   seats_over_new_limit:
     'Ai mai mulți membri decât permite planul ales. Elimină sau suspendă membri înainte de schimbare.',
-  plan_change_not_allowed: 'Această schimbare de plan nu este disponibilă acum. Contactează-ne.',
+  plan_change_not_allowed: 'Schimbarea asta de plan nu e disponibilă acum. Scrie-ne și te ajutăm.',
 }
 
 /** Message for a common (cross-screen) error code, or `fallback` when the error isn't one. */

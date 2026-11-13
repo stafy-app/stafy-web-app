@@ -12,7 +12,7 @@ import { ICONS } from '@stafy/lib/icons'
 const ron = new Intl.NumberFormat('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export default function MyRatesPage() {
-  useTopBar({ title: 'Tarife', subtitle: 'Tarifele tale orare pe activități' })
+  useTopBar({ title: 'Tarife', subtitle: 'Cât câștigi brut pe oră, pe fiecare activitate' })
 
   const { data: ratesData, isLoading } = useMyHourlyRates()
   const { data: profileData } = useProfile()
@@ -68,8 +68,8 @@ export default function MyRatesPage() {
       <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
         <p className="text-[12px] text-[var(--color-ink-muted)]">
           {isOwnCompany
-            ? 'Îți configurezi singur tarifele orare — o schimbare se aplică doar pontajelor viitoare, cele deja înregistrate păstrează tariful din momentul lucrului.'
-            : 'Tarifele sunt stabilite de managerul companiei — aici vezi tarifele tale active.'}
+            ? 'Tarifele ți le setezi singur. Un tarif nou se aplică de acum înainte, iar pontajele deja făcute rămân la tariful de atunci.'
+            : 'Tarifele le stabilește managerul. Aici le vezi pe cele active.'}
         </p>
       </div>
 
@@ -92,7 +92,7 @@ export default function MyRatesPage() {
                 />
               </fieldset>
               <fieldset className="fieldset sm:w-40">
-                <legend className="fieldset-legend">Tarif (RON/h)</legend>
+                <legend className="fieldset-legend">Tarif brut (RON/h)</legend>
                 <input
                   type="number"
                   required
@@ -138,8 +138,8 @@ export default function MyRatesPage() {
             </div>
             <div className="mx-auto mt-1 max-w-[420px] text-[13px] text-[var(--color-ink-muted)]">
               {isOwnCompany
-                ? 'Adaugă prima ta activitate mai sus, cu tariful orar aferent.'
-                : 'Managerul companiei îți va seta tarifele — revino aici după ce le primești.'}
+                ? 'Adaugă mai sus prima activitate și tariful ei pe oră.'
+                : 'Managerul îți setează tarifele. Le vezi aici imediat ce sunt gata.'}
             </div>
           </div>
         ) : (
@@ -148,7 +148,7 @@ export default function MyRatesPage() {
             <thead>
               <tr className="border-b border-[var(--color-line-soft)] text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
                 <th className="pb-2 pr-3 font-semibold">Activitate</th>
-                <th className="pb-2 pr-3 text-right font-semibold">Tarif (RON/h)</th>
+                <th className="pb-2 pr-3 text-right font-semibold">Tarif brut (RON/h)</th>
                 {isOwnCompany && <th className="pb-2 text-right font-semibold">Acțiuni</th>}
               </tr>
             </thead>

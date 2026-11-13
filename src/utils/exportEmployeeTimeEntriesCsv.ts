@@ -16,7 +16,7 @@ export function exportEmployeeTimeEntriesCsv(
   year: number,
   month: number,
 ) {
-  const header = ['dată', 'interval orar', 'activitate', 'durată (h)', 'tarif (RON/h)', 'sumă (RON)']
+  const header = ['dată', 'interval orar', 'activitate', 'durată (h)', 'tarif brut (RON/h)', 'sumă brută (RON)']
   const rows = entries.map((entry) => {
     const start = new Date(entry.time_start)
     const end = new Date(entry.time_end)
@@ -43,5 +43,5 @@ export function exportEmployeeTimeEntriesCsv(
   link.click()
 
   URL.revokeObjectURL(url)
-  showToast('Export CSV finalizat.')
+  showToast('Fișierul CSV a fost descărcat.')
 }

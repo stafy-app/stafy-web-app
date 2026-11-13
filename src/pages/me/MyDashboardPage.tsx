@@ -14,7 +14,7 @@ const formatRon = (value: number) => `${ronFormatter.format(value)} RON`
 const formatHours = (value: number) => `${value.toFixed(1)}h`
 
 export default function MyDashboardPage() {
-  useTopBar({ title: 'Pontajul meu', subtitle: 'Orele și câștigurile tale luna aceasta' })
+  useTopBar({ title: 'Pontajul meu', subtitle: 'Orele și câștigurile brute luna aceasta' })
 
   const { year, month } = getCurrentPeriod()
   const { data: dashboard } = useMyDashboard()
@@ -31,21 +31,21 @@ export default function MyDashboardPage() {
   return (
     <div className="mx-auto flex max-w-[1280px] flex-col gap-4 sm:gap-5">
       {!hasRates && (
-        <div className="animate-fade-slide-in rounded-[var(--radius-lg)] border border-[var(--color-warning)]/30 bg-[var(--color-warning)]/10 p-4 shadow-[var(--shadow-sm)] sm:p-5">
+        <div className="animate-fade-slide-in rounded-[var(--radius-lg)] bg-[var(--color-warning)]/10 p-4 shadow-[var(--shadow-sm)] sm:p-5">
           <div className="text-[14px] font-semibold text-[var(--color-ink)]">
             Nu ai niciun tarif configurat încă
           </div>
           <div className="mt-1 text-[13px] text-[var(--color-ink-soft)]">
             {profile?.is_own_company ?? false
-              ? 'Ca să poți înregistra ore, configurează-ți mai întâi tarifele orare pe activități.'
-              : 'Managerul companiei tale nu ți-a setat încă niciun tarif — nu poți înregistra ore până atunci.'}
+              ? 'Ca să pontezi ore, setează-ți întâi tarifele pe activități.'
+              : 'Managerul nu ți-a setat încă niciun tarif. Până atunci nu poți ponta ore.'}
           </div>
           {(profile?.is_own_company ?? false) && (
             <Link
               to="/me/rates"
               className="btn btn-primary btn-sm mt-3 min-h-11 sm:min-h-0"
             >
-              Configurează tarife
+              Setează tarifele
             </Link>
           )}
         </div>
@@ -63,14 +63,14 @@ export default function MyDashboardPage() {
           formatValue={formatHours}
         />
         <KpiCard
-          label="Total de plată"
+          label="Total de plată (brut)"
           icon={Wallet}
           value={dashboard ? parseFloat(dashboard.total_gross_salary) : 0}
           durationMs={850}
           formatValue={formatRon}
         />
         <KpiCard
-          label="Tarif mediu"
+          label="Tarif mediu (brut)"
           icon={Wallet}
           value={dashboard ? parseFloat(dashboard.hourly_average) : 0}
           durationMs={1000}
@@ -93,8 +93,8 @@ export default function MyDashboardPage() {
 
       {profile && (
         <div className="text-[12px] text-[var(--color-ink-muted)]">
-          Pontaje înregistrate pe numele {profile.first_name} {profile.last_name} · apar și în
-          statisticile companiei, la fel ca ale oricărui angajat.
+          Pontajele pe numele {profile.first_name} {profile.last_name} apar și în statisticile companiei,
+          ca ale oricărui angajat.
         </div>
       )}
     </div>

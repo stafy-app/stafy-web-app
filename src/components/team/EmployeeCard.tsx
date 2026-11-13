@@ -31,14 +31,14 @@ export function EmployeeCard({ member, index }: EmployeeCardProps) {
       style={{ animationDelay: `${Math.min(index * 50, 400)}ms` }}
     >
       <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[14px] font-bold text-[var(--color-primary-active)]">
+        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[14px] font-bold text-[var(--color-primary-text)]">
           {getInitials(user.first_name, user.last_name)}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <div className="truncate text-[15px] font-semibold text-[var(--color-ink)]">{fullName}</div>
             {isCoordinator && (
-              <span className="flex-shrink-0 rounded-full bg-[var(--color-primary-soft)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-primary-active)]">
+              <span className="flex-shrink-0 rounded-full bg-[var(--color-primary-soft)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-primary-text)]">
                 Manager
               </span>
             )}
@@ -77,7 +77,7 @@ export function EmployeeCard({ member, index }: EmployeeCardProps) {
         </div>
         <div>
           <div className="text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
-            De plată
+            De plată (brut)
           </div>
           <div className="mt-1 font-[var(--font-mono)] text-[18px] font-bold text-[var(--color-ink)]">
             {gross.format(parseFloat(member.estimated_gross))} RON

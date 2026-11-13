@@ -5,6 +5,8 @@ import { AuthField } from '@stafy/components/auth/AuthField'
 import { AUTH_LEGEND, AUTH_SELECT, AUTH_SUBMIT } from '@stafy/components/auth/authStyles'
 import { useCompleteOnboarding } from '@stafy/hooks/useCompleteOnboarding'
 import { useCompanyJobTitles } from '@stafy/hooks/useCompanyJobTitles'
+import { useMyInvitations } from '@stafy/hooks/useInvitations'
+import { IncomingInvitations } from '@stafy/components/invitations/IncomingInvitations'
 
 const OTHER_VALUE = '__other__'
 
@@ -12,6 +14,12 @@ export default function OnboardingPage() {
   const { mutateAsync, isPending } = useCompleteOnboarding()
   const { data: jobTitlesData, isLoading: isJobTitlesLoading } = useCompanyJobTitles()
   const jobTitles = jobTitlesData?.data ?? []
+  const { data: invitationsData } = useMyInvitations()
+  const hasInvitations = (invitationsData?.data ?? []).length > 0
+  // With a pending invitation the company form stays hidden until the person
+  // explicitly asks to create their own company.
+  const [wantsOwnCompany, setWantsOwnCompany] = useState(false)
+  const showForm = !hasInvitations || wantsOwnCompany
 
   const [organizationName, setOrganizationName] = useState('')
   const [city, setCity] = useState('')
@@ -31,7 +39,7 @@ export default function OnboardingPage() {
 
     const jobTitle = isOtherJobTitle ? customJobTitle.trim() : selectedJobTitle
     if (!jobTitle) {
-      setError('Completează funcția din organizație.')
+      setError('Scrie ce funcție ai în organizație.')
       return
     }
 
@@ -48,83 +56,100 @@ export default function OnboardingPage() {
   }
 
   return (
-    <AuthCard
-      title="Completează profilul companiei"
-      subtitle="Câteva detalii despre organizația ta înainte să continui."
-      widthClass="max-w-[480px]"
-    >
-      {error && <AuthError message={error} />}
-
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <AuthField
-          label="Numele organizației"
-          type="text"
-          required
-          value={organizationName}
-          onChange={(event) => setOrganizationName(event.target.value)}
-          placeholder="Numele organizației"
-          delay={60}
-        />
-
-        <div className="grid gap-5 sm:grid-cols-2 sm:gap-3">
-          <AuthField
-            label="Oraș"
-            type="text"
-            required
-            value={city}
-            onChange={(event) => setCity(event.target.value)}
-            placeholder="Orașul"
-            delay={100}
-          />
-          <AuthField
-            label="Adresă"
-            type="text"
-            required
-            value={address}
-            onChange={(event) => setAddress(event.target.value)}
-            placeholder="Strada și numărul"
-            delay={130}
-          />
-        </div>
-
-        <fieldset className="fieldset animate-fade-slide-in" style={{ animationDelay: '170ms' }}>
-          <legend className={AUTH_LEGEND}>Funcția ta în organizație</legend>
-          <select
-            value={selectedJobTitle}
-            onChange={(event) => setJobTitleSelection(event.target.value)}
-            className={AUTH_SELECT}
-            disabled={isJobTitlesLoading}
+    <div className="flex w-full max-w-[480px] flex-col gap-4">
+      {/* An invited person must be able to accept before being asked to create a company:
+          accepting makes the inviting company their active one, which ends this onboarding. */}
+      <IncomingInvitations />
+      {hasInvitations && !wantsOwnCompany && (
+        <p className="text-center text-[13px] text-[var(--color-ink-muted)]">
+          Acceptă invitația de mai sus ca să intri direct în echipă.{' '}
+          <button
+            type="button"
+            onClick={() => setWantsOwnCompany(true)}
+            className="underline underline-offset-2 hover:text-[var(--color-ink)]"
           >
-            {jobTitles.map((jobTitle) => (
-              <option key={jobTitle.id} value={jobTitle.label}>
-                {jobTitle.label}
-              </option>
-            ))}
-            <option value={OTHER_VALUE}>Altceva</option>
-          </select>
-        </fieldset>
+            Vreau să-mi creez propria companie
+          </button>
+        </p>
+      )}
+      {showForm && <AuthCard
+        title="Completează profilul companiei"
+        subtitle="Spune-ne câteva lucruri despre organizația ta."
+        widthClass="max-w-[480px]"
+      >
+        {error && <AuthError message={error} />}
 
-        {isOtherJobTitle && (
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <AuthField
-            label="Specifică funcția"
+            label="Numele organizației"
             type="text"
             required
-            value={customJobTitle}
-            onChange={(event) => setCustomJobTitle(event.target.value)}
-            placeholder="Funcția ta"
-            delay={0}
+            value={organizationName}
+            onChange={(event) => setOrganizationName(event.target.value)}
+            placeholder="Numele organizației"
+            delay={60}
           />
-        )}
 
-        <button
-          type="submit"
-          disabled={isPending}
-          className={`${AUTH_SUBMIT} animate-fade-slide-in`}
-          style={{ animationDelay: '210ms' }}
-        >
-          {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Continuă'}
-        </button>
-      </form>
-    </AuthCard>
+          <div className="grid gap-5 sm:grid-cols-2 sm:gap-3">
+            <AuthField
+              label="Oraș"
+              type="text"
+              required
+              value={city}
+              onChange={(event) => setCity(event.target.value)}
+              placeholder="Orașul"
+              delay={100}
+            />
+            <AuthField
+              label="Adresă"
+              type="text"
+              required
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+              placeholder="Strada și numărul"
+              delay={130}
+            />
+          </div>
+
+          <fieldset className="fieldset animate-fade-slide-in" style={{ animationDelay: '170ms' }}>
+            <legend className={AUTH_LEGEND}>Funcția ta în organizație</legend>
+            <select
+              value={selectedJobTitle}
+              onChange={(event) => setJobTitleSelection(event.target.value)}
+              className={AUTH_SELECT}
+              disabled={isJobTitlesLoading}
+            >
+              {jobTitles.map((jobTitle) => (
+                <option key={jobTitle.id} value={jobTitle.label}>
+                  {jobTitle.label}
+                </option>
+              ))}
+              <option value={OTHER_VALUE}>Altceva</option>
+            </select>
+          </fieldset>
+
+          {isOtherJobTitle && (
+            <AuthField
+              label="Specifică funcția"
+              type="text"
+              required
+              value={customJobTitle}
+              onChange={(event) => setCustomJobTitle(event.target.value)}
+              placeholder="Funcția ta"
+              delay={0}
+            />
+          )}
+
+          <button
+            type="submit"
+            disabled={isPending}
+            className={`${AUTH_SUBMIT} animate-fade-slide-in`}
+            style={{ animationDelay: '210ms' }}
+          >
+            {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Continuă'}
+          </button>
+        </form>
+      </AuthCard>}
+    </div>
   )
 }

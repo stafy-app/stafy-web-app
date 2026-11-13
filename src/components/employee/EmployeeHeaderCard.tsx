@@ -67,7 +67,7 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
   return (
     <div className="animate-fade-slide-in rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)]">
       <div className="flex flex-wrap items-center gap-5">
-        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[20px] font-bold text-[var(--color-primary-active)]">
+        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[20px] font-bold text-[var(--color-primary-text)]">
           {getInitials(user.first_name, user.last_name)}
         </div>
 
@@ -75,7 +75,7 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
           <div className="flex flex-wrap items-center gap-2">
             <div className="text-[22px] font-bold text-[var(--color-ink)]">{fullName}</div>
             {isCoordinator && (
-              <span className="inline-flex items-center rounded-full bg-[var(--color-primary-soft)] px-2 py-0.5 text-[11px] font-medium text-[var(--color-primary-active)]">
+              <span className="inline-flex items-center rounded-full bg-[var(--color-primary-soft)] px-2 py-0.5 text-[11px] font-medium text-[var(--color-primary-text)]">
                 Manager
               </span>
             )}
@@ -131,10 +131,10 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-5 border-l border-[var(--color-line-soft)] pl-5">
+        <div className="flex w-full items-center gap-5 border-t border-[var(--color-line-soft)] pt-4 sm:w-auto sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
           <div>
             <div className="text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
-              Ore luna curentă
+              Ore luna aceasta
             </div>
             <div className="mt-1 flex items-baseline gap-1.5">
               <span className="font-[var(--font-mono)] text-[20px] font-bold text-[var(--color-ink)]">
@@ -145,7 +145,7 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
           </div>
           <div>
             <div className="text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
-              Estimat de plată
+              De plată (estimat, brut)
             </div>
             <div className="mt-1 font-[var(--font-mono)] text-[18px] font-bold text-[var(--color-ink)]">
               {gross.format(parseFloat(summary.estimated_gross))} RON

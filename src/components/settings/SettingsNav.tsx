@@ -10,8 +10,6 @@ export type SettingsSectionKey =
   | 'audit'
   | 'security'
   | 'subscription'
-  | 'admin'
-  | 'adminCompanies'
 
 interface SettingsNavProps {
   active: SettingsSectionKey
@@ -26,20 +24,17 @@ const SECTIONS: { key: SettingsSectionKey; label: string; icon: IconName }[] = [
   { key: 'audit', label: 'Audit', icon: 'history' },
   { key: 'security', label: 'Securitate', icon: 'shield' },
   { key: 'subscription', label: 'Abonament', icon: 'creditCard' },
-  { key: 'admin', label: 'Admin', icon: 'dashboard' },
-  { key: 'adminCompanies', label: 'Companii', icon: 'building' },
 ]
 
 export function SettingsNav({ active, onChange }: SettingsNavProps) {
   const { data: profile } = useProfile()
   const sections = SECTIONS.filter((section) => {
-    if (section.key === 'admin' || section.key === 'adminCompanies') return profile?.role === 'admin'
     if (section.key === 'subscription') return isCompanyManager(profile?.role)
     return true
   })
 
   return (
-    <nav className="flex w-[220px] flex-shrink-0 flex-col gap-0.5">
+    <nav className="flex flex-shrink-0 gap-1 overflow-x-auto md:w-[220px] md:flex-col md:gap-0.5 md:overflow-visible">
       {sections.map((section) => {
         const Icon = ICONS[section.icon]
         const isActive = active === section.key
@@ -48,9 +43,9 @@ export function SettingsNav({ active, onChange }: SettingsNavProps) {
             key={section.key}
             type="button"
             onClick={() => onChange(section.key)}
-            className={`flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2.5 text-left text-[14px] font-medium transition-colors ${
+            className={`flex flex-shrink-0 items-center gap-2.5 whitespace-nowrap rounded-[var(--radius-md)] px-3 py-2.5 text-left text-[14px] font-medium transition-colors ${
               isActive
-                ? 'bg-[var(--color-primary-soft)] font-semibold text-[var(--color-primary-active)]'
+                ? 'bg-[var(--color-primary-soft)] font-semibold text-[var(--color-primary-text)]'
                 : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-surface-2)]'
             }`}
           >

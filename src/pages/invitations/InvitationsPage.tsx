@@ -7,7 +7,7 @@ import { KpiCard } from '@stafy/components/dashboard/KpiCard'
 import { ICONS } from '@stafy/lib/icons'
 
 export default function InvitationsPage() {
-  useTopBar({ title: 'Invitații', subtitle: 'Invitații trimise către angajați' })
+  useTopBar({ title: 'Invitații', subtitle: 'Cine a fost invitat și ce a răspuns' })
 
   const { data, isLoading } = useInvitations()
 

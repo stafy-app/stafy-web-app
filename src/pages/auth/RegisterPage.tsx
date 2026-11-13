@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useSearch } from '@tanstack/react-router'
 import { AuthCard } from '@stafy/components/auth/AuthCard'
 import { AuthError } from '@stafy/components/auth/AuthError'
 import { AuthField } from '@stafy/components/auth/AuthField'
+import { LegalConsentCheckbox } from '@stafy/components/auth/LegalConsentCheckbox'
 import { AUTH_LINK, AUTH_SUBMIT } from '@stafy/components/auth/authStyles'
 import { useAuth } from '@stafy/hooks/useAuth'
 
@@ -10,8 +11,11 @@ export default function RegisterPage() {
   const { register } = useAuth()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
+  // Pre-filled from the invitation email's link (`/register?email=…`); still editable.
+  const { email: invitedEmail } = useSearch({ from: '/_auth/register' })
+  const [email, setEmail] = useState(() => invitedEmail ?? '')
   const [password, setPassword] = useState('')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -22,7 +26,7 @@ export default function RegisterPage() {
     try {
       await register({ firstName, lastName, email, password, role: 'owner' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'A apărut o eroare neașteptată')
+      setError(err instanceof Error ? err.message : 'A apărut o eroare neașteptată. Încearcă din nou.')
     } finally {
       setIsSubmitting(false)
     }
@@ -76,6 +80,9 @@ export default function RegisterPage() {
           placeholder="Minim 6 caractere"
           delay={170}
         />
+        <div className="animate-fade-slide-in" style={{ animationDelay: '190ms' }}>
+          <LegalConsentCheckbox checked={acceptedTerms} onChange={setAcceptedTerms} />
+        </div>
         <button
           type="submit"
           disabled={isSubmitting}

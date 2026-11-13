@@ -19,6 +19,41 @@ export interface AccountUpdateIn {
   last_name: string;
 }
 
+export type ActiveAnnouncementOutKind = typeof ActiveAnnouncementOutKind[keyof typeof ActiveAnnouncementOutKind];
+
+
+export const ActiveAnnouncementOutKind = {
+  announcement: 'announcement',
+  whats_new: 'whats_new',
+} as const;
+
+export type ActiveAnnouncementOutSeverity = typeof ActiveAnnouncementOutSeverity[keyof typeof ActiveAnnouncementOutSeverity];
+
+
+export const ActiveAnnouncementOutSeverity = {
+  info: 'info',
+  warning: 'warning',
+  critical: 'critical',
+} as const;
+
+export interface ActiveAnnouncementOut {
+  id: number;
+  kind: ActiveAnnouncementOutKind;
+  severity: ActiveAnnouncementOutSeverity;
+  title: string;
+  /** Markdown: bold, italic, lists and links only. */
+  body: string;
+  cta_label: string | null;
+  cta_url: string | null;
+  /** False for `critical`: it cannot be hidden for good and comes back until it ends. */
+  dismissible: boolean;
+  ends_at: string | null;
+}
+
+export interface ActiveAnnouncementsOut {
+  data: ActiveAnnouncementOut[];
+}
+
 export interface ActivityOut {
   /** Activity ID. */
   id: number;
@@ -65,6 +100,239 @@ export interface AdminActivityOut {
   data: AdminActivityPointOut[];
 }
 
+export type AdminAnnouncementOutKind = typeof AdminAnnouncementOutKind[keyof typeof AdminAnnouncementOutKind];
+
+
+export const AdminAnnouncementOutKind = {
+  announcement: 'announcement',
+  whats_new: 'whats_new',
+} as const;
+
+export type AdminAnnouncementOutSeverity = typeof AdminAnnouncementOutSeverity[keyof typeof AdminAnnouncementOutSeverity];
+
+
+export const AdminAnnouncementOutSeverity = {
+  info: 'info',
+  warning: 'warning',
+  critical: 'critical',
+} as const;
+
+export type AdminAnnouncementOutStatus = typeof AdminAnnouncementOutStatus[keyof typeof AdminAnnouncementOutStatus];
+
+
+export const AdminAnnouncementOutStatus = {
+  draft: 'draft',
+  published: 'published',
+} as const;
+
+/**
+ * Derived: draft, scheduled (not started), live, or ended.
+ */
+export type AdminAnnouncementOutState = typeof AdminAnnouncementOutState[keyof typeof AdminAnnouncementOutState];
+
+
+export const AdminAnnouncementOutState = {
+  draft: 'draft',
+  scheduled: 'scheduled',
+  live: 'live',
+  ended: 'ended',
+} as const;
+
+export type AdminAnnouncementOutAudienceRolesItem = typeof AdminAnnouncementOutAudienceRolesItem[keyof typeof AdminAnnouncementOutAudienceRolesItem];
+
+
+export const AdminAnnouncementOutAudienceRolesItem = {
+  owner: 'owner',
+  manager: 'manager',
+  employee: 'employee',
+} as const;
+
+export interface AdminAnnouncementOut {
+  id: number;
+  kind: AdminAnnouncementOutKind;
+  severity: AdminAnnouncementOutSeverity;
+  title: string;
+  body: string;
+  cta_label: string | null;
+  cta_url: string | null;
+  show_on_login: boolean;
+  status: AdminAnnouncementOutStatus;
+  /** Derived: draft, scheduled (not started), live, or ended. */
+  state: AdminAnnouncementOutState;
+  audience_roles: AdminAnnouncementOutAudienceRolesItem[];
+  starts_at: string | null;
+  ends_at: string | null;
+  dismissed_count: number;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminAnnouncementsOut {
+  data: AdminAnnouncementOut[];
+}
+
+export type AdminPlanCountOutPlanType = typeof AdminPlanCountOutPlanType[keyof typeof AdminPlanCountOutPlanType];
+
+
+export const AdminPlanCountOutPlanType = {
+  trial: 'trial',
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export interface AdminPlanCountOut {
+  plan_type: AdminPlanCountOutPlanType;
+  count: number;
+}
+
+export interface AdminCompaniesSummaryOut {
+  total_companies: number;
+  active: number;
+  read_only: number;
+  /** Active companies whose plan expires within 7 days. */
+  expiring_soon: number;
+  /** Companies with a seat cap above zero and every seat used. */
+  at_seat_limit: number;
+  /** Every plan type, in tier order, zero counts included. */
+  plans: AdminPlanCountOut[];
+}
+
+export type AdminCompanyDetailOutPlanType = typeof AdminCompanyDetailOutPlanType[keyof typeof AdminCompanyDetailOutPlanType];
+
+
+export const AdminCompanyDetailOutPlanType = {
+  trial: 'trial',
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export type AdminCompanyDetailOutPlanStatus = typeof AdminCompanyDetailOutPlanStatus[keyof typeof AdminCompanyDetailOutPlanStatus];
+
+
+export const AdminCompanyDetailOutPlanStatus = {
+  active: 'active',
+  read_only: 'read_only',
+} as const;
+
+/**
+ * Platform-admin restriction; null when none.
+ */
+export type AdminCompanyDetailOutRestriction = typeof AdminCompanyDetailOutRestriction[keyof typeof AdminCompanyDetailOutRestriction] | null;
+
+
+export const AdminCompanyDetailOutRestriction = {
+  read_only: 'read_only',
+  suspended: 'suspended',
+} as const;
+
+export type AdminMatchedMemberOutCompanyRole = typeof AdminMatchedMemberOutCompanyRole[keyof typeof AdminMatchedMemberOutCompanyRole];
+
+
+export const AdminMatchedMemberOutCompanyRole = {
+  owner: 'owner',
+  manager: 'manager',
+  employee: 'employee',
+} as const;
+
+export interface AdminMatchedMemberOut {
+  name: string;
+  email: string;
+  company_role: AdminMatchedMemberOutCompanyRole;
+}
+
+export interface AdminCompanyDetailOut {
+  company_id: number;
+  company_name: string;
+  owner_name: string;
+  owner_email: string;
+  plan_type: AdminCompanyDetailOutPlanType;
+  plan_status: AdminCompanyDetailOutPlanStatus;
+  seats_limit: number | null;
+  seats_used: number;
+  plan_expires_at: string | null;
+  /** Start of the company's most recent time entry; null if none. A date only - never hours or per-user activity. */
+  last_activity_at: string | null;
+  /** Platform-admin restriction; null when none. */
+  restriction: AdminCompanyDetailOutRestriction;
+  /** Live members of this company whose name or email matched the search `q`; empty without a search. */
+  matched_members?: AdminMatchedMemberOut[];
+  city: string | null;
+  address: string | null;
+  timezone: string;
+  created_at: string;
+  onboarded_at: string | null;
+  admin_note: string | null;
+  admin_tags: string[];
+  admin_note_updated_at: string | null;
+  /** Display name of the admin who last edited the note. */
+  admin_note_updated_by: string | null;
+  /** Why the current restriction was set; null when there is none. */
+  restriction_reason: string | null;
+  restricted_at: string | null;
+}
+
+export type AdminCompanyMemberOutCompanyRole = typeof AdminCompanyMemberOutCompanyRole[keyof typeof AdminCompanyMemberOutCompanyRole];
+
+
+export const AdminCompanyMemberOutCompanyRole = {
+  owner: 'owner',
+  manager: 'manager',
+  employee: 'employee',
+} as const;
+
+export interface AdminCompanyMemberOut {
+  user_id: number;
+  name: string;
+  email: string;
+  company_role: AdminCompanyMemberOutCompanyRole;
+  job_title: string | null;
+  /** False = suspended in this company. */
+  is_active: boolean;
+  /** True when a platform admin blocked the account; it cannot use the API in any company. */
+  blocked: boolean;
+  joined_at: string;
+}
+
+export interface AdminCompanyMembersOut {
+  data: AdminCompanyMemberOut[];
+  total: number;
+}
+
+export interface AdminCompanyNotesIn {
+  note?: string | null;
+  /** @maxItems 10 */
+  tags?: string[];
+}
+
+/**
+ * `read_only`, `suspended`, or null to lift the current restriction.
+ */
+export type AdminCompanyRestrictionInRestriction = typeof AdminCompanyRestrictionInRestriction[keyof typeof AdminCompanyRestrictionInRestriction] | null;
+
+
+export const AdminCompanyRestrictionInRestriction = {
+  read_only: 'read_only',
+  suspended: 'suspended',
+} as const;
+
+export interface AdminCompanyRestrictionIn {
+  /** `read_only`, `suspended`, or null to lift the current restriction. */
+  restriction: AdminCompanyRestrictionInRestriction;
+  /**
+     * Mandatory, whether setting or lifting; recorded in the audit log.
+     * @minLength 1
+     * @maxLength 500
+     */
+  reason: string;
+}
+
 export type AdminCompanySubscriptionOutPlanType = typeof AdminCompanySubscriptionOutPlanType[keyof typeof AdminCompanySubscriptionOutPlanType];
 
 
@@ -85,6 +353,17 @@ export const AdminCompanySubscriptionOutPlanStatus = {
   read_only: 'read_only',
 } as const;
 
+/**
+ * Platform-admin restriction; null when none.
+ */
+export type AdminCompanySubscriptionOutRestriction = typeof AdminCompanySubscriptionOutRestriction[keyof typeof AdminCompanySubscriptionOutRestriction] | null;
+
+
+export const AdminCompanySubscriptionOutRestriction = {
+  read_only: 'read_only',
+  suspended: 'suspended',
+} as const;
+
 export interface AdminCompanySubscriptionOut {
   company_id: number;
   company_name: string;
@@ -95,10 +374,18 @@ export interface AdminCompanySubscriptionOut {
   seats_limit: number | null;
   seats_used: number;
   plan_expires_at: string | null;
+  /** Start of the company's most recent time entry; null if none. A date only - never hours or per-user activity. */
+  last_activity_at: string | null;
+  /** Platform-admin restriction; null when none. */
+  restriction: AdminCompanySubscriptionOutRestriction;
+  /** Live members of this company whose name or email matched the search `q`; empty without a search. */
+  matched_members?: AdminMatchedMemberOut[];
 }
 
 export interface AdminCompanySubscriptionsListOut {
   data: AdminCompanySubscriptionOut[];
+  /** Matches before pagination. */
+  total: number;
 }
 
 export interface AdminGrowthPointOut {
@@ -145,6 +432,120 @@ export interface AdminSubscriptionChangeIn {
   note?: string | null;
 }
 
+export interface AdminUserActionIn {
+  /**
+     * Mandatory; recorded in the audit log.
+     * @minLength 1
+     * @maxLength 500
+     */
+  reason: string;
+}
+
+export type AnnouncementInKind = typeof AnnouncementInKind[keyof typeof AnnouncementInKind];
+
+
+export const AnnouncementInKind = {
+  announcement: 'announcement',
+  whats_new: 'whats_new',
+} as const;
+
+export type AnnouncementInSeverity = typeof AnnouncementInSeverity[keyof typeof AnnouncementInSeverity];
+
+
+export const AnnouncementInSeverity = {
+  info: 'info',
+  warning: 'warning',
+  critical: 'critical',
+} as const;
+
+export type AnnouncementInAudienceRolesItem = typeof AnnouncementInAudienceRolesItem[keyof typeof AnnouncementInAudienceRolesItem];
+
+
+export const AnnouncementInAudienceRolesItem = {
+  owner: 'owner',
+  manager: 'manager',
+  employee: 'employee',
+} as const;
+
+export type AnnouncementInStatus = typeof AnnouncementInStatus[keyof typeof AnnouncementInStatus];
+
+
+export const AnnouncementInStatus = {
+  draft: 'draft',
+  published: 'published',
+} as const;
+
+export interface AnnouncementIn {
+  kind?: AnnouncementInKind;
+  severity: AnnouncementInSeverity;
+  /**
+     * Plain text.
+     * @minLength 1
+     * @maxLength 100
+     */
+  title: string;
+  /**
+     * Markdown: bold, italic, lists and links only.
+     * @minLength 1
+     * @maxLength 1000
+     */
+  body: string;
+  cta_label?: string | null;
+  /** https URL or app-relative path; set together with `cta_label`. */
+  cta_url?: string | null;
+  /** Also show it, to signed-out visitors, on the login page. */
+  show_on_login?: boolean;
+  /** @minItems 1 */
+  audience_roles?: AnnouncementInAudienceRolesItem[];
+  /** Null = from publish. */
+  starts_at?: string | null;
+  /** Null = until unpublished. */
+  ends_at?: string | null;
+  status?: AnnouncementInStatus;
+}
+
+export type AnnouncementPatchInKind = typeof AnnouncementPatchInKind[keyof typeof AnnouncementPatchInKind] | null;
+
+
+export const AnnouncementPatchInKind = {
+  announcement: 'announcement',
+  whats_new: 'whats_new',
+} as const;
+
+export type AnnouncementPatchInSeverity = typeof AnnouncementPatchInSeverity[keyof typeof AnnouncementPatchInSeverity] | null;
+
+
+export const AnnouncementPatchInSeverity = {
+  info: 'info',
+  warning: 'warning',
+  critical: 'critical',
+} as const;
+
+export type AnnouncementPatchInStatus = typeof AnnouncementPatchInStatus[keyof typeof AnnouncementPatchInStatus] | null;
+
+
+export const AnnouncementPatchInStatus = {
+  draft: 'draft',
+  published: 'published',
+} as const;
+
+/**
+ * Only the fields present are changed; send `null` for a window bound to clear it.
+ */
+export interface AnnouncementPatchIn {
+  kind?: AnnouncementPatchInKind;
+  severity?: AnnouncementPatchInSeverity;
+  title?: string | null;
+  body?: string | null;
+  cta_label?: string | null;
+  cta_url?: string | null;
+  show_on_login?: boolean | null;
+  audience_roles?: ('owner' | 'manager' | 'employee')[] | null;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  status?: AnnouncementPatchInStatus;
+}
+
 /**
  * State before the action.
  */
@@ -176,6 +577,8 @@ export interface AuditLogOut {
   before?: AuditLogOutBefore;
   /** State after the action. */
   after?: AuditLogOutAfter;
+  /** Why a platform admin took the action; null for ordinary company activity. */
+  reason?: string | null;
   /** When the action was recorded. */
   created_at: string;
 }
@@ -218,6 +621,8 @@ export interface UserOut {
   created_at?: string | null;
   /** Whether the account is active. */
   is_active?: boolean | null;
+  /** True when the user has not accepted the current Terms and Privacy notice versions (stafy/core/legal.py); the client then asks for acceptance via POST /users/me/legal-acceptance. Only populated by GET /profile. */
+  needs_legal_acceptance?: boolean | null;
 }
 
 export interface CompanyTopEmployeeOut {
@@ -314,6 +719,55 @@ export interface CompanyUpdateIn {
      * @maxLength 500
      */
   address: string;
+}
+
+/**
+ * How many instructors the organization has.
+ */
+export type ContactInTeamSize = typeof ContactInTeamSize[keyof typeof ContactInTeamSize];
+
+
+export const ContactInTeamSize = {
+  '1-5': '1-5',
+  '6-15': '6-15',
+  '16-30': '16-30',
+  '30+': '30+',
+} as const;
+
+export interface ContactIn {
+  /**
+     * Sender's full name.
+     * @minLength 2
+     * @maxLength 120
+     */
+  name: string;
+  /** Where the reply goes (used as Reply-To). */
+  email: string;
+  /**
+     * School or organization name.
+     * @minLength 2
+     * @maxLength 150
+     */
+  organization: string;
+  /** How many instructors the organization has. */
+  team_size: ContactInTeamSize;
+  /** Optional phone number. */
+  phone?: string | null;
+  /**
+     * Free-text message.
+     * @minLength 5
+     * @maxLength 2000
+     */
+  message: string;
+  /** Must be true: the sender acknowledges the Privacy notice and that their data is used to answer this request (an acknowledgement, not GDPR consent: the legal basis is art. 6(1)(b), steps taken at the sender's request). */
+  consent: true;
+  /** Honeypot. Real users never fill it (the form hides it); a non-empty value is treated as a bot and silently dropped. */
+  website?: string | null;
+}
+
+export interface ContactOut {
+  /** Always true on success. */
+  ok?: boolean;
 }
 
 export interface DashboardTimeEntryOut {
@@ -569,6 +1023,104 @@ export interface HourlyRatesListOut {
 }
 
 /**
+ * `unknown` = the provider's API could not be read (see `error`), not that the service is down; `unconfigured` = no credentials set.
+ */
+export type ProviderStatusHealth = typeof ProviderStatusHealth[keyof typeof ProviderStatusHealth];
+
+
+export const ProviderStatusHealth = {
+  ok: 'ok',
+  degraded: 'degraded',
+  down: 'down',
+  unknown: 'unknown',
+  unconfigured: 'unconfigured',
+} as const;
+
+/**
+ * Colours the metric when it has a threshold.
+ */
+export type ProviderMetricHealth = typeof ProviderMetricHealth[keyof typeof ProviderMetricHealth] | null;
+
+
+export const ProviderMetricHealth = {
+  ok: 'ok',
+  degraded: 'degraded',
+  down: 'down',
+  unknown: 'unknown',
+  unconfigured: 'unconfigured',
+} as const;
+
+export interface ProviderMetric {
+  /** What is measured, e.g. 'Storage'. */
+  label: string;
+  /** Already formatted value, e.g. '1.2 GB'. */
+  value: string;
+  /** Colours the metric when it has a threshold. */
+  health?: ProviderMetricHealth;
+}
+
+export type ProviderItemHealth = typeof ProviderItemHealth[keyof typeof ProviderItemHealth] | null;
+
+
+export const ProviderItemHealth = {
+  ok: 'ok',
+  degraded: 'degraded',
+  down: 'down',
+  unknown: 'unknown',
+  unconfigured: 'unconfigured',
+} as const;
+
+export interface ProviderItem {
+  /** Row title: a service, branch, monitor, deploy, issue. */
+  label: string;
+  /** Section the row belongs to, usually an environment label. */
+  group?: string | null;
+  health?: ProviderItemHealth;
+  /** One-line state of the row. */
+  summary?: string | null;
+  /** Secondary line, e.g. a commit. */
+  detail?: string | null;
+  /** Link to the row in the service. */
+  url?: string | null;
+  /** When the row last changed. */
+  at?: string | null;
+  /** The row's own figures, e.g. a monitor's uptime; the client shows one column per label. */
+  metrics?: ProviderMetric[];
+}
+
+export interface ProviderLink {
+  label: string;
+  url: string;
+}
+
+/**
+ * What one provider reports: the single shape every card in the panel renders.
+ */
+export interface ProviderStatus {
+  /** Stable provider id, e.g. 'render'. */
+  key: string;
+  /** Display name, e.g. 'Render'. */
+  label: string;
+  /** `unknown` = the provider's API could not be read (see `error`), not that the service is down; `unconfigured` = no credentials set. */
+  health: ProviderStatusHealth;
+  /** One line for the card header. */
+  summary?: string | null;
+  /** What this service does for Stafy, in one sentence (Romanian), so the panel is readable without knowing the vendor. */
+  description?: string | null;
+  metrics?: ProviderMetric[];
+  items?: ProviderItem[];
+  links?: ProviderLink[];
+  /** When the data was read (cached up to ~45 s). */
+  fetched_at: string;
+  /** Short, secret-free reason when health is `unknown`: exception class and HTTP status only. */
+  error?: string | null;
+}
+
+export interface InfraStatusOut {
+  providers: ProviderStatus[];
+}
+
+/**
  * Role the invited person will have once they join: 'employee' or 'manager' (a second manager, not a duplicate owner — see docs/modules/invitations.md). Only the company's owner may set 'manager'; a non-owner manager sending an invitation must set 'employee'.
  */
 export type InvitationInInvitedRole = typeof InvitationInInvitedRole[keyof typeof InvitationInInvitedRole];
@@ -640,6 +1192,21 @@ export interface InvitationsListOut {
   data: InvitationOut[];
 }
 
+export const LegalAcceptanceInValue = {
+  /** Must be true: the user accepts the Terms and acknowledges the Privacy notice, in their current versions. */
+  accept_terms: true,
+} as const;
+export type LegalAcceptanceIn = typeof LegalAcceptanceInValue;
+
+export interface LegalAcceptanceOut {
+  /** Accepted Terms version. */
+  terms_version: string;
+  /** Acknowledged Privacy notice version. */
+  privacy_version: string;
+  /** Acceptance timestamp, UTC. */
+  legal_accepted_at: string;
+}
+
 export interface OnboardingIn {
   /**
      * Company/organization name.
@@ -672,6 +1239,38 @@ export interface PayrollBonusSetIn {
   amount: number | string;
   /** Optional reason shown on the report. */
   reason?: string | null;
+}
+
+export type PublicAnnouncementOutKind = typeof PublicAnnouncementOutKind[keyof typeof PublicAnnouncementOutKind];
+
+
+export const PublicAnnouncementOutKind = {
+  announcement: 'announcement',
+  whats_new: 'whats_new',
+} as const;
+
+export type PublicAnnouncementOutSeverity = typeof PublicAnnouncementOutSeverity[keyof typeof PublicAnnouncementOutSeverity];
+
+
+export const PublicAnnouncementOutSeverity = {
+  info: 'info',
+  warning: 'warning',
+  critical: 'critical',
+} as const;
+
+export interface PublicAnnouncementOut {
+  id: number;
+  kind: PublicAnnouncementOutKind;
+  severity: PublicAnnouncementOutSeverity;
+  title: string;
+  /** Markdown: bold, italic, lists and links only. */
+  body: string;
+  cta_label: string | null;
+  cta_url: string | null;
+}
+
+export interface PublicAnnouncementsOut {
+  data: PublicAnnouncementOut[];
 }
 
 export interface RootOut {
@@ -755,6 +1354,17 @@ export const SubscriptionOutPlanStatus = {
   read_only: 'read_only',
 } as const;
 
+/**
+ * Platform-admin restriction on the company, independent of the plan. A suspended company cannot reach this endpoint, so a caller only ever sees `read_only` or null.
+ */
+export type SubscriptionOutRestriction = typeof SubscriptionOutRestriction[keyof typeof SubscriptionOutRestriction] | null;
+
+
+export const SubscriptionOutRestriction = {
+  read_only: 'read_only',
+  suspended: 'suspended',
+} as const;
+
 export interface SubscriptionOut {
   plan_type: SubscriptionOutPlanType;
   plan_status: SubscriptionOutPlanStatus;
@@ -766,6 +1376,8 @@ export interface SubscriptionOut {
   /** Derived: active and expiring within 7 days. */
   expiring_soon: boolean;
   trial_started_at: string;
+  /** Platform-admin restriction on the company, independent of the plan. A suspended company cannot reach this endpoint, so a caller only ever sees `read_only` or null. */
+  restriction?: SubscriptionOutRestriction;
 }
 
 export interface TeamMembersOut {
@@ -853,10 +1465,12 @@ export interface UserRegisterIn {
      */
   last_name: string;
   /**
-     * One of employee, owner. 'owner' is the current, preferred value for a manager-tier registrant — they become the owner of a brand-new personal company either way (see create_firebase_user). 'manager' is kept only for stafy-mobile backward compatibility and is treated identically. Admin accounts are seeded directly, never self-registered.
+     * One of employee, owner. 'owner' is the current, preferred value for a manager-tier registrant — they become the owner of a brand-new personal company either way (see create_firebase_user). 'manager' is kept only for stafy-mobile backward compatibility and is treated identically. An email with a live invitation starts its personal company on the solo plan instead of the owner trial, regardless of this value. Admin accounts are seeded directly, never self-registered.
      * @pattern ^(employee|manager|owner)$
      */
   role: string;
+  /** Must be true: the registrant accepts the Terms and acknowledges the Privacy notice; the current versions and time are stored on the user. */
+  accept_terms: true;
 }
 
 export interface UsersListOut {
@@ -1071,4 +1685,86 @@ export const GetAdminActivityPeriod = {
   day: 'day',
   week: 'week',
 } as const;
+
+export type GetAdminInfraParams = {
+/**
+ * Skip the cache unless it is younger than a few seconds.
+ */
+refresh?: boolean;
+};
+
+export type GetAdminInfraProviderParams = {
+refresh?: boolean;
+};
+
+export type ListAdminCompaniesParams = {
+/**
+ * Company, owner name or owner email.
+ */
+q?: string | null;
+plan_type?: ListAdminCompaniesPlanType;
+plan_status?: ListAdminCompaniesPlanStatus;
+sort?: ListAdminCompaniesSort;
+order?: ListAdminCompaniesOrder;
+/**
+ * @minimum 1
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+page_size?: number;
+};
+
+export type ListAdminCompaniesPlanType = typeof ListAdminCompaniesPlanType[keyof typeof ListAdminCompaniesPlanType] | null;
+
+
+export const ListAdminCompaniesPlanType = {
+  trial: 'trial',
+  pilot: 'pilot',
+  solo: 'solo',
+  small: 'small',
+  standard: 'standard',
+  large: 'large',
+} as const;
+
+export type ListAdminCompaniesPlanStatus = typeof ListAdminCompaniesPlanStatus[keyof typeof ListAdminCompaniesPlanStatus] | null;
+
+
+export const ListAdminCompaniesPlanStatus = {
+  active: 'active',
+  read_only: 'read_only',
+} as const;
+
+export type ListAdminCompaniesSort = typeof ListAdminCompaniesSort[keyof typeof ListAdminCompaniesSort];
+
+
+export const ListAdminCompaniesSort = {
+  name: 'name',
+  plan: 'plan',
+  seats: 'seats',
+  expires: 'expires',
+  last_activity: 'last_activity',
+} as const;
+
+export type ListAdminCompaniesOrder = typeof ListAdminCompaniesOrder[keyof typeof ListAdminCompaniesOrder];
+
+
+export const ListAdminCompaniesOrder = {
+  asc: 'asc',
+  desc: 'desc',
+} as const;
+
+export type ListAdminCompanyMembersParams = {
+/**
+ * @minimum 1
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+page_size?: number;
+};
 

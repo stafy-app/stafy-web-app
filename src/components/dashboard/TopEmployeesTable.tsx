@@ -32,14 +32,15 @@ export function TopEmployeesTable({ employees, totalEmployeeCount }: TopEmployee
           <ChevronRight className="h-3.5 w-3.5" />
         </button>
       </div>
-      <table className="w-full border-collapse">
+      <div className="overflow-x-auto">
+      <table className="w-full min-w-[640px] border-collapse">
         <thead>
           <tr className="bg-[var(--color-surface-2)] text-left text-[11px] uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
             <th className="px-5 py-2.5 font-semibold">Angajat</th>
             <th className="px-5 py-2.5 font-semibold">Ore luna aceasta</th>
             <th className="px-5 py-2.5 font-semibold">Δ vs luna trecută</th>
             <th className="px-5 py-2.5 font-semibold">Activități</th>
-            <th className="px-5 py-2.5 font-semibold">Estimat</th>
+            <th className="px-5 py-2.5 font-semibold">Estimat (brut)</th>
           </tr>
         </thead>
         <tbody>
@@ -57,7 +58,7 @@ export function TopEmployeesTable({ employees, totalEmployeeCount }: TopEmployee
               >
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[12px] font-bold text-[var(--color-primary-active)]">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[12px] font-bold text-[var(--color-primary-text)]">
                       {getInitials(user.first_name, user.last_name)}
                     </div>
                     <div className="min-w-0">
@@ -97,6 +98,7 @@ export function TopEmployeesTable({ employees, totalEmployeeCount }: TopEmployee
           })}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }

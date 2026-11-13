@@ -25,7 +25,7 @@ notifications; a contact form (the "contact us" text is static); per-company tri
 | Owner | Settings → Subscription, banner | Sees plan, seats, expiry; can pick solo or, once on a paid plan, another paid plan |
 | Manager | Settings → Subscription (read-only), banner | Sees the same information, no actions |
 | Employee | none | The query is disabled for them; they never see a plan surface |
-| Platform admin | Settings → Companies | Lists owned companies, sets any plan including pilot, reads history |
+| Platform admin | Admin console → Companies (`/admin/companies`) | Lists owned companies, sets any plan including pilot, reads history |
 
 ---
 
@@ -72,9 +72,12 @@ re-checks and answers a conflict error if the two ever disagree.
    managers, pointing to Settings → Subscription.
 4. **Plan is read-only** — an error banner replaces the warning; the Subscription section explains
    that clocking in still works while other changes are blocked, and offers solo to the owner.
-5. **Any write hits a read-only plan** — the mutation's own toast shows the read-only message, and a
+5. **Company restricted by the platform admin** — an error banner for owner and manager says the
+   company is read-only by Stafy's decision; writes fail with `company_restricted`, and the same
+   cache refetch applies. Restrictions are set from the admin console (see `admin-dashboard.md`).
+6. **Any write hits a read-only plan** — the mutation's own toast shows the read-only message, and a
    global mutation-cache handler refetches the cached plan so the banner appears without a reload.
-6. **Admin opens Settings → Companies** — table of companies with owner, plan, status, seats,
+6. **Admin opens Companies in the admin console** — table of companies with owner, plan, status, seats,
    expiry; selecting a row opens the panel.
 7. **Admin applies a plan** — plan select, expiry date (required for pilot only), optional note;
    the panel, the table and the history refresh.
@@ -84,9 +87,10 @@ re-checks and answers a conflict error if the two ever disagree.
 
 ## Information Architecture
 
-Two new keys in `SettingsNav` (`src/components/settings/SettingsNav.tsx`): Subscription, visible to
-owner and manager (`isCompanyManager`), and Companies, visible to the platform admin only. Both are
-local-state sections of `SettingsPage` like every other section — no routes. `PlanStatusBanner`
+One key in `SettingsNav` (`src/components/settings/SettingsNav.tsx`): Subscription, visible to
+owner and manager (`isCompanyManager`), a local-state section of `SettingsPage` like every other
+section — no route. The platform admin's company table is its own page, `/admin/companies` (see
+`admin-dashboard.md`). `PlanStatusBanner`
 (`src/components/layout/PlanStatusBanner.tsx`) renders between the top bar and the page content in
 `AppLayout` and only ever shows for owner/manager, because `useMySubscription` is disabled for any
 other role.
@@ -100,8 +104,8 @@ other role.
   choices with inline confirm.
 - Banner: DaisyUI `alert` (`alert-warning` when expiring, `alert-error` when read-only), full width,
   no rounding, directly under the top bar.
-- Companies section: DaisyUI `table` with a selectable row; the plan panel is a bordered card below
-  it with the grant form on top and the history table under it.
+- Companies section: DaisyUI `table` with a selectable row; selecting it opens the company sheet
+  (`AdminCompanyModal`); its Plan tab holds the grant form, then the history table.
 - Colors and spacing come from the theme tokens in `src/App.css`, like the rest of Settings.
 
 ---
@@ -112,12 +116,16 @@ other role.
 |---|---|---|
 | `/api/v1/subscriptions/me` | GET | `useMySubscription` — Subscription section, banner |
 | `/api/v1/subscriptions/me` | PATCH | `useChangeMyPlan` — owner's plan switch |
-| `/api/v1/admin/companies` | GET | `useAdminCompanies` |
+| `/api/v1/admin/companies` | GET | `useAdminCompanies(params)` - search, plan/status filters, sortable headers, 25-row pages, `last_activity_at` column |
+| `/api/v1/admin/companies/summary` | GET | `useAdminCompaniesSummary` (Overview KPIs) |
+| `/api/v1/admin/companies/{id}` | GET | `useAdminCompany` (detail panel) |
+| `/api/v1/admin/companies/{id}/members` | GET | `useAdminCompanyMembers` (25 per page) |
+| `/api/v1/admin/companies/{id}/notes` | PUT | `useAdminSetCompanyNotes` |
 | `/api/v1/admin/companies/{id}/subscription` | GET / PATCH | `useAdminCompanySubscription`, `useAdminSetSubscription` |
 | `/api/v1/admin/companies/{id}/subscription/events` | GET | `useAdminSubscriptionEvents` |
 
 All hooks are in `src/hooks/useSubscription.ts` (company side) and `src/hooks/useAdmin.ts` (admin
-side). Error codes `plan_read_only`, `seats_limit_reached`, `seats_over_new_limit` and
+side). Error codes `plan_read_only`, `company_restricted`, `seats_limit_reached`, `seats_over_new_limit` and
 `plan_change_not_allowed` map to Romanian messages in `src/services/apiErrors.ts`
 (`getCodedErrorMessage`, also consulted first by `getErrorMessage`).
 

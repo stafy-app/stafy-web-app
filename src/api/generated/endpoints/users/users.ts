@@ -14,6 +14,8 @@ import type {
   GetEmployeeMonthlyHistoryParams,
   GetEmployeeSummaryParams,
   HourlyRateOut,
+  LegalAcceptanceIn,
+  LegalAcceptanceOut,
   ListEmployeeHourlyRatesParams,
   ListEmployeeTimeEntriesParams,
   OnboardingIn,
@@ -47,6 +49,19 @@ const completeOnboarding = (
       {url: `/api/v1/users/me/onboarding`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: onboardingIn
+    },
+      );
+    }
+  /**
+ * @summary Accept the current Terms and acknowledge the current Privacy notice
+ */
+const acceptLegalTerms = (
+    legalAcceptanceIn: LegalAcceptanceIn,
+ ) => {
+      return api<LegalAcceptanceOut>(
+      {url: `/api/v1/users/me/legal-acceptance`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: legalAcceptanceIn
     },
       );
     }
@@ -154,9 +169,9 @@ const reactivateEmployee = (
       );
     }
   /**
- * @summary Remove a manager from the company, reassigning them to their own personal company
+ * @summary Remove a manager or employee from the company, reassigning them to their own personal company
  */
-const removeManager = (
+const removeMember = (
     employeeId: number,
  ) => {
       return api<UserOut>(
@@ -175,9 +190,10 @@ const getProfile = (
     },
       );
     }
-  return {listUsers,completeOnboarding,getEmployeeSummary,listEmployeeTimeEntries,listEmployeeHourlyRates,setEmployeeHourlyRate,getEmployeeMonthlyHistory,updateEmployeeJobTitle,suspendEmployee,reactivateEmployee,removeManager,getProfile}};
+  return {listUsers,completeOnboarding,acceptLegalTerms,getEmployeeSummary,listEmployeeTimeEntries,listEmployeeHourlyRates,setEmployeeHourlyRate,getEmployeeMonthlyHistory,updateEmployeeJobTitle,suspendEmployee,reactivateEmployee,removeMember,getProfile}};
 export type ListUsersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listUsers']>>>
 export type CompleteOnboardingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['completeOnboarding']>>>
+export type AcceptLegalTermsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['acceptLegalTerms']>>>
 export type GetEmployeeSummaryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getEmployeeSummary']>>>
 export type ListEmployeeTimeEntriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listEmployeeTimeEntries']>>>
 export type ListEmployeeHourlyRatesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['listEmployeeHourlyRates']>>>
@@ -186,5 +202,5 @@ export type GetEmployeeMonthlyHistoryResult = NonNullable<Awaited<ReturnType<Ret
 export type UpdateEmployeeJobTitleResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['updateEmployeeJobTitle']>>>
 export type SuspendEmployeeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['suspendEmployee']>>>
 export type ReactivateEmployeeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['reactivateEmployee']>>>
-export type RemoveManagerResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['removeManager']>>>
+export type RemoveMemberResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['removeMember']>>>
 export type GetProfileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['getProfile']>>>

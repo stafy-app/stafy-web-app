@@ -1,6 +1,7 @@
 import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/react-router'
 import { AppLayout } from '@stafy/layouts/AppLayout'
 import { AuthLayout } from '@stafy/layouts/AuthLayout'
+import { AdminLayout } from '@stafy/layouts/AdminLayout'
 import { OnboardingLayout } from '@stafy/layouts/OnboardingLayout'
 import { CompleteRegistrationLayout } from '@stafy/layouts/CompleteRegistrationLayout'
 import DashboardPage from '@stafy/pages/dashboard/DashboardPage'
@@ -14,6 +15,12 @@ import MyProfilePage from '@stafy/pages/me/MyProfilePage'
 import InvitationsPage from '@stafy/pages/invitations/InvitationsPage'
 import ReportsPage from '@stafy/pages/reports/ReportsPage'
 import SettingsPage from '@stafy/pages/settings/SettingsPage'
+import AdminOverviewPage from '@stafy/pages/admin/AdminOverviewPage'
+import AdminCompaniesPage from '@stafy/pages/admin/AdminCompaniesPage'
+import AdminAuditPage from '@stafy/pages/admin/AdminAuditPage'
+import AdminInfraPage from '@stafy/pages/admin/AdminInfraPage'
+import AdminAnnouncementsPage from '@stafy/pages/admin/AdminAnnouncementsPage'
+import AdminAccountPage from '@stafy/pages/admin/AdminAccountPage'
 import LoginPage from '@stafy/pages/auth/LoginPage'
 import RegisterPage from '@stafy/pages/auth/RegisterPage'
 import CompleteRegistrationPage from '@stafy/pages/auth/CompleteRegistrationPage'
@@ -96,6 +103,50 @@ const myProfileRoute = createRoute({
   component: MyProfilePage,
 })
 
+// Sibling of `_app`, not a child: AppLayout bounces platform admins to /admin,
+// so nesting under it would loop.
+const adminLayoutRoute = createRoute({
+  id: '_admin',
+  getParentRoute: () => rootRoute,
+  component: AdminLayout,
+})
+
+const adminOverviewRoute = createRoute({
+  path: '/admin',
+  getParentRoute: () => adminLayoutRoute,
+  component: AdminOverviewPage,
+})
+
+const adminCompaniesRoute = createRoute({
+  path: '/admin/companies',
+  getParentRoute: () => adminLayoutRoute,
+  component: AdminCompaniesPage,
+})
+
+const adminAnnouncementsRoute = createRoute({
+  path: '/admin/announcements',
+  getParentRoute: () => adminLayoutRoute,
+  component: AdminAnnouncementsPage,
+})
+
+const adminInfraRoute = createRoute({
+  path: '/admin/infra',
+  getParentRoute: () => adminLayoutRoute,
+  component: AdminInfraPage,
+})
+
+const adminAuditRoute = createRoute({
+  path: '/admin/audit',
+  getParentRoute: () => adminLayoutRoute,
+  component: AdminAuditPage,
+})
+
+const adminAccountRoute = createRoute({
+  path: '/admin/account',
+  getParentRoute: () => adminLayoutRoute,
+  component: AdminAccountPage,
+})
+
 const authLayoutRoute = createRoute({
   id: '_auth',
   getParentRoute: () => rootRoute,
@@ -111,6 +162,11 @@ const loginRoute = createRoute({
 const registerRoute = createRoute({
   path: '/register',
   getParentRoute: () => authLayoutRoute,
+  // `?email=` comes from the invitation email's button (stafy-backend invitation template) and
+  // pre-fills the form, so the account is created with the invited address.
+  validateSearch: (search: Record<string, unknown>): { email?: string } => ({
+    email: typeof search.email === 'string' ? search.email : undefined,
+  }),
   component: RegisterPage,
 })
 
@@ -159,6 +215,14 @@ const routeTree = rootRoute.addChildren([
     invitationsRoute,
     reportsRoute,
     settingsRoute,
+  ]),
+  adminLayoutRoute.addChildren([
+    adminOverviewRoute,
+    adminCompaniesRoute,
+    adminAnnouncementsRoute,
+    adminInfraRoute,
+    adminAuditRoute,
+    adminAccountRoute,
   ]),
   authLayoutRoute.addChildren([loginRoute, registerRoute]),
   onboardingLayoutRoute.addChildren([onboardingRoute]),

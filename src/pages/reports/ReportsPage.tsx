@@ -4,6 +4,7 @@ import { useTopBar } from '@stafy/hooks/useTopBar'
 import { useTeamMembers } from '@stafy/hooks/useTeamMembers'
 import { useEmployeeReport, useSetReportBonus, useClearReportBonus } from '@stafy/hooks/useReports'
 import { useProfile } from '@stafy/hooks/useProfile'
+import { useMediaQuery } from '@stafy/hooks/useMediaQuery'
 import { useEmployeeTimeEntries } from '@stafy/hooks/useEmployeeTimeEntries'
 import { getAdjacentPeriod, getCurrentPeriod } from '@stafy/utils/period'
 import { PeriodBar } from '@stafy/components/dashboard/PeriodBar'
@@ -15,7 +16,7 @@ import { ICONS } from '@stafy/lib/icons'
 import { isCompanyManager } from '@stafy/utils/companyRole'
 
 export default function ReportsPage() {
-  useTopBar({ title: 'Rapoarte', subtitle: 'Export și rapoarte lunare' })
+  useTopBar({ title: 'Rapoarte', subtitle: 'Raportul lunar pentru fiecare angajat, gata de descărcat · toate sumele sunt brute' })
 
   const [period, setPeriod] = useState(getCurrentPeriod)
   const current = getCurrentPeriod()
@@ -38,6 +39,10 @@ export default function ReportsPage() {
 
   const [includeTimeEntries, setIncludeTimeEntries] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
+  // The live <PDFViewer> is an iframe into the browser's PDF viewer: phones (iOS above all)
+  // don't render PDFs inline, and generating it twice (preview + download) is heavy there.
+  // Below lg the preview is replaced by a summary and the download shares/saves the file.
+  const showPreview = useMediaQuery('(min-width: 1024px)')
 
   const { data: report } = useEmployeeReport(selectedEmployeeId ?? 0, period.year, period.month, hasEmployee)
   const { data: timeEntriesData } = useEmployeeTimeEntries(
@@ -67,25 +72,41 @@ export default function ReportsPage() {
       const blob = await pdf(
         <ReportDocument report={report} includeTimeEntries={includeTimeEntries} timeEntries={timeEntries} />,
       ).toBlob()
+      const fileName = `RA-${report.employee.last_name ?? 'angajat'}-${period.year}-${String(period.month).padStart(2, '0')}.pdf`
+      // On phones, the native share sheet ("Salvează în Fișiere", WhatsApp, email) is the
+      // reliable way to get a file out; fall back to a plain download if it's unavailable
+      // or the browser rejects it (e.g. the user-gesture window expired during generation).
+      if (!showPreview && typeof navigator.canShare === 'function') {
+        const file = new File([blob], fileName, { type: 'application/pdf' })
+        if (navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: fileName })
+            showToast('PDF salvat.')
+            return
+          } catch (error) {
+            if (error instanceof DOMException && error.name === 'AbortError') return
+          }
+        }
+      }
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `RA-${report.employee.last_name ?? 'angajat'}-${period.year}-${String(period.month).padStart(2, '0')}.pdf`
+      link.download = fileName
       link.click()
       // Deferred, not synchronous — revoking the object URL immediately after click() is
       // browser-timing-dependent and can cancel the download before it actually starts.
       setTimeout(() => URL.revokeObjectURL(url), 1000)
       showToast('PDF descărcat.')
     } catch {
-      showToast('Nu s-a putut genera PDF-ul.', { tone: 'danger' })
+      showToast('Nu am putut genera PDF-ul.', { tone: 'danger' })
     } finally {
       setIsDownloading(false)
     }
   }
 
   return (
-    <div className="mx-auto flex max-w-[1280px] gap-6">
-      <div className="sticky top-6 flex w-[300px] flex-shrink-0 flex-col gap-4 self-start">
+    <div className="mx-auto flex max-w-[1280px] flex-col gap-6 lg:flex-row">
+      <div className="flex w-full flex-shrink-0 flex-col gap-4 lg:sticky lg:top-6 lg:w-[300px] lg:self-start">
         <PeriodBar
           year={period.year}
           month={period.month}
@@ -118,7 +139,7 @@ export default function ReportsPage() {
             <div>
               <div className="text-[13px] font-medium text-[var(--color-ink)]">Include listă pontaje</div>
               <div className="mt-0.5 text-[11px] text-[var(--color-ink-muted)]">
-                Adaugă tabelul detaliat cu toate pontajele lunii în raport.
+                Include în raport toate pontajele din lună.
               </div>
             </div>
           </label>
@@ -147,9 +168,31 @@ export default function ReportsPage() {
         </button>
       </div>
 
+      {!showPreview ? (
+        <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">
+          <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--color-ink-muted)]">
+            Raport
+          </div>
+          {report ? (
+            <div className="text-[13px] text-[var(--color-ink-soft)]">
+              <div className="text-[15px] font-semibold text-[var(--color-ink)]">
+                {[report.employee.first_name, report.employee.last_name].filter(Boolean).join(' ')}
+              </div>
+              <div className="mt-1">
+                {report.total_hours.toFixed(1)} h · {report.total_pay} RON brut
+              </div>
+              <div className="mt-2 text-[12px] text-[var(--color-ink-muted)]">
+                Previzualizarea PDF e disponibilă pe ecran mare. Apasă „Descarcă PDF" ca să salvezi sau să trimiți raportul.
+              </div>
+            </div>
+          ) : (
+            <div className="text-[13px] text-[var(--color-ink-muted)]">Alege un angajat ca să vezi raportul.</div>
+          )}
+        </div>
+      ) : (
       <div className="min-w-0 flex-1">
         <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--color-ink-muted)]">
-          Previzualizare PDF · A4
+          Previzualizare PDF · A4 · sume brute
         </div>
         {/* Forced to A4's exact aspect ratio (210:297). PDFViewer is an <iframe> into the
             browser's own PDF viewer — if the box it fills isn't A4-shaped, that viewer
@@ -173,11 +216,12 @@ export default function ReportsPage() {
             </PDFViewer>
           ) : (
             <div className="flex h-full items-center justify-center bg-[var(--color-surface)] text-[13px] text-[var(--color-ink-muted)]">
-              Selectează un angajat pentru a genera raportul.
+              Alege un angajat ca să vezi raportul.
             </div>
           )}
         </div>
       </div>
+      )}
     </div>
   )
 }

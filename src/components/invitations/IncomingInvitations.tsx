@@ -30,7 +30,7 @@ export function IncomingInvitations() {
             Invitație de la {invitation.manager_name} · {invitation.company_name}
           </div>
           <div className="mt-1 text-[13px] text-[var(--color-ink-soft)]">
-            Acceptă pentru a intra în echipa {invitation.company_name}. Pontajele și tarifele tale se reîncarcă automat.
+            Dacă accepți, intri în echipa {invitation.company_name} și îți vezi imediat pontajele și tarifele de acolo.
           </div>
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[12px] text-[var(--color-ink-muted)]">
             <span className="rounded-full bg-[var(--color-surface-2)] px-2 py-0.5">

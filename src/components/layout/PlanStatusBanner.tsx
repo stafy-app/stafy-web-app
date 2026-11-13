@@ -10,11 +10,19 @@ export function PlanStatusBanner() {
 
   if (!subscription) return null
 
+  if (subscription.restriction === 'read_only') {
+    return (
+      <div role="alert" className="alert alert-error rounded-none text-sm">
+        Compania este în modul doar citire, setat de echipa Stafy. Echipa poate ponta în continuare, dar alte
+        modificări nu se pot face până ne contactezi.
+      </div>
+    )
+  }
+
   if (subscription.plan_status === 'read_only') {
     return (
       <div role="alert" className="alert alert-error rounded-none text-sm">
-        Planul companiei a expirat — pontajul angajaților merge în continuare, dar restul modificărilor sunt blocate.
-        Deschide Setări → Abonament.
+        Planul companiei a expirat. Echipa poate ponta în continuare, dar alte modificări nu se mai pot face. Scrie-ne și îți prelungim accesul gratuit.
       </div>
     )
   }
@@ -22,7 +30,7 @@ export function PlanStatusBanner() {
   if (subscription.expiring_soon && subscription.plan_expires_at) {
     return (
       <div role="alert" className="alert alert-warning rounded-none text-sm">
-        Planul companiei expiră pe {formatPlanDate(subscription.plan_expires_at)}. Deschide Setări → Abonament.
+        Planul companiei expiră pe {formatPlanDate(subscription.plan_expires_at)}. Scrie-ne dacă vrei să îl prelungim, gratuit.
       </div>
     )
   }

@@ -131,9 +131,7 @@ export function AuditSection() {
                   <td className="text-[13px] text-[var(--color-ink-muted)]">
                     {dateTimeFormatter.format(new Date(entry.created_at))}
                   </td>
-                  <td className="text-[13px] text-[var(--color-ink)]">
-                    {ACTION_LABELS[entry.action] ?? entry.action}
-                  </td>
+                  <td className="text-[13px] text-[var(--color-ink)]">{ACTION_LABELS[entry.action] ?? entry.action}</td>
                   <td className="text-[13px] text-[var(--color-ink)]">{entry.actor_name}</td>
                   <td className="text-[13px] text-[var(--color-ink-muted)]">{entry.target_name ?? '—'}</td>
                   {isAdmin && (

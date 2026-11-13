@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Clock, Wallet, BarChart3 } from 'lucide-react'
+import { Clock, Wallet, BarChart3, CalendarDays } from 'lucide-react'
 import {
   Area,
   AreaChart,
@@ -14,8 +14,24 @@ import {
 import { useEmployeeMonthlyHistory } from '@stafy/hooks/useEmployeeMonthlyHistory'
 import { KpiCard } from '@stafy/components/dashboard/KpiCard'
 
+/** Totals of the month picked in the page's period header (MyHistoryPage). */
+export interface SelectedMonthSummary {
+  year: number
+  month: number
+  totalHours: number
+  /** Bonus-inclusive, backend-computed (`EmployeeReportOut.total_pay`). */
+  totalPay: number
+  workedDays: number
+}
+
 interface HistoryTabProps {
   employeeId: number
+  /**
+   * When set, the KPI cards show this month and the charts highlight it; the charts still
+   * show the 5-month trend. When omitted (EmployeeProfilePage, which has no month picker on
+   * this tab), the KPI cards summarize the 5-month window and the current month is highlighted.
+   */
+  selectedMonth?: SelectedMonthSummary
 }
 
 const HOURS_COLOR = 'var(--color-primary)'
@@ -106,15 +122,15 @@ interface MinimalMarkProps {
   payload?: { value: string }
 }
 
-// Direct-labels only the last (current month) point — never a number on every point.
-// Text stays on an ink token, never the series hue: the mark carries color, the label doesn't.
-// Recharts' own label-renderer prop type is a wide union (its value can be boolean/ReactNode
-// in the general case) that a narrow local prop type can never structurally satisfy — read
-// through `unknown` at the boundary instead of fighting that union.
-function endpointLabel(format: (value: number) => string) {
+// Direct-labels only the highlighted point (selected month, else current month) — never a
+// number on every point. Text stays on an ink token, never the series hue: the mark carries
+// color, the label doesn't. Recharts' own label-renderer prop type is a wide union (its value
+// can be boolean/ReactNode in the general case) that a narrow local prop type can never
+// structurally satisfy — read through `unknown` at the boundary instead of fighting that union.
+function endpointLabel(format: (value: number) => string, highlightIndex: number) {
   return (rawProps: unknown) => {
     const props = rawProps as MinimalMarkProps
-    if (props.index !== MONTHS - 1 || props.value == null) return <g />
+    if (props.index !== highlightIndex || props.value == null) return <g />
     return (
       <text
         x={Number(props.x ?? 0) + 6}
@@ -129,8 +145,8 @@ function endpointLabel(format: (value: number) => string) {
   }
 }
 
-function CurrentMonthTick(props: MinimalMarkProps) {
-  const isCurrent = props.index === MONTHS - 1
+function HighlightedMonthTick({ highlightIndex, ...props }: MinimalMarkProps & { highlightIndex: number }) {
+  const isCurrent = props.index === highlightIndex
   return (
     <text
       x={props.x}
@@ -145,7 +161,7 @@ function CurrentMonthTick(props: MinimalMarkProps) {
   )
 }
 
-export function HistoryTab({ employeeId }: HistoryTabProps) {
+export function HistoryTab({ employeeId, selectedMonth }: HistoryTabProps) {
   const { data, isLoading } = useEmployeeMonthlyHistory(employeeId, MONTHS)
 
   const points: ChartPoint[] = useMemo(() => {
@@ -166,25 +182,78 @@ export function HistoryTab({ employeeId }: HistoryTabProps) {
     })
   }, [data])
 
-  const totalHours = points.reduce((sum, p) => sum + p.hours, 0)
-  const totalPay = points.reduce((sum, p) => sum + p.pay, 0)
-  const avgHoursPerMonth = points.length > 0 ? totalHours / points.length : 0
+  const windowHours = points.reduce((sum, p) => sum + p.hours, 0)
+  const windowPay = points.reduce((sum, p) => sum + p.pay, 0)
+  const avgHoursPerMonth = points.length > 0 ? windowHours / points.length : 0
+
+  // Selected month when it falls inside the 5-month window; -1 (nothing highlighted) when it
+  // is older. Without a selection, the last point (current month).
+  const highlightIndex = selectedMonth
+    ? points.findIndex((p) => p.year === selectedMonth.year && p.month === selectedMonth.month)
+    : points.length - 1
 
   if (isLoading || points.length === 0) return null
 
+  const selectedLabel = selectedMonth
+    ? monthYearFormatter.format(new Date(selectedMonth.year, selectedMonth.month - 1, 1))
+    : null
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <KpiCard label="Total ore" icon={Clock} value={totalHours} durationMs={700} formatValue={formatHours} />
-        <KpiCard label="Total de plată" icon={Wallet} value={totalPay} durationMs={850} formatValue={formatRon} />
-        <KpiCard
-          label="Medie ore/lună"
-          icon={BarChart3}
-          value={avgHoursPerMonth}
-          durationMs={700}
-          formatValue={formatHours}
-        />
-      </div>
+      {selectedMonth ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <KpiCard
+            label="Total ore"
+            icon={Clock}
+            value={selectedMonth.totalHours}
+            durationMs={700}
+            formatValue={formatHours}
+            subtext={selectedLabel ?? undefined}
+          />
+          <KpiCard
+            label="Total de plată (brut)"
+            icon={Wallet}
+            value={selectedMonth.totalPay}
+            durationMs={850}
+            formatValue={formatRon}
+            subtext={selectedLabel ?? undefined}
+          />
+          <KpiCard
+            label="Zile lucrate"
+            icon={CalendarDays}
+            value={selectedMonth.workedDays}
+            durationMs={700}
+            subtext={selectedLabel ?? undefined}
+          />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <KpiCard
+            label="Total ore"
+            icon={Clock}
+            value={windowHours}
+            durationMs={700}
+            formatValue={formatHours}
+            subtext="ultimele 5 luni"
+          />
+          <KpiCard
+            label="Total de plată (brut)"
+            icon={Wallet}
+            value={windowPay}
+            durationMs={850}
+            formatValue={formatRon}
+            subtext="ultimele 5 luni"
+          />
+          <KpiCard
+            label="Medie ore/lună"
+            icon={BarChart3}
+            value={avgHoursPerMonth}
+            durationMs={700}
+            formatValue={formatHours}
+            subtext="ultimele 5 luni"
+          />
+        </div>
+      )}
 
       <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
         <div className="mb-4 text-[16px] font-semibold text-[var(--color-ink)]">Istoric lunar</div>
@@ -199,7 +268,7 @@ export function HistoryTab({ employeeId }: HistoryTabProps) {
                     dataKey="label"
                     axisLine={false}
                     tickLine={false}
-                    tick={(props) => <CurrentMonthTick {...props} />}
+                    tick={(props) => <HighlightedMonthTick {...props} highlightIndex={highlightIndex} />}
                   />
                   <YAxis hide />
                   <Tooltip content={<HoursTooltip />} cursor={{ stroke: 'var(--color-line)', strokeWidth: 1 }} />
@@ -212,14 +281,14 @@ export function HistoryTab({ employeeId }: HistoryTabProps) {
                     fillOpacity={0.1}
                     dot={{ r: 3, fill: HOURS_COLOR, strokeWidth: 2, stroke: 'var(--color-surface)' }}
                     activeDot={{ r: 4, fill: HOURS_COLOR, strokeWidth: 2, stroke: 'var(--color-surface)' }}
-                    label={endpointLabel(formatHours)}
+                    label={endpointLabel(formatHours, highlightIndex)}
                   />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
 
             <div>
-              <div className="mb-1 text-[12px] font-medium text-[var(--color-ink-soft)]">Estimat de plată</div>
+              <div className="mb-1 text-[12px] font-medium text-[var(--color-ink-soft)]">Estimat de plată (brut)</div>
               <ResponsiveContainer width="100%" height={180}>
                 <LineChart data={points} syncId="employee-history" margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <CartesianGrid vertical={false} stroke="var(--color-line-soft)" />
@@ -227,7 +296,7 @@ export function HistoryTab({ employeeId }: HistoryTabProps) {
                     dataKey="label"
                     axisLine={false}
                     tickLine={false}
-                    tick={(props) => <CurrentMonthTick {...props} />}
+                    tick={(props) => <HighlightedMonthTick {...props} highlightIndex={highlightIndex} />}
                   />
                   <YAxis hide />
                   <Tooltip content={<PayTooltip />} cursor={{ stroke: 'var(--color-line)', strokeWidth: 1 }} />
@@ -238,7 +307,7 @@ export function HistoryTab({ employeeId }: HistoryTabProps) {
                     strokeWidth={2}
                     dot={payDot}
                     activeDot={{ r: 4, fill: PAY_COLOR, strokeWidth: 2, stroke: 'var(--color-surface)' }}
-                    label={endpointLabel(formatRon)}
+                    label={endpointLabel(formatRon, highlightIndex)}
                   />
                 </LineChart>
               </ResponsiveContainer>

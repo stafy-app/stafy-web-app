@@ -26,7 +26,7 @@ export function ReportEmployeePicker({ members, selectedEmployeeId, onSelect }: 
                 : 'hover:bg-[var(--color-surface-2)]'
             }`}
           >
-            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[12px] font-bold text-[var(--color-primary-active)]">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-soft)] text-[12px] font-bold text-[var(--color-primary-text)]">
               {getInitials(user.first_name, user.last_name)}
             </div>
             <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--color-ink)]">

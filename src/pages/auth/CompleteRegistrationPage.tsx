@@ -3,14 +3,16 @@ import { useNavigate } from '@tanstack/react-router'
 import { AuthCard } from '@stafy/components/auth/AuthCard'
 import { AuthError } from '@stafy/components/auth/AuthError'
 import { AuthField } from '@stafy/components/auth/AuthField'
+import { LegalConsentCheckbox } from '@stafy/components/auth/LegalConsentCheckbox'
 import { AUTH_LINK, AUTH_SUBMIT } from '@stafy/components/auth/authStyles'
 import { useAuth } from '@stafy/hooks/useAuth'
 
 export default function CompleteRegistrationPage() {
-  const { completeRegistration, logout } = useAuth()
+  const { completeRegistration, logout, firebaseUser } = useAuth()
   const navigate = useNavigate()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -26,7 +28,7 @@ export default function CompleteRegistrationPage() {
       // (redirects to /onboarding, same as a fresh register()).
       navigate({ to: '/' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'A apărut o eroare neașteptată')
+      setError(err instanceof Error ? err.message : 'A apărut o eroare neașteptată. Încearcă din nou.')
     } finally {
       setIsSubmitting(false)
     }
@@ -35,9 +37,14 @@ export default function CompleteRegistrationPage() {
   return (
     <AuthCard
       title="Mai sunt câțiva pași"
-      subtitle="Contul tău a fost creat, dar înregistrarea nu s-a finalizat ultima dată. Completează datele de mai jos ca să continui."
+      subtitle="Contul există, dar înregistrarea nu s-a terminat data trecută. Completează-ți numele ca să continui."
     >
       {error && <AuthError message={error} />}
+
+      <p className="text-center text-sm text-[var(--color-ink-muted)]">
+        Ești conectat ca <strong className="text-[var(--color-ink)]">{firebaseUser?.email}</strong>. Nu e contul tău?
+        Deconectează-te mai jos.
+      </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div className="flex flex-col gap-5">
@@ -60,6 +67,8 @@ export default function CompleteRegistrationPage() {
             placeholder="Numele tău"
           />
         </div>
+
+        <LegalConsentCheckbox checked={acceptedTerms} onChange={setAcceptedTerms} />
 
         <button type="submit" disabled={isSubmitting} className={AUTH_SUBMIT}>
           {isSubmitting ? <span className="loading loading-spinner loading-sm" /> : 'Continuă'}

@@ -148,7 +148,7 @@ export function PeriodBar({
             <ChevronRight className="h-4 w-4" />
           </button>
           {isCurrentMonth ? (
-            <span className="rounded-full bg-[var(--color-primary-soft)] px-3 py-1 text-[12px] font-semibold text-[var(--color-primary-active)]">
+            <span className="rounded-full bg-[var(--color-primary-soft)] px-3 py-1 text-[12px] font-semibold text-[var(--color-primary-text)]">
               Luna curentă
             </span>
           ) : (

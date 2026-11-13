@@ -70,7 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await createUserWithEmailAndPassword(auth, email, password)
 
       try {
-        await getAuthApi().registerUser({ first_name: firstName, last_name: lastName, role })
+        // accept_terms: both registration forms only submit with LegalConsentCheckbox ticked.
+        await getAuthApi().registerUser({ first_name: firstName, last_name: lastName, role, accept_terms: true })
       } catch (backendError) {
         // Firebase account now exists but the backend row doesn't (network blip,
         // backend down). Deliberately not rolled back — deletion can itself fail
@@ -104,9 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        await getAuthApi().registerUser({ first_name: firstName, last_name: lastName, role })
+        await getAuthApi().registerUser({ first_name: firstName, last_name: lastName, role, accept_terms: true })
       } catch (backendError) {
-        throw new Error('Înregistrarea nu a putut fi finalizată. Încearcă din nou mai târziu.', {
+        throw new Error('Nu am putut termina înregistrarea. Mai încearcă puțin mai târziu.', {
           cause: backendError,
         })
       }

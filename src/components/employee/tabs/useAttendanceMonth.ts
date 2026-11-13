@@ -47,6 +47,13 @@ export function useAttendanceMonth(
     [entries, activityFilter],
   )
 
+  // Distinct calendar days (browser-local, by clock-in day) with at least one entry in the
+  // selected month, across every activity: the activity filter narrows the table only.
+  const workedDays = useMemo(
+    () => new Set(entries.map((e) => new Date(e.time_start).toDateString())).size,
+    [entries],
+  )
+
   const totalHours = filteredEntries.reduce(
     (sum, e) => sum + (new Date(e.time_end).getTime() - new Date(e.time_start).getTime()) / 3_600_000,
     0,
@@ -81,6 +88,7 @@ export function useAttendanceMonth(
     activities,
     filteredEntries,
     totalHours,
+    workedDays,
   }
 }
 

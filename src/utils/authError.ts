@@ -17,24 +17,35 @@ export class OrphanRegistrationError extends Error {
 // (stafy-backend's AppHTTPException) to user-facing Romanian messages. Shared by
 // AuthProvider (login/register) and useSendPasswordResetEmail — both hit the same
 // Firebase error-code surface.
+export const ACCESS_BLOCKED_MESSAGES: Record<string, string> = {
+  user_blocked: 'Contul tău a fost blocat. Contactează echipa Stafy.',
+  company_suspended: 'Accesul companiei tale a fost suspendat. Contactează echipa Stafy.',
+}
+
 export function mapAuthError(error: unknown): string {
-  const err = error as { code?: string; response?: { data?: { detail?: string } }; message?: string }
+  const err = error as {
+    code?: string
+    response?: { data?: { code?: string; detail?: string } }
+    message?: string
+  }
+  const backendCode = err?.response?.data?.code
+  if (backendCode && ACCESS_BLOCKED_MESSAGES[backendCode]) return ACCESS_BLOCKED_MESSAGES[backendCode]
   switch (err?.code) {
     case 'auth/invalid-credential':
     case 'auth/wrong-password':
     case 'auth/user-not-found':
-      return 'Email sau parolă incorectă'
+      return 'Emailul sau parola nu sunt corecte.'
     case 'auth/email-already-in-use':
-      return 'Există deja un cont cu acest email'
+      return 'Există deja un cont cu acest email.'
     case 'auth/weak-password':
-      return 'Parola trebuie să aibă minim 6 caractere'
+      return 'Parola trebuie să aibă cel puțin 6 caractere.'
     case 'auth/invalid-email':
-      return 'Adresa de email nu este validă'
+      return 'Adresa de email nu pare corectă.'
     case 'auth/too-many-requests':
-      return 'Prea multe încercări. Încearcă din nou mai târziu'
+      return 'Prea multe încercări. Mai încearcă peste câteva minute.'
     case 'auth/network-request-failed':
-      return 'Fără conexiune la internet'
+      return 'Nu ai conexiune la internet.'
     default:
-      return err?.response?.data?.detail ?? err?.message ?? 'A apărut o eroare neașteptată'
+      return err?.response?.data?.detail ?? err?.message ?? 'A apărut o eroare neașteptată. Încearcă din nou.'
   }
 }
