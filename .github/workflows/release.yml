@@ -1,8 +1,9 @@
-name: Tag release
+name: Release
 
-# Runs on every push to main (same trigger as Vercel's auto-deploy). Tags the
-# commit as vX.Y.Z only when package.json's version doesn't already have a
-# tag on origin — ordinary merges without a version bump are a no-op. This is
+# Runs on every push to main (same trigger as Vercel's auto-deploy). Creates the
+# GitHub release vX.Y.Z (which also creates the tag, notes taken from
+# CHANGELOG.md) only when package.json's version doesn't already have a
+# release — ordinary merges without a version bump are a no-op. This is
 # the only supported way version tags get created; never tag manually.
 
 on:
@@ -22,13 +23,22 @@ jobs:
         id: version
         run: echo "value=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
-      - name: Tag if new
+      - name: Create release if new
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="v${{ steps.version.outputs.value }}"
-          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" > /dev/null 2>&1; then
-            echo "Tag $TAG already exists on origin, skipping."
-          else
-            git tag "$TAG"
-            git push origin "$TAG"
-            echo "Tagged $TAG"
+          VERSION="${{ steps.version.outputs.value }}"
+          TAG="v$VERSION"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "Release $TAG already exists, skipping."
+            exit 0
           fi
+          # Notes = the CHANGELOG.md section for this version (heading line excluded).
+          awk -v v="$VERSION" 'index($0, "## [" v "]") == 1 {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notes.md
+          if [ -s notes.md ]; then
+            gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --notes-file notes.md
+          else
+            echo "No CHANGELOG section for $VERSION, falling back to generated notes."
+            gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --generate-notes
+          fi
+          echo "Released $TAG"
