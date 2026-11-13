@@ -16,7 +16,7 @@ import { ICONS } from '@stafy/lib/icons'
 import { isCompanyManager } from '@stafy/utils/companyRole'
 
 export default function ReportsPage() {
-  useTopBar({ title: 'Rapoarte', subtitle: 'Raportul lunar pentru fiecare angajat, gata de descărcat' })
+  useTopBar({ title: 'Rapoarte', subtitle: 'Raportul lunar pentru fiecare angajat, gata de descărcat · toate sumele sunt brute' })
 
   const [period, setPeriod] = useState(getCurrentPeriod)
   const current = getCurrentPeriod()
@@ -179,7 +179,7 @@ export default function ReportsPage() {
                 {[report.employee.first_name, report.employee.last_name].filter(Boolean).join(' ')}
               </div>
               <div className="mt-1">
-                {report.total_hours.toFixed(1)} h · {report.total_pay} RON
+                {report.total_hours.toFixed(1)} h · {report.total_pay} RON brut
               </div>
               <div className="mt-2 text-[12px] text-[var(--color-ink-muted)]">
                 Previzualizarea PDF e disponibilă pe ecran mare. Apasă „Descarcă PDF" ca să salvezi sau să trimiți raportul.
@@ -192,7 +192,7 @@ export default function ReportsPage() {
       ) : (
       <div className="min-w-0 flex-1">
         <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--color-ink-muted)]">
-          Previzualizare PDF · A4
+          Previzualizare PDF · A4 · sume brute
         </div>
         {/* Forced to A4's exact aspect ratio (210:297). PDFViewer is an <iframe> into the
             browser's own PDF viewer — if the box it fills isn't A4-shaped, that viewer

@@ -355,7 +355,7 @@ export function ReportDocument({ report, includeTimeEntries, timeEntries }: Repo
             <Text style={styles.summaryValue}>{report.total_hours.toFixed(2)}h</Text>
           </View>
           <View style={styles.summaryCol}>
-            <Text style={styles.label}>Total de plată</Text>
+            <Text style={styles.label}>Total de plată (brut)</Text>
             <Text style={styles.summaryValue}>{ron.format(parseFloat(report.total_pay))} RON</Text>
             {report.bonus && (
               <Text style={styles.summaryNote}>

@@ -40,7 +40,7 @@ export function TopEmployeesTable({ employees, totalEmployeeCount }: TopEmployee
             <th className="px-5 py-2.5 font-semibold">Ore luna aceasta</th>
             <th className="px-5 py-2.5 font-semibold">Δ vs luna trecută</th>
             <th className="px-5 py-2.5 font-semibold">Activități</th>
-            <th className="px-5 py-2.5 font-semibold">Estimat</th>
+            <th className="px-5 py-2.5 font-semibold">Estimat (brut)</th>
           </tr>
         </thead>
         <tbody>

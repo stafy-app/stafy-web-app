@@ -12,7 +12,7 @@ import { ICONS } from '@stafy/lib/icons'
 const ron = new Intl.NumberFormat('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export default function MyRatesPage() {
-  useTopBar({ title: 'Tarife', subtitle: 'Cât câștigi pe oră, pe fiecare activitate' })
+  useTopBar({ title: 'Tarife', subtitle: 'Cât câștigi brut pe oră, pe fiecare activitate' })
 
   const { data: ratesData, isLoading } = useMyHourlyRates()
   const { data: profileData } = useProfile()
@@ -92,7 +92,7 @@ export default function MyRatesPage() {
                 />
               </fieldset>
               <fieldset className="fieldset sm:w-40">
-                <legend className="fieldset-legend">Tarif (RON/h)</legend>
+                <legend className="fieldset-legend">Tarif brut (RON/h)</legend>
                 <input
                   type="number"
                   required
@@ -148,7 +148,7 @@ export default function MyRatesPage() {
             <thead>
               <tr className="border-b border-[var(--color-line-soft)] text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
                 <th className="pb-2 pr-3 font-semibold">Activitate</th>
-                <th className="pb-2 pr-3 text-right font-semibold">Tarif (RON/h)</th>
+                <th className="pb-2 pr-3 text-right font-semibold">Tarif brut (RON/h)</th>
                 {isOwnCompany && <th className="pb-2 text-right font-semibold">Acțiuni</th>}
               </tr>
             </thead>

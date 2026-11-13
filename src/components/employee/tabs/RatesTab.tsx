@@ -60,9 +60,9 @@ export function RatesTab({ employeeId }: RatesTabProps) {
             <thead>
               <tr className="border-b border-[var(--color-line-soft)] text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
                 <th className="pb-2 pr-3 font-semibold">Activitate</th>
-                <th className="pb-2 pr-3 text-right font-semibold">Tarif (RON/h)</th>
+                <th className="pb-2 pr-3 text-right font-semibold">Tarif brut (RON/h)</th>
                 <th className="pb-2 pr-3 text-right font-semibold">Ore luna asta</th>
-                <th className="pb-2 text-right font-semibold">Sumă estimată</th>
+                <th className="pb-2 text-right font-semibold">Sumă estimată (brută)</th>
               </tr>
             </thead>
             <tbody>

@@ -43,3 +43,7 @@ All visible text is Romanian, short, and addressed to the reader as „tu” (se
 - Chart styling conventions (once reports/dashboard charts are built)
 - Form validation & error display patterns
 - Loading / skeleton states
+
+## Money amounts are gross
+
+Every amount in the app is gross (brut): rates, subtotals, bonuses, totals, report PDF, CSV exports. Labels say so explicitly ("Total de plată (brut)", "Tarif brut (RON/h)", "Sumă brută"), and the Dashboard, Reports and rates page subtitles repeat it. New money labels must carry "brut" too.

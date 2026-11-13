@@ -77,7 +77,7 @@ export function EmployeeCard({ member, index }: EmployeeCardProps) {
         </div>
         <div>
           <div className="text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
-            De plată
+            De plată (brut)
           </div>
           <div className="mt-1 font-[var(--font-mono)] text-[18px] font-bold text-[var(--color-ink)]">
             {gross.format(parseFloat(member.estimated_gross))} RON

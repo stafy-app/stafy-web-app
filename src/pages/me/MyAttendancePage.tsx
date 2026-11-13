@@ -171,7 +171,7 @@ export default function MyAttendancePage() {
             Durată: <span className="font-[var(--font-mono)] font-bold text-[var(--color-ink)]">{worked.formatted}</span>
             {selectedRate && (
               <>
-                {' '}· Estimat:{' '}
+                {' '}· Estimat (brut):{' '}
                 <span className="font-[var(--font-mono)] font-bold text-[var(--color-ink)]">
                   {ron.format(estimated)} RON
                 </span>

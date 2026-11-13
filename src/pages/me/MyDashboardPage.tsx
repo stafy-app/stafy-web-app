@@ -14,7 +14,7 @@ const formatRon = (value: number) => `${ronFormatter.format(value)} RON`
 const formatHours = (value: number) => `${value.toFixed(1)}h`
 
 export default function MyDashboardPage() {
-  useTopBar({ title: 'Pontajul meu', subtitle: 'Orele și câștigurile tale luna aceasta' })
+  useTopBar({ title: 'Pontajul meu', subtitle: 'Orele și câștigurile brute luna aceasta' })
 
   const { year, month } = getCurrentPeriod()
   const { data: dashboard } = useMyDashboard()
@@ -63,14 +63,14 @@ export default function MyDashboardPage() {
           formatValue={formatHours}
         />
         <KpiCard
-          label="Total de plată"
+          label="Total de plată (brut)"
           icon={Wallet}
           value={dashboard ? parseFloat(dashboard.total_gross_salary) : 0}
           durationMs={850}
           formatValue={formatRon}
         />
         <KpiCard
-          label="Tarif mediu"
+          label="Tarif mediu (brut)"
           icon={Wallet}
           value={dashboard ? parseFloat(dashboard.hourly_average) : 0}
           durationMs={1000}

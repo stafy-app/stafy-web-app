@@ -145,7 +145,7 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
           </div>
           <div>
             <div className="text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
-              De plată (estimat)
+              De plată (estimat, brut)
             </div>
             <div className="mt-1 font-[var(--font-mono)] text-[18px] font-bold text-[var(--color-ink)]">
               {gross.format(parseFloat(summary.estimated_gross))} RON

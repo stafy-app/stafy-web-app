@@ -211,7 +211,7 @@ export function HistoryTab({ employeeId, selectedMonth }: HistoryTabProps) {
             subtext={selectedLabel ?? undefined}
           />
           <KpiCard
-            label="Total de plată"
+            label="Total de plată (brut)"
             icon={Wallet}
             value={selectedMonth.totalPay}
             durationMs={850}
@@ -237,7 +237,7 @@ export function HistoryTab({ employeeId, selectedMonth }: HistoryTabProps) {
             subtext="ultimele 5 luni"
           />
           <KpiCard
-            label="Total de plată"
+            label="Total de plată (brut)"
             icon={Wallet}
             value={windowPay}
             durationMs={850}
@@ -288,7 +288,7 @@ export function HistoryTab({ employeeId, selectedMonth }: HistoryTabProps) {
             </div>
 
             <div>
-              <div className="mb-1 text-[12px] font-medium text-[var(--color-ink-soft)]">Estimat de plată</div>
+              <div className="mb-1 text-[12px] font-medium text-[var(--color-ink-soft)]">Estimat de plată (brut)</div>
               <ResponsiveContainer width="100%" height={180}>
                 <LineChart data={points} syncId="employee-history" margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <CartesianGrid vertical={false} stroke="var(--color-line-soft)" />

@@ -95,8 +95,8 @@ export function AttendanceEntriesTable({ data, allowDelete = false, allowEdit = 
                 <th className="pb-2 pr-3 font-semibold">Interval</th>
                 <th className="pb-2 pr-3 font-semibold">Activitate</th>
                 <th className="pb-2 pr-3 text-right font-semibold">Durată</th>
-                <th className="pb-2 pr-3 text-right font-semibold">Tarif</th>
-                <th className="pb-2 text-right font-semibold">Sumă</th>
+                <th className="pb-2 pr-3 text-right font-semibold">Tarif brut</th>
+                <th className="pb-2 text-right font-semibold">Sumă brută</th>
                 {(allowDelete || allowEdit) && (
                   <th className="pb-2 pl-3 text-right font-semibold">Acțiuni</th>
                 )}
