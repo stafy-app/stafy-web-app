@@ -4,6 +4,29 @@ All notable changes to the **Stafy Web App** are documented here, newest first.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com); this
 project uses `Added` / `Changed` / `Fixed` / `Removed` from v0.2.0 onward.
 
+## [0.2.0] - 2026-11-13
+
+### Added
+
+- **Admin console** (`/admin/*`) - companies table and detail panel, accounts,
+  audit section, announcements editor with live preview, and an infrastructure
+  monitoring page.
+- **Announcements** - modal shown to users on login and in-app.
+- **Legal acceptance** - checkbox at registration and a blocking screen for
+  existing users until the Terms and Privacy Notice are accepted.
+- **Dark mode** with a theme toggle.
+- **Mobile-friendly** onboarding, workspace navigation and admin layouts.
+- **History tab** - KPI cards for the selected month; worked days computed in the
+  attendance month hook.
+
+### Changed
+
+- Registration pre-fills the email from the invitation link and reports time
+  entry overlaps clearly.
+- Monetary labels state that amounts are gross.
+- Romanian UI copy rewritten naturally, without em dashes in sentences.
+- The app is excluded from search engine indexing.
+
 ## [0.1.0] - 2026-08-27
 
 First release. Manager and internal-admin web dashboard for Stafy —
