@@ -62,7 +62,7 @@ N/A — no stateful entity behind these pages. Client-side UI state: form drafts
 
 ## Information Architecture
 
-Routes: `/me`, `/me/attendance`, `/me/history`, `/me/rates` (`myDashboardRoute`, `myAttendanceRoute`, `myHistoryRoute`, `myRatesRoute` in `src/routes/index.tsx`, under the authenticated app layout). Sidebar: employees always see the personal item list; owners and managers see the company/personal switcher and choose. The sidebar's role label reads as the employee term for `employee`, "Admin" for `admin`, and "Manager" for both `manager` and `owner` — there is no distinct owner label. No modals owned by these pages (deletes use inline confirm states, not dialogs).
+Routes: `/me`, `/me/attendance`, `/me/history`, `/me/rates` (`myDashboardRoute`, `myAttendanceRoute`, `myHistoryRoute`, `myRatesRoute` in `src/routes/index.tsx`, under the authenticated app layout). Below `md` the Sidebar is hidden and `BottomNav` takes over; owners/managers switch workspace there through `MobileWorkspaceSwitch` (Settings page → personal, `/me/profile` → company), alongside a logout button. Sidebar: employees always see the personal item list; owners and managers see the company/personal switcher and choose. The sidebar's role label reads as the employee term for `employee`, "Admin" for `admin`, and "Manager" for both `manager` and `owner` — there is no distinct owner label. No modals owned by these pages (deletes use inline confirm states, not dialogs).
 
 ---
 

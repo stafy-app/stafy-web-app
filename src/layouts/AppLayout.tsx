@@ -43,7 +43,7 @@ export function AppLayout() {
               <div className="flex min-w-0 flex-1 flex-col">
                 <Topbar />
                 <PlanStatusBanner />
-                <main className="flex-1 overflow-y-auto p-4 pb-24 sm:p-6 md:pb-6">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 pb-24 sm:p-6 md:pb-6">
                   <IncomingInvitations />
                   <Outlet />
                 </main>

@@ -32,7 +32,8 @@ export function TopEmployeesTable({ employees, totalEmployeeCount }: TopEmployee
           <ChevronRight className="h-3.5 w-3.5" />
         </button>
       </div>
-      <table className="w-full border-collapse">
+      <div className="overflow-x-auto">
+      <table className="w-full min-w-[640px] border-collapse">
         <thead>
           <tr className="bg-[var(--color-surface-2)] text-left text-[11px] uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
             <th className="px-5 py-2.5 font-semibold">Angajat</th>
@@ -97,6 +98,7 @@ export function TopEmployeesTable({ employees, totalEmployeeCount }: TopEmployee
           })}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }

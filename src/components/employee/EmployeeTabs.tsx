@@ -23,7 +23,7 @@ export function EmployeeTabs({ active, onChange }: EmployeeTabsProps) {
   }, [active])
 
   return (
-    <div className="relative flex gap-6 border-b border-[var(--color-line)]">
+    <div className="relative flex gap-5 overflow-x-auto whitespace-nowrap border-b border-[var(--color-line)]">
       {TABS.map((tab) => (
         <button
           key={tab.key}

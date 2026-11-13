@@ -36,7 +36,7 @@ function AccountForm({ profile }: { profile: UserOut }) {
         <p className="text-[13px] text-[var(--color-ink-muted)]">Datele tale personale de contact.</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <fieldset className="fieldset">
           <legend className="fieldset-legend">Prenume</legend>
           <input

@@ -55,7 +55,8 @@ export function RatesTab({ employeeId }: RatesTabProps) {
             Compania nu are încă nicio activitate.
           </div>
         ) : (
-          <table className="w-full text-[13px]">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[420px] text-[13px]">
             <thead>
               <tr className="border-b border-[var(--color-line-soft)] text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
                 <th className="pb-2 pr-3 font-semibold">Activitate</th>
@@ -137,6 +138,7 @@ export function RatesTab({ employeeId }: RatesTabProps) {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

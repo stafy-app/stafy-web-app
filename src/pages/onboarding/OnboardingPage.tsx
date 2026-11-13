@@ -16,6 +16,10 @@ export default function OnboardingPage() {
   const jobTitles = jobTitlesData?.data ?? []
   const { data: invitationsData } = useMyInvitations()
   const hasInvitations = (invitationsData?.data ?? []).length > 0
+  // With a pending invitation the company form stays hidden until the person
+  // explicitly asks to create their own company.
+  const [wantsOwnCompany, setWantsOwnCompany] = useState(false)
+  const showForm = !hasInvitations || wantsOwnCompany
 
   const [organizationName, setOrganizationName] = useState('')
   const [city, setCity] = useState('')
@@ -56,12 +60,19 @@ export default function OnboardingPage() {
       {/* An invited person must be able to accept before being asked to create a company:
           accepting makes the inviting company their active one, which ends this onboarding. */}
       <IncomingInvitations />
-      {hasInvitations && (
+      {hasInvitations && !wantsOwnCompany && (
         <p className="text-center text-[13px] text-[var(--color-ink-muted)]">
-          Acceptă invitația de mai sus ca să intri direct în echipă, sau completează mai jos datele propriei companii.
+          Acceptă invitația de mai sus ca să intri direct în echipă.{' '}
+          <button
+            type="button"
+            onClick={() => setWantsOwnCompany(true)}
+            className="underline underline-offset-2 hover:text-[var(--color-ink)]"
+          >
+            Vreau să-mi creez propria companie
+          </button>
         </p>
       )}
-      <AuthCard
+      {showForm && <AuthCard
         title="Completează profilul companiei"
         subtitle="Spune-ne câteva lucruri despre organizația ta."
         widthClass="max-w-[480px]"
@@ -138,7 +149,7 @@ export default function OnboardingPage() {
             {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Continuă'}
           </button>
         </form>
-      </AuthCard>
+      </AuthCard>}
     </div>
   )
 }

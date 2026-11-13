@@ -14,7 +14,7 @@ interface AttendancePeriodHeaderProps {
 export function AttendancePeriodHeader({ employeeId, data, showBonusCard = true }: AttendancePeriodHeaderProps) {
   return (
     <div className="flex flex-wrap items-start gap-4">
-      <div className="min-w-[280px] flex-1">
+      <div className="min-w-0 flex-1 sm:min-w-[280px]">
         <PeriodBar
           year={data.period.year}
           month={data.period.month}
@@ -25,7 +25,7 @@ export function AttendancePeriodHeader({ employeeId, data, showBonusCard = true 
         />
       </div>
       {showBonusCard && (
-        <div className="w-[260px] flex-shrink-0">
+        <div className="w-full flex-shrink-0 sm:w-[260px]">
           <BonusCard
             key={`${employeeId}-${data.period.year}-${data.period.month}`}
             bonus={data.report?.bonus}

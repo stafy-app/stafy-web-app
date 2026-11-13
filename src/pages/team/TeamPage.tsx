@@ -29,7 +29,7 @@ export default function TeamPage() {
   return (
     <div className="mx-auto flex max-w-[1280px] flex-col">
       <div className="mb-[18px] flex flex-wrap items-center justify-between gap-3">
-        <div className="flex w-[340px] items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2">
+        <div className="flex w-full items-center sm:w-[340px] gap-2 rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2">
           <ICONS.search className="h-4 w-4 flex-shrink-0 text-[var(--color-ink-muted)]" />
           <input
             type="text"

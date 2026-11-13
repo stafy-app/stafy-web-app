@@ -3,6 +3,7 @@ import { useAuth } from '@stafy/hooks/useAuth'
 import { useProfile } from '@stafy/hooks/useProfile'
 import { AccountSection } from '@stafy/components/settings/AccountSection'
 import { SecuritySection } from '@stafy/components/settings/SecuritySection'
+import { MobileWorkspaceSwitch } from '@stafy/components/layout/MobileWorkspaceSwitch'
 
 export default function MyProfilePage() {
   useTopBar({ title: 'Profilul meu', subtitle: 'Contul tău și parola' })
@@ -41,6 +42,7 @@ export default function MyProfilePage() {
       <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)] sm:p-6">
         <SecuritySection />
       </div>
+      <MobileWorkspaceSwitch target="company" />
       <button
         type="button"
         onClick={() => logout()}

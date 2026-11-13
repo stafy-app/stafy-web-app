@@ -131,7 +131,7 @@ export function EmployeeHeaderCard({ employeeId }: EmployeeHeaderCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-5 border-l border-[var(--color-line-soft)] pl-5">
+        <div className="flex w-full items-center gap-5 border-t border-[var(--color-line-soft)] pt-4 sm:w-auto sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
           <div>
             <div className="text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-muted)]">
               Ore luna aceasta

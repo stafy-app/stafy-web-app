@@ -12,7 +12,7 @@ export function Topbar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const isPersonal = pathname === '/me' || pathname.startsWith('/me/')
   return (
-    <header className="sticky top-0 z-10 flex min-h-[72px] flex-shrink-0 items-center gap-4 border-b border-[var(--color-line)] bg-[color-mix(in_srgb,var(--color-surface)_85%,transparent)] px-8 py-3.5 [backdrop-filter:saturate(180%)_blur(12px)]">
+    <header className="sticky top-0 z-10 flex min-h-[72px] flex-shrink-0 items-center gap-2 border-b border-[var(--color-line)] bg-[color-mix(in_srgb,var(--color-surface)_85%,transparent)] px-4 py-3.5 sm:gap-4 sm:px-8 [backdrop-filter:saturate(180%)_blur(12px)]">
       <div className="min-w-0 flex-1">
         {breadcrumb && breadcrumb.length > 0 && (
           <div className="mb-0.5 flex items-center gap-1.5 text-[12px] text-[var(--color-ink-muted)]">
@@ -36,7 +36,7 @@ export function Topbar() {
             })}
           </div>
         )}
-        <h1 className="truncate text-[22px] font-bold tracking-[-0.015em] text-[var(--color-ink)]">{title}</h1>
+        <h1 className="truncate text-[18px] font-bold sm:text-[22px] tracking-[-0.015em] text-[var(--color-ink)]">{title}</h1>
         {subtitle && <p className="mt-0.5 truncate text-[13px] text-[var(--color-ink-muted)]">{subtitle}</p>}
       </div>
       {action && <div className="flex-shrink-0">{action}</div>}

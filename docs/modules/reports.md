@@ -329,3 +329,5 @@ message only shows when both are absent.
 | Company logo / phone in the document header | `Company` gains those fields for an unrelated reason |
 | Batch export (whole roster, one month, one action) | A concrete need surfaces for exporting more than one employee at a time |
 | Mobile/tablet responsive layout (panel collapses above preview) | A concrete need to use this page from a narrow viewport |
+
+**Phones (below `lg`).** `ReportsPage` stacks the controls above the result and replaces the `<PDFViewer>` iframe with a short summary card (employee, hours, total pay): phones, iOS above all, don't render PDFs inline, and generating the document twice (preview + download) is heavy there. `useMediaQuery('(min-width: 1024px)')` (`src/hooks/useMediaQuery.ts`) switches between the two. Below `lg` the download goes through the Web Share API with the PDF as a `File` (native "save to Files / send" sheet) and falls back to the plain anchor download when `navigator.canShare` is missing, rejects the file, or the share throws anything but a user cancel.

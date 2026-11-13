@@ -132,7 +132,7 @@ vs. `stafy-mobile`).
 2. Form: organization name, city, address, job title (`useJobTitles()` populates the picklist from `GET /api/v1/job-titles`; "Altceva" reveals a free-text input, pre-selected by default here since the seeded titles are company-leadership roles a manager is likely to hold).
 3. Submit → `useCompleteOnboarding()` → `PATCH /api/v1/users/me/onboarding` → invalidates the `['profile']` query.
 4. `useProfile()` refetches with `onboarding_completed: true` → `AppLayout`'s gate re-evaluates and renders the real app — no manual `navigate()` call anywhere in this flow, the gate reacting to the refetched profile is what moves the manager forward.
-5. A person with pending invitations sees them as the same accept/reject card the app shell uses (`IncomingInvitations`), above the form. Accepting one makes the inviting company their active company, `onboarding_completed` becomes true, and the gate leaves `/onboarding` without the form ever being filled in.
+5. A person with pending invitations sees them as the same accept/reject card the app shell uses (`IncomingInvitations`); the company form is hidden behind a "Vreau să-mi creez propria companie" link until they click it (`wantsOwnCompany` in `OnboardingPage`). Without pending invitations the form shows directly. Accepting one makes the inviting company their active company, `onboarding_completed` becomes true, and the gate leaves `/onboarding` without the form ever being filled in.
 
 Employees have no onboarding flow — `onboarding_completed` is true on the wire because their
 active company is the inviting company, which the owner already onboarded. There's nothing left to collect: name comes from register, and employees have no company/job-title data to
