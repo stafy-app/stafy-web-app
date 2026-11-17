@@ -19,6 +19,15 @@ Two DaisyUI themes in `src/App.css`: `"stafy"` (light) and `"stafy-dark"`, defin
 - The theme is `data-theme` on `<html>`; a preference of `light`, `dark` or `system` (default) lives in `localStorage` (`stafy-theme`). Switch: icon button in `Topbar` and `AdminSidebar`, three-way picker in Account settings and the admin account page.
 - Intentionally light in both themes: the payroll PDF and its preview frame (`ReportDocument`, `ReportsPage`), and the dark `AuthAside` panel.
 
+## Motion
+
+Motion is short and always optional: every animation or transition carries `motion-reduce:transition-none` (or sits behind a `prefers-reduced-motion` check) so it becomes an instant change. Default easing is `var(--ease-out)`. Theme switch values:
+
+- **Circular reveal** (`setThemePreference(next, origin)` in `src/lib/theme.ts`): 650 ms, `--ease-out`, `clip-path` circle growing from the centre of the clicked control to the farthest viewport corner (`--vt-x`/`--vt-y`/`--vt-r` set on `<html>`), via `document.startViewTransition`. Any theme switch from a click should pass an `origin`.
+- **Colour fade** (fallback, no View Transitions API or no origin): 300 ms on `background-color`, `color` and `border-color`, through a temporary `html.theme-fading` class removed after 350 ms. Never leave it on permanently, it would slow every hover.
+- **Toggle icon** (`ThemeToggleButton`): sun and moon stacked in one button, swapped by rotating 180° and scaling to 0 with opacity, 500 ms, `cubic-bezier(0.34, 1.56, 0.64, 1)` (slight overshoot); the button shrinks to `scale-90` while pressed.
+- **Tailwind v4 trap**: `rotate-*` and `scale-*` set the `rotate`/`scale` CSS properties, not `transform`, so the transition must list them (`transition-[rotate,scale,opacity]`); `transition-[transform,...]` leaves them jumping instantly.
+
 ## Signed-out screens
 
 Login, register, complete-registration and onboarding share the `src/components/auth/` kit: warm canvas with two soft brand glows, a white `rounded-[24px]` card, soft filled inputs with the brand focus ring, and a full-width pill primary button. Login and register add a dark brand panel on wide screens. Details in `docs/modules/auth.md` UI / Layout.

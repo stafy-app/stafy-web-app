@@ -336,3 +336,31 @@
     animation: document-pulse 220ms var(--ease-out);
   }
 }
+
+/* Theme switch: circular reveal from the toggle (View Transitions API; --vt-x/y/r are set by
+   src/lib/theme.ts). Browsers without it get the short colour fade below instead. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  animation: theme-reveal 650ms var(--ease-out) both;
+}
+
+@keyframes theme-reveal {
+  from {
+    clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 50%));
+  }
+  to {
+    clip-path: circle(var(--vt-r, 150vmax) at var(--vt-x, 50%) var(--vt-y, 50%));
+  }
+}
+
+html.theme-fading *:not(svg):not(svg *) {
+  transition:
+    background-color 300ms ease,
+    color 300ms ease,
+    border-color 300ms ease !important;
+}
