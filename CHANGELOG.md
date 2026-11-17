@@ -4,6 +4,21 @@ All notable changes to the **Stafy Web App** are documented here, newest first.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com); this
 project uses `Added` / `Changed` / `Fixed` / `Removed` from v0.2.0 onward.
 
+## [0.2.1] - 2026-11-17
+
+### Added
+
+- **Theme switch animation** - the new theme grows as a circle from the toggle
+  that was clicked (with a short colour fade where the browser lacks View
+  Transitions), and the sun and moon icons rotate and scale into each other.
+  Respects reduced-motion settings.
+
+### Fixed
+
+- Assorted small fixes and polish across the app: layout and responsiveness
+  tweaks, clearer consent and error messages, and smoother handling of
+  edge cases in registration and time entries.
+
 ## [0.2.0] - 2026-11-13
 
 ### Added

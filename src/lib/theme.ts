@@ -41,7 +41,37 @@ function notify() {
   listeners.forEach((listener) => listener())
 }
 
-export function setThemePreference(next: ThemePreference) {
+export interface ThemeOrigin {
+  x: number
+  y: number
+}
+
+let fadeTimer: number | undefined
+
+// Short colour cross-fade, the fallback when the circular reveal isn't available.
+function fadeTheme(change: () => void) {
+  const root = document.documentElement
+  root.classList.add('theme-fading')
+  change()
+  window.clearTimeout(fadeTimer)
+  fadeTimer = window.setTimeout(() => root.classList.remove('theme-fading'), 350)
+}
+
+// Circular reveal growing from `origin` (the clicked toggle) to the farthest viewport corner.
+function revealTheme(origin: ThemeOrigin, change: () => void) {
+  const root = document.documentElement
+  const radius = Math.hypot(
+    Math.max(origin.x, window.innerWidth - origin.x),
+    Math.max(origin.y, window.innerHeight - origin.y),
+  )
+  root.style.setProperty('--vt-x', `${origin.x}px`)
+  root.style.setProperty('--vt-y', `${origin.y}px`)
+  root.style.setProperty('--vt-r', `${radius}px`)
+  document.startViewTransition(change)
+}
+
+export function setThemePreference(next: ThemePreference, origin?: ThemeOrigin) {
+  const before = getResolvedTheme()
   preference = next
   try {
     if (next === 'system') localStorage.removeItem(STORAGE_KEY)
@@ -49,8 +79,14 @@ export function setThemePreference(next: ThemePreference) {
   } catch {
     // storage blocked: the choice lasts until reload
   }
-  applyTheme()
-  notify()
+  const change = () => {
+    applyTheme()
+    notify()
+  }
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (reduceMotion || getResolvedTheme() === before) change()
+  else if (origin && typeof document.startViewTransition === 'function') revealTheme(origin, change)
+  else fadeTheme(change)
 }
 
 export function subscribeTheme(listener: () => void) {
